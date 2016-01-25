@@ -1,0 +1,17 @@
+﻿Build started 1/25/2016 4:00:26 PM.
+     1>Project "C:\Users\Celebrom\Documents\Projet4\git\LOG4900GoogleJo\LOG4900_Google\etw_reader\etw_reader.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I../ /ZI /nologo /W4 /WX- /sdl /MP /Od /Oy- /D WIN32 /D _DEBUG /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt etw_reader.cc generate_history_from_trace.cc system_history.cc
+         etw_reader.cc
+         generate_history_from_trace.cc
+         system_history.cc
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\Lib.exe /OUT:"C:\Users\Celebrom\Documents\Projet4\git\LOG4900GoogleJo\LOG4900_Google\Debug\etw_reader.lib" /NOLOGO Debug\etw_reader.obj
+         Debug\generate_history_from_trace.obj
+         Debug\system_history.obj
+         etw_reader.vcxproj -> C:\Users\Celebrom\Documents\Projet4\git\LOG4900GoogleJo\LOG4900_Google\Debug\etw_reader.lib
+     1>Done Building Project "C:\Users\Celebrom\Documents\Projet4\git\LOG4900GoogleJo\LOG4900_Google\etw_reader\etw_reader.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.84

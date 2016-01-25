@@ -1,10 +1,13 @@
-using namespace std;
+#include "etw_reader/etw_reader.h"
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include <algorithm>
+
+
+
 
 //http://stackoverflow.com/questions/236129/split-a-string-in-c
 template < class ContainerT >
@@ -40,11 +43,11 @@ void tokenize(const std::string& str, ContainerT& tokens,
 		}
 }
 
-vector<string> removeSpaces(vector<string> tokens)
+std::vector<std::string> removeSpaces(std::vector<std::string> tokens)
 {
-		vector<string> updatedTokens;
+		std::vector<std::string> updatedTokens;
 
-		for each(string token in tokens)
+		for each(std::string token in tokens)
 		{
 				token.erase(remove(token.begin(), token.end(), ' '), token.end());
 				updatedTokens.push_back(token);
@@ -52,21 +55,21 @@ vector<string> removeSpaces(vector<string> tokens)
 		return updatedTokens;
 }
 
-void parseHeader(ifstream& file, unordered_map<string, vector<string>>& header)
+void parseHeader(std::ifstream& file, std::unordered_map<std::string, std::vector<std::string>>& header)
 {
 		int lineNb = 0;
-		string event;
+		std::string event;
 
 		while (file.good())
 		{
 				getline(file, event);
 
-				vector<string> tokens;
+				std::vector<std::string> tokens;
 				tokenize(event, tokens, ",");
 
 				tokens = removeSpaces(tokens);
 
-				string eventType = tokens[0];
+				std::string eventType = tokens[0];
 				tokens.erase(tokens.begin());
 
 				header[eventType] = tokens;
@@ -75,34 +78,40 @@ void parseHeader(ifstream& file, unordered_map<string, vector<string>>& header)
 		}
 }
 
-//vector<string> convertToChromeFormat()
-//{
-//		return;
-//}
+
 
 
 int main(int argc, char* argv[])
 {
+	etw_insights::ETWReader etwReader;
 
 	// Look if there is no arguments
 	if (argc <= 1)
 		return 0;
+	/// TODO si un argv est un .etl est caller, appeler sa methode dans etw_reader pour convertir en .csv
+	else if (std::string(argv[1]).find(".etl") != std::string::npos)
+	{
+			//do stuff if is a .etl
+			std::string pathTemp = std::string(argv[1]);
+			const std::wstring path(pathTemp.begin(), pathTemp.end());
+			etwReader.Open(path);
+	}
+	else if (std::string(argv[1]).find(".csv") != std::string::npos)
+	{
+			//do stuff if is a .csv
+	}
+	else
+			return 0;
+
+	/// TODO si un argv est un .csv ou .txt, appeler ma methode
 
 	// Opening and reading .csv
-	ifstream file(argv[1]);
+	//std::ifstream file(argv[1]);
 
-	unordered_map<string, vector<string>> header;
-	parseHeader(file, header);
+	//std::unordered_map<std::string, std::vector<std::string>> header;
+	//parseHeader(file, header);
 
-
-
-	for (auto& bob : header)
-	{
-			cout <<  bob.first << endl;
-			for (int i = 0; i < bob.second.size(); i++)
-					cout << " " << bob.second[i] << endl;
-	}
-
+	std::cout << "allo";
 	system("pause");
 
 	return 1;

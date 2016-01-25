@@ -5,6 +5,10 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LOG4900_Google", "LOG4900_Google\LOG4900_Google.vcxproj", "{DDEDFCC2-3588-4741-A782-642716D876B1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "etw_reader", "etw_reader\etw_reader.vcxproj", "{E1FCFE0C-B8CB-4516-9F46-54C1F73A9601}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "base", "base\base.vcxproj", "{637388CA-E6E9-4D38-8DC9-CC2FE937DE24}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -15,6 +19,14 @@ Global
 		{DDEDFCC2-3588-4741-A782-642716D876B1}.Debug|Win32.Build.0 = Debug|Win32
 		{DDEDFCC2-3588-4741-A782-642716D876B1}.Release|Win32.ActiveCfg = Release|Win32
 		{DDEDFCC2-3588-4741-A782-642716D876B1}.Release|Win32.Build.0 = Release|Win32
+		{E1FCFE0C-B8CB-4516-9F46-54C1F73A9601}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E1FCFE0C-B8CB-4516-9F46-54C1F73A9601}.Debug|Win32.Build.0 = Debug|Win32
+		{E1FCFE0C-B8CB-4516-9F46-54C1F73A9601}.Release|Win32.ActiveCfg = Release|Win32
+		{E1FCFE0C-B8CB-4516-9F46-54C1F73A9601}.Release|Win32.Build.0 = Release|Win32
+		{637388CA-E6E9-4D38-8DC9-CC2FE937DE24}.Debug|Win32.ActiveCfg = Debug|Win32
+		{637388CA-E6E9-4D38-8DC9-CC2FE937DE24}.Debug|Win32.Build.0 = Debug|Win32
+		{637388CA-E6E9-4D38-8DC9-CC2FE937DE24}.Release|Win32.ActiveCfg = Release|Win32
+		{637388CA-E6E9-4D38-8DC9-CC2FE937DE24}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
