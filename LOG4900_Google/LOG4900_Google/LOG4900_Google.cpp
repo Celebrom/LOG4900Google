@@ -1,4 +1,4 @@
-#include "etw_reader/etw_reader.h"
+#include "../etw_reader/etw_reader.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -7,6 +7,9 @@
 #include <algorithm>
 #include <cstdio>
 #include <ctime>
+#include <boost/iostreams/code_converter.hpp>
+#include <boost/iostreams/device/mapped_file.hpp>
+#include <boost/filesystem.hpp>
 
 std::clock_t start;
 
@@ -57,49 +60,48 @@ std::vector<std::string> removeSpaces(std::vector<std::string> tokens)
 		return updatedTokens;
 }
 
-void parseHeader(std::ifstream& file, std::unordered_map<std::string, std::vector<std::string>>& header)
+void parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header)
 {
-		int lineNb = 0;
-		std::string event;
-
-		while (file.good())
+		std::vector<std::string> tokens;
+		std::string eventType;
+		std::string line = "";
+		
+		while (eventType.find("EndHeader") == std::string::npos)
 		{
-				getline(file, event);
+				const char* newPos = static_cast<const char*>(memchr(pos, '\n', end - pos));
+				line.assign(pos, newPos - pos);
 
-				std::vector<std::string> tokens;
-				tokenize(event, tokens, ",");
+				tokens.clear();
+				tokenize(line, tokens, ",");
 
 				tokens = removeSpaces(tokens);
 
-				std::string eventType = tokens[0];
+				eventType = tokens[0];
 
 				tokens.erase(tokens.begin());
 
 				header[eventType] = tokens;
 
-				lineNb++;
-
-				if (eventType == "EndHeader")
-						return;
+				pos = ++newPos;
 		}
 }
 
-void parseLines(std::ifstream& file, std::vector<std::vector<std::string>>& lines)
+void parseLines(const char*& pos, const char*& end, std::vector<std::vector<std::string>>& lines)
 {
-		std::string tempLine;
+		std::string tempLine = "";
+		std::vector<std::string> line = std::vector<std::string>();
 
-		while (file.good())
+		while(pos && pos != end)
 		{
-				std::vector<std::string> line;
-
-				getline(file, tempLine);
+				const char* newPos = static_cast<const char*>(memchr(pos, '\n', end - pos));
+				tempLine.assign(pos, newPos - pos);
 
 				std::vector<std::string> tokens;
 				tokenize(tempLine, tokens, ",");
 
 				tokens = removeSpaces(tokens);
 
-				if (tokens[0] == "chrome//win:Info")
+				if (tokens[0] == "Chrome//win:Info")
 				{
 						for (auto token : tokens)
 						{
@@ -108,41 +110,53 @@ void parseLines(std::ifstream& file, std::vector<std::vector<std::string>>& line
 
 						lines.push_back(line);
 				}
+
+				pos = ++newPos;
 		}
 }
 
-void writeJSON(std::ifstream& file, char* argvPath, std::unordered_map<std::string, std::vector<std::string>>& header, std::vector<std::vector<std::string>>& lines)
+void writeJSON(char* path, std::unordered_map<std::string, std::vector<std::string>>& header, std::vector<std::vector<std::string>>& lines)
 {
 		std::vector<std::string> fileName;
-		tokenize(argvPath, fileName, ".");
+		tokenize(path, fileName, ".");
 		std::ofstream outputFile(fileName[0] + ".json");
 		
-		std::string event;
+		std::string event = "";
+		std::string outputText = "";
+		std::string eventType = "";
+		std::vector<std::string> eventInfo = std::vector < std::string > ();
 
 		for (auto line : lines)
 		{
+				outputText = "";
 
-				std::string eventType = line[0];
+				eventType = line[0];
 
-				std::vector<std::string> eventInfo = header[eventType];
+				eventInfo = header[eventType];
 
-				outputFile << "{";
+				outputText += "{";
 
 				for (int i = 0; i < eventInfo.size(); i++)
 				{
 						if (eventInfo[i] != "" && line[i + 1] != "")
 						{
-								outputFile << "\"" + eventInfo[i] + "\":" + line[i + 1];
+								outputText += "\"" + eventInfo[i] + "\":" + line[i + 1];
 
 								if (i != eventInfo.size() - 1)
-										outputFile << ",";
+										outputText += ",";
 						}
 				}
 
-				outputFile << "}\n" ;
+				outputFile << outputText + "}\r\n";
 		}
 
 		outputFile.close();
+}
+
+boost::iostreams::mapped_file mapFileToMem(char* path)
+{
+		boost::iostreams::mapped_file mmap(path, boost::iostreams::mapped_file::readonly);
+		return mmap;
 }
 
 void convertEtlToCSV(char* argvPath, etw_insights::ETWReader& etwReader)
@@ -152,44 +166,29 @@ void convertEtlToCSV(char* argvPath, etw_insights::ETWReader& etwReader)
 		etwReader.Open(path);
 }
 
-void convertCSVToJSON(char* argvPath)
+void convertCSVToJSON(char* path)
 {
 		// Opening and reading .csv
-		std::ifstream file(argvPath);
+		boost::iostreams::mapped_file mmap = mapFileToMem(path);
+		auto pos = mmap.const_data();
+		auto end = pos + mmap.size();
 
 		std::unordered_map<std::string, std::vector<std::string>> header;
+		parseHeader(pos, end, header);
+
 		std::vector<std::vector<std::string>> lines;
+		parseLines(pos, end, lines);
 
-		double duration;
-		duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-		std::cout << "parseheaderStart: " << duration << '\n';
-
-		parseHeader(file, header);
-
-		duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-		std::cout << "parseLinesStart: " << duration << '\n';
-
-		parseLines(file, lines);
-
-		duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-		std::cout << "writeJSONStart: " << duration << '\n';
-
-		writeJSON(file, argvPath, header, lines);
-
-		file.close();
-}
-
-std::fstream& GotoLine(std::fstream& file, unsigned int num){
-		file.seekg(std::ios::beg);
-		for (int i = 0; i < num - 1; ++i){
-				file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		}
-		return file;
+		writeJSON(path, header, lines);
+		
+		//boost::iostreams::mapped_file munmap(mmap, mmap.size());
 }
 
 
 
-int main(int argc, char* argv[])
+
+
+int main(int argc, char** argv)
 {
 		//std::clock_t start;
 		double duration;
@@ -202,6 +201,11 @@ int main(int argc, char* argv[])
 	if (argc <= 1)
 		return 0;
 	/// TODO si un argv est un .etl est caller, appeler sa methode dans etw_reader pour convertir en .csv
+	else
+	{
+			convertCSVToJSON(argv[1]);
+	}
+	/*
 	else if (std::string(argv[1]).find(".etl") != std::string::npos)
 	{
 			//do stuff if is a .etl
@@ -216,13 +220,30 @@ int main(int argc, char* argv[])
 	}
 	else
 			return 0;
+			*/
 
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
 
-	std::cout << "printf: " << duration << '\n';
+	std::cout << "\n\n\ndurée: " << duration << '\n';
 
 	system("PAUSE");
 
 	return 1;
 }
 
+
+
+
+
+/*
+boost::iostreams::mapped_file mmap = mapFileToMem(path);
+auto f = mmap.const_data();
+auto l = f + mmap.size();
+
+uintmax_t m_numLines = 0;
+while (f && f != l)
+if ((f = static_cast<const char*>(memchr(f, '\n', l - f))))
+m_numLines++, f++;
+
+std::cout << "m_numLines = " << m_numLines << "\n";
+*/
