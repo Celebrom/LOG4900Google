@@ -7,9 +7,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <ctime>
-#include <boost/iostreams/code_converter.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
-#include <boost/filesystem.hpp>
 
 std::clock_t start;
 
