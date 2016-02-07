@@ -58,12 +58,13 @@ std::vector<std::string> removeSpaces(std::vector<std::string> tokens)
 		return updatedTokens;
 }
 
-void parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header)
+const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header)
 {
 		std::vector<std::string> tokens;
 		std::string eventType;
 		std::string line = "";
 		
+
 		while (eventType.find("EndHeader") == std::string::npos)
 		{
 				const char* newPos = static_cast<const char*>(memchr(pos, '\n', end - pos));
@@ -82,6 +83,7 @@ void parseHeader(const char*& pos, const char*& end, std::unordered_map<std::str
 
 				pos = ++newPos;
 		}
+		return pos;
 }
 
 void parseLines(const char*& pos, const char*& end, std::vector<std::vector<std::string>>& lines)
@@ -101,12 +103,7 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::vector<std:
 
 				if (tokens[0] == "Chrome//win:Info")
 				{
-						for (auto token : tokens)
-						{
-								line.push_back(token);
-						}
-
-						lines.push_back(line);
+						lines.push_back(tokens);
 				}
 
 				pos = ++newPos;
@@ -144,7 +141,6 @@ void writeJSON(char* path, std::unordered_map<std::string, std::vector<std::stri
 										outputText += ",";
 						}
 				}
-
 				outputFile << outputText + "}\r\n";
 		}
 
@@ -172,13 +168,21 @@ void convertCSVToJSON(char* path)
 		auto end = pos + mmap.size();
 
 		std::unordered_map<std::string, std::vector<std::string>> header;
-		parseHeader(pos, end, header);
+		const char*& posBeginLines = parseHeader(pos, end, header);
+		double duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
+		std::cout << "\n\n\nTemps de fin de parsing du header: " << duration << '\n';
 
 		std::vector<std::vector<std::string>> lines;
-		parseLines(pos, end, lines);
+		parseLines(posBeginLines, end, lines);
+
+		duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
+		std::cout << "\n\n\nTemps de fin de parsing des lignes du fichier: " << duration << '\n';
 
 		writeJSON(path, header, lines);
+		duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
+		std::cout << "\n\n\nTemps de fin d'ecriture du JSON: " << duration << '\n';
 		
+		//munmap pas necessaire parce que map desallouer a la fin du process
 		//boost::iostreams::mapped_file munmap(mmap, mmap.size());
 }
 
@@ -188,10 +192,8 @@ void convertCSVToJSON(char* path)
 
 int main(int argc, char** argv)
 {
-		//std::clock_t start;
-		double duration;
-
-		start = std::clock();
+	//std::clock_t start;
+	double duration = 0;
 
 	etw_insights::ETWReader etwReader;
 
@@ -201,6 +203,7 @@ int main(int argc, char** argv)
 	/// TODO si un argv est un .etl est caller, appeler sa methode dans etw_reader pour convertir en .csv
 	else
 	{
+			start = std::clock();
 			convertCSVToJSON(argv[1]);
 	}
 	/*
@@ -221,8 +224,7 @@ int main(int argc, char** argv)
 			*/
 
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-
-	std::cout << "\n\n\ndurée: " << duration << '\n';
+	std::cout << "\n\n\nDuree totale de l'application:  " << duration << '\n';
 
 	system("PAUSE");
 
