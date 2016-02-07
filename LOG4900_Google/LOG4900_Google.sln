@@ -1,9 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LOG4900_Google", "LOG4900_Google\LOG4900_Google.vcxproj", "{DDEDFCC2-3588-4741-A782-642716D876B1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E1FCFE0C-B8CB-4516-9F46-54C1F73A9601} = {E1FCFE0C-B8CB-4516-9F46-54C1F73A9601}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "etw_reader", "etw_reader\etw_reader.vcxproj", "{E1FCFE0C-B8CB-4516-9F46-54C1F73A9601}"
 EndProject

@@ -22,7 +22,7 @@ limitations under the License.
 #include <unordered_map>
 #include <vector>
 
-#include "base/base.h"
+#include "../base/base.h"
 
 namespace etw_insights {
 
