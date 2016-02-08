@@ -10,6 +10,7 @@
 #include <boost/iostreams/device/mapped_file.hpp>
 
 std::clock_t start;
+std::string convertEventToJSON(std::vector<std::string>& lines);
 
 
 //http://stackoverflow.com/questions/236129/split-a-string-in-c
@@ -104,7 +105,6 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& li
 
 				if (tokens[0] == "Chrome//win:Info")
 				{
-					/*
 						 if (tokens[10] == "Complete")
 						 {
 							tidCompleteStacks[tokens[3]].push_back(tokens);
@@ -117,12 +117,12 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& li
 								std::vector<std::vector<std::string>> completeStack = (*completeStackIter).second;
 								std::vector<std::string> complete = completeStack.back();
 
-								int completeTS    = std::stoi(complete[1]);
-								int completeEndTS = std::stoi(tokens[1]);
-								string duration   = std::to_string(completeEndTS - completeTS);
+								int completeTS       = std::stoi(complete[1]);
+								int completeEndTS    = std::stoi(tokens[1]);
+								std::string duration = std::to_string(completeEndTS - completeTS);
 								complete.push_back(duration);
 
-								std::string eventJSON = ConvertEventToJson(complete);
+								std::string eventJSON = convertEventToJSON(complete);
 								lines.push_back(eventJSON);
 
 								tidCompleteStacks[tokens[3]].pop_back();
@@ -134,10 +134,9 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& li
 						 }
 						 else
 						 {
-							std::string eventJSON = ConvertEventToJson(tokens);
-							lines.push_back(eventJSON);
+							 std::string eventJSON = convertEventToJSON(tokens);
+							 lines.push_back(eventJSON);
 						 }
-					*/
 				}
 
 				pos = ++newPos;
@@ -152,13 +151,13 @@ void writeJSON(char* path, std::vector<std::string>& lines)
 
 		for (auto line : lines)
 		{
-				outputFile << line << "\r\n";
+				outputFile << line << "\n";
 		}
 
 		outputFile.close();
 }
 
-std::string convertEventToJSON(std::unordered_map<std::string, std::vector<std::string>>& header, std::vector<std::string>& lines)
+std::string convertEventToJSON(std::vector<std::string>& line)
 {
 	//Event type
 	// Duration: B(begin) E(end)
@@ -177,7 +176,6 @@ std::string convertEventToJSON(std::unordered_map<std::string, std::vector<std::
 
 	//dirty code
 	std::string name = "";
-	std::string ph = "";
 	std::string cat = "";
 	std::string phase = "";
 	std::string pid = "";
@@ -191,48 +189,49 @@ std::string convertEventToJSON(std::unordered_map<std::string, std::vector<std::
 	std::string outputText = "";
 	std::string eventType = "";
 	std::vector<std::string> eventInfo = std::vector < std::string >();
-	for (int i = 0; i < lines.size(); i++)
+	for (int i = 0; i < line.size(); i++)
 	{
 		switch (i)
 		{
-		case 0:
-			ts += "\"ts\": " + lines[i] + ",";
-			break;
 		case 1:
-			pid += "\"pid\": " + lines[i] + ",";
+			ts += "\"ts\": " + line[i] + ",";
 			break;
 		case 2:
-			tid += "\"tid\": " + lines[i] + ",";
+			pid += "\"pid\": " + line[i] + ",";
 			break;
-		case 4:
-			name += "\"name\": \"" + lines[i] + "\",";
-			break;
-		case 5:
-			phase += "\"ph\": \"" + lines[i] + "\",";
-			break;
-		// over repeating dirty hardcoded
-		case 6:
-			args += "\"" + lines[i] + ":";
-			break;
-		case 7:
-			args += "\"" + lines[i] + "\",";
-			break;
-		case 8:
-			args += "\"" + lines[i] + ":";
+		case 3:
+			tid += "\"tid\": " + line[i] + ",";
 			break;
 		case 9:
-			args += "\"" + lines[i] + "\",";
+			name += "\"name\": \"" + line[i] + "\",";
 			break;
+
 		case 10:
-			args += "\"" + lines[i] + ":";
+			phase += "\"ph\": \"" + line[i] + "\",";
 			break;
+		// over repeating dirty hardcoded
 		case 11:
-			args += "\"" + lines[i] + "\",";
+			args += "\"" + line[i] + ":";
+			break;
+		case 12:
+			args += "\"" + line[i] + "\",";
+			break;
+		case 13:
+			args += "\"" + line[i] + ":";
+			break;
+		case 14:
+			args += "\"" + line[i] + "\",";
+			break;
+		case 15:
+			args += "\"" + line[i] + ":";
+			break;
+		case 16:
+			args += "\"" + line[i] + "\",";
 			break;
 		}
 	}
 	args += "}";
-	return "{" + name + cat + ph + pid + tid + ts + "}";
+	return "{" + name + cat + phase + pid + tid + ts + args + "}";
 }
 
 boost::iostreams::mapped_file mapFileToMem(char* path)
