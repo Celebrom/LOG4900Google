@@ -147,6 +147,83 @@ void writeJSON(char* path, std::unordered_map<std::string, std::vector<std::stri
 		outputFile.close();
 }
 
+std::string convertEventToJSON(std::unordered_map<std::string, std::vector<std::string>>& header, std::vector<std::string>& lines)
+{
+	//Event type
+	// Duration: B(begin) E(end)
+	// Complete: X
+	// Instant: i, I (dreprecated)
+	// Counter: C
+	// Async: b(nestable start), n (nestable instant), e(nestable end)
+	// Flow: s(start), t(step), f(end)
+	// Sample: P
+	// Object: N(created), O(snapshot), D(destroyed)
+	// Metadata: M
+	// Memory Dump: V(global), V(process)
+	// Mark: R
+	// Clock Sync: c
+	// Context: (,)
+
+	//dirty code
+	std::string name = "";
+	std::string ph = "";
+	std::string cat = "";
+	std::string phase = "";
+	std::string pid = "";
+	std::string tid = "";
+	std::string ts = "";
+	std::string args = "args:{";
+
+	//dirty code
+
+	std::string event = "";
+	std::string outputText = "";
+	std::string eventType = "";
+	std::vector<std::string> eventInfo = std::vector < std::string >();
+	for (int i = 0; i < lines.size(); i++)
+	{
+		switch (i)
+		{
+		case 0:
+			ts += "\"ts\": " + lines[i] + ",";
+			break;
+		case 1:
+			pid += "\"pid\": " + lines[i] + ",";
+			break;
+		case 2:
+			tid += "\"tid\": " + lines[i] + ",";
+			break;
+		case 4:
+			name += "\"name\": \"" + lines[i] + "\",";
+			break;
+		case 5:
+			phase += "\"ph\": \"" + lines[i] + "\",";
+			break;
+		// over repeating dirty hardcoded
+		case 6:
+			args += "\"" + lines[i] + ":";
+			break;
+		case 7:
+			args += "\"" + lines[i] + "\",";
+			break;
+		case 8:
+			args += "\"" + lines[i] + ":";
+			break;
+		case 9:
+			args += "\"" + lines[i] + "\",";
+			break;
+		case 10:
+			args += "\"" + lines[i] + ":";
+			break;
+		case 11:
+			args += "\"" + lines[i] + "\",";
+			break;
+		}
+	}
+	args += "}";
+	return "{" + name + cat + ph + pid + tid + ts + "}";
+}
+
 boost::iostreams::mapped_file mapFileToMem(char* path)
 {
 		boost::iostreams::mapped_file mmap(path, boost::iostreams::mapped_file::readonly);
