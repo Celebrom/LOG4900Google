@@ -140,11 +140,11 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& li
 
 				if (tokens[0] == "Chrome//win:Info")
 				{
-						 if (tokens[10] == "Complete")
+						 if (tokens[10] == "\"Complete\"")
 						 {
 								tidCompleteStacks[tokens[3]].push_back(tokens);
 						 }
-						 else if (tokens[10] == "Complete End")
+						 else if (tokens[10] == "\"Complete End\"")
 						 {
 								auto completeStackIter = tidCompleteStacks.find(tokens[3]);
 								if (completeStackIter != tidCompleteStacks.end() && tidCompleteStacks[tokens[3]].size() > 0)
@@ -313,7 +313,7 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 		}
 	}
 	args += "}";
-	return "{" + name + cat + phase + pid + tid + ts + args + "}";
+	return "{" + pid + tid + ts + phase + cat + name + args + dur + "}";
 }
 
 boost::iostreams::mapped_file mapFileToMem(char* path)
