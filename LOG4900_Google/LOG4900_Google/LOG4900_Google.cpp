@@ -192,13 +192,13 @@ std::string getPhase(std::string &word)
 		return "i";
 	else if (word == "\"Counter\"")
 		return "C";
-	else if (word == "\"AsyncEnd\"")
+	else if (word == "\"Async End\"")
 		//return "e"; //new version
 		return "F";  //deprecated version
-	else if (word == "\"AsyncBegin\"")
+	else if (word == "\"Async Begin\"")
 		//return "b"; //new version
 		return "S";	  //deprecated version
-	else if (word == "\"AsyncStepInto\"")
+	else if (word == "\"Async StepInto\"")
 		return "T";
 	else if (word == "\"Sample\"")
 		return "P";
