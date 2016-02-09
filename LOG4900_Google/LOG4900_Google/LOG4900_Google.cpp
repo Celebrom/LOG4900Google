@@ -287,25 +287,11 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 			break;
 		case 10:
 			phase += "\"ph\":\"" + getPhase(line[i]) + "\",";
-			//phase += "\"ph\": " + line[i] + ",";
 			break;
-		// over repeating dirty hardcoded
-		case 11:
+		case 11|13|15:
 			args += line[i] + ":";
 			break;
-		case 12:
-			args += line[i] + ",";
-			break;
-		case 13:
-			args += line[i] + ":";
-			break;
-		case 14:
-			args += line[i] + ",";
-			break;
-		case 15:
-			args += line[i] + ":";
-			break;
-		case 16:
+		case 12|14|16:
 			args += line[i] + ",";
 			break;
 		case 17:
