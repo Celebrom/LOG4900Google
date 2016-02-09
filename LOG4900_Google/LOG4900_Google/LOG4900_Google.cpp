@@ -260,7 +260,7 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 	std::string pid = "";
 	std::string tid = "";
 	std::string ts = "";
-	std::string args = "args:{";
+	std::string args = "\"args\":{";
 	std::string dur = "";
 
 	//dirty code
@@ -291,25 +291,31 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 			break;
 		// over repeating dirty hardcoded
 		case 11:
-			args += line[i] + ":";
+			if (line[i] != "\"\"")
+				args += line[i] + ":";
 			break;
 		case 12:
-			args += line[i] + ",";
+			if (line[i] != "\"\"")
+				args += line[i] + ",";
 			break;
 		case 13:
-			args += line[i] + ":";
+			if (line[i] != "\"\"")
+				args += line[i] + ":";
 			break;
 		case 14:
-			args += line[i] + ",";
+			if (line[i] != "\"\"")
+				args += line[i] + ",";
 			break;
 		case 15:
-			args += line[i] + ":";
+			if (line[i] != "\"\"")
+				args += line[i] + ":";
 			break;
 		case 16:
-			args += line[i] + ",";
+			if (line[i] != "\"\"")
+				args += line[i] + ",";
 			break;
 		case 17:
-			dur += "\"dur\": " + line[i] + ",";
+			dur += ",\"dur\": " + line[i] + ",";
 		}
 	}
 	args += "}";
