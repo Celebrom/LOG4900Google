@@ -13,8 +13,6 @@ std::clock_t start;
 
 // Functions declarations
 std::string convertEventToJSON(std::vector<std::string>& lines);
-template < class ContainerT >
-void tokenize(const std::string& str, ContainerT& tokens,	const std::string& delimiters = " ", bool trimEmpty = false);
 std::vector<std::string> removeSpaces(std::vector<std::string> tokens);
 const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header);
 void parseLines(const char*& pos, const char*& end, std::vector<std::string>& lines);
@@ -121,34 +119,34 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& li
 				{
 						 if (tokens[10] == "Complete")
 						 {
-							tidCompleteStacks[tokens[3]].push_back(tokens);
+								tidCompleteStacks[tokens[3]].push_back(tokens);
 						 }
 						 else if (tokens[10] == "Complete End")
 						 {
-							auto completeStackIter = tidCompleteStacks.find(tokens[3]);
-							if (completeStackIter != tidCompleteStacks.end() && tidCompleteStacks[tokens[3]].size() > 0)
-							{
-								std::vector<std::vector<std::string>> completeStack = (*completeStackIter).second;
-								std::vector<std::string> complete = completeStack.back();
-
-								int completeTS       = std::stoi(complete[1]);
-								int completeEndTS    = std::stoi(tokens[1]);
-								std::string duration = std::to_string(completeEndTS - completeTS);
-								complete.push_back(duration);
-
-								std::string eventJSON = convertEventToJSON(complete);
-								lines.push_back(eventJSON);
-
-								tidCompleteStacks[tokens[3]].pop_back();
-							}
-							else
-							{
-								std::cout << "Something wrong happened: Complete End without Complete" << std::endl;
-							}
+								auto completeStackIter = tidCompleteStacks.find(tokens[3]);
+								if (completeStackIter != tidCompleteStacks.end() && tidCompleteStacks[tokens[3]].size() > 0)
+								{
+										std::vector<std::vector<std::string>> completeStack = (*completeStackIter).second;
+										std::vector<std::string> complete = completeStack.back();
+								
+										int completeTS       = std::stoi(complete[1]);
+										int completeEndTS    = std::stoi(tokens[1]);
+										std::string duration = std::to_string(completeEndTS - completeTS);
+										complete.push_back(duration);
+								
+										std::string eventJSON = convertEventToJSON(complete);
+										lines.push_back(eventJSON);
+								
+										tidCompleteStacks[tokens[3]].pop_back();
+								}
+								else
+								{
+										std::cout << "Something wrong happened: Complete End without Complete" << std::endl;
+								}
 						 }
 						 else
 						 {
-							 std::string eventJSON = convertEventToJSON(tokens);
+						   std::string eventJSON = convertEventToJSON(tokens);
 							 lines.push_back(eventJSON);
 						 }
 				}
