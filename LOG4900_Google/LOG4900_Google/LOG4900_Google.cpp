@@ -274,19 +274,19 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 		switch (i)
 		{
 		case 1:
-			ts += "\"ts\": " + line[i] + ",";
+			ts += "\"ts\":" + line[i] + ",";
 			break;
 		case 2:
-			pid += "\"pid\": " + extractPidFromString(line[i]) + ",";
+			pid += "\"pid\":" + extractPidFromString(line[i]) + ",";
 			break;
 		case 3:
-			tid += "\"tid\": " + line[i] + ",";
+			tid += "\"tid\":" + line[i] + ",";
 			break;
 		case 9:
-			name += "\"name\": " + line[i] + ",";
+			name += "\"name\":" + line[i] + ",";
 			break;
 		case 10:
-			phase += "\"ph\": \"" + getPhase(line[i]) + "\",";
+			phase += "\"ph\":\"" + getPhase(line[i]) + "\",";
 			//phase += "\"ph\": " + line[i] + ",";
 			break;
 		// over repeating dirty hardcoded
@@ -318,7 +318,7 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 			dur += ",\"dur\": " + line[i] + ",";
 		}
 	}
-	args += "}";
+	args += "},";
 	return "{" + pid + tid + ts + phase + cat + name + args + dur + "}";
 }
 
