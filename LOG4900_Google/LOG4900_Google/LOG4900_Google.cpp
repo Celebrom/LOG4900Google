@@ -153,7 +153,7 @@ void writeJSON(char* path, std::vector<std::string>& lines)
 
 		for (auto line : lines)
 		{
-				outputFile << line << "\n";
+				outputFile << line << ",\n";
 		}
 
 		outputFile << "]}";
