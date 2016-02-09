@@ -10,7 +10,21 @@
 #include <boost/iostreams/device/mapped_file.hpp>
 
 std::clock_t start;
+
+// Functions declarations
 std::string convertEventToJSON(std::vector<std::string>& lines);
+template < class ContainerT >
+void tokenize(const std::string& str, ContainerT& tokens,	const std::string& delimiters = " ", bool trimEmpty = false);
+std::vector<std::string> removeSpaces(std::vector<std::string> tokens);
+const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header);
+void parseLines(const char*& pos, const char*& end, std::vector<std::string>& lines);
+void writeJSON(char* path, std::vector<std::string>& lines);
+std::string convertEventToJSON(std::vector<std::string>& line);
+boost::iostreams::mapped_file mapFileToMem(char* path);
+void convertEtlToCSV(char* argvPath);
+void convertCSVToJSON(char* path);
+void showElapseTime(std::string text);
+int main(int argc, char** argv);
 
 
 //http://stackoverflow.com/questions/236129/split-a-string-in-c
@@ -244,8 +258,10 @@ boost::iostreams::mapped_file mapFileToMem(char* path)
 		return mmap;
 }
 
-void convertEtlToCSV(char* argvPath, etw_insights::ETWReader& etwReader)
+void convertEtlToCSV(char* argvPath)
 {
+		etw_insights::ETWReader etwReader;
+
 		std::string pathTemp = std::string(argvPath);
 		const std::wstring path(pathTemp.begin(), pathTemp.end());
 		etwReader.Open(path);
@@ -260,34 +276,32 @@ void convertCSVToJSON(char* path)
 
 		std::unordered_map<std::string, std::vector<std::string>> header;
 		const char*& posBeginLines = parseHeader(pos, end, header);
-		double duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-		std::cout << "\n\n\nTemps de fin de parsing du header: " << duration << '\n';
+
+		showElapseTime("\n\n\nTemps de fin de parsing du header: ");
 
 		std::vector<std::string> lines;
 		parseLines(posBeginLines, end, lines);
 
-		duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-		std::cout << "\n\n\nTemps de fin de parsing des lignes du fichier: " << duration << '\n';
+		showElapseTime("\n\n\nTemps de fin de parsing des lignes du fichier: ");
 
 		writeJSON(path, lines);
-		duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-		std::cout << "\n\n\nTemps de fin d'ecriture du JSON: " << duration << '\n';
+
+		showElapseTime("\n\n\nTemps de fin d'ecriture du JSON: ");
 		
 		//munmap pas necessaire parce que map desallouer a la fin du process
 		//boost::iostreams::mapped_file munmap(mmap, mmap.size());
 }
 
-
+void showElapseTime(std::string text)
+{
+		std::cout << text << (std::clock() - start) / (double)CLOCKS_PER_SEC << '\n';
+}
 
 
 
 int main(int argc, char** argv)
 {
-	//std::clock_t start;
 	double duration = 0;
-
-	etw_insights::ETWReader etwReader;
-
 	start = std::clock();
 
 	// Look if there is no arguments
@@ -296,7 +310,7 @@ int main(int argc, char** argv)
 	else if (std::string(argv[1]).find(".etl") != std::string::npos)
 	{
 			//do stuff if is a .etl
-			convertEtlToCSV(argv[1], etwReader);
+			convertEtlToCSV(argv[1]);
 			convertCSVToJSON(argv[1]);
 			
 	}
@@ -308,28 +322,9 @@ int main(int argc, char** argv)
 	else
 			return 0;
 			
-
-	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-	std::cout << "\n\n\nDuree totale de l'application:  " << duration << '\n';
+	showElapseTime("\n\n\nDuree totale de l'application:  ");
 
 	system("PAUSE");
 
 	return 1;
 }
-
-
-
-
-
-/*
-boost::iostreams::mapped_file mmap = mapFileToMem(path);
-auto f = mmap.const_data();
-auto l = f + mmap.size();
-
-uintmax_t m_numLines = 0;
-while (f && f != l)
-if ((f = static_cast<const char*>(memchr(f, '\n', l - f))))
-m_numLines++, f++;
-
-std::cout << "m_numLines = " << m_numLines << "\n";
-*/
