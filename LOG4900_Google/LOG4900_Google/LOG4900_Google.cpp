@@ -157,7 +157,14 @@ void writeJSON(char* path, std::vector<std::string>& lines)
 		outputFile.close();
 }
 
-std::string convertEventToJSON(std::vector<std::string>& line)
+std::string extractPidFromString(std::string &word)
+{
+	unsigned first = word.find("(");
+	unsigned last = word.find(")");
+	return word.substr(first + 1, last - first -1);
+}
+
+std::string getPhase(std::string &word)
 {
 	//Event type
 	// Duration: B(begin) E(end)
@@ -165,6 +172,8 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 	// Instant: i, I (dreprecated)
 	// Counter: C
 	// Async: b(nestable start), n (nestable instant), e(nestable end)
+	//		  Deprecated
+	//        S(start), T(step into), p(step past), F(end)
 	// Flow: s(start), t(step), f(end)
 	// Sample: P
 	// Object: N(created), O(snapshot), D(destroyed)
@@ -173,7 +182,38 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 	// Mark: R
 	// Clock Sync: c
 	// Context: (,)
+	if (word == "\"Complete\"")
+		return "X";
+	else if (word == "\"Begin\"")
+		return "B";
+	else if (word == "\"End\"")
+		return "E";
+	else if (word == "\"Instant\"")
+		return "i";
+	else if (word == "\"Counter\"")
+		return "C";
+	else if (word == "\"AsyncEnd\"")
+		//return "e"; //new version
+		return "F";  //deprecated version
+	else if (word == "\"AsyncBegin\"")
+		//return "b"; //new version
+		return "S";	  //deprecated version
+	else if (word == "\"AsyncStepInto\"")
+		return "T";
+	else if (word == "\"Sample\"")
+		return "P";
+	else if (word == "\"Metadata\"")
+		return "M";
+	else if (word == "\"Mark\"")
+		return "R";
+	else if (word == "")
+		return "";
+	else
+		return "error";
+}
 
+std::string convertEventToJSON(std::vector<std::string>& line)
+{
 	//dirty code
 	std::string name = "";
 	std::string cat = "";
@@ -182,6 +222,7 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 	std::string tid = "";
 	std::string ts = "";
 	std::string args = "args:{";
+	std::string dur = "";
 
 	//dirty code
 
@@ -197,37 +238,39 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 			ts += "\"ts\": " + line[i] + ",";
 			break;
 		case 2:
-			pid += "\"pid\": " + line[i] + ",";
+			pid += "\"pid\": " + extractPidFromString(line[i]) + ",";
 			break;
 		case 3:
 			tid += "\"tid\": " + line[i] + ",";
 			break;
 		case 9:
-			name += "\"name\": \"" + line[i] + "\",";
+			name += "\"name\": " + line[i] + ",";
 			break;
-
 		case 10:
-			phase += "\"ph\": \"" + line[i] + "\",";
+			phase += "\"ph\": \"" + getPhase(line[i]) + "\",";
+			//phase += "\"ph\": " + line[i] + ",";
 			break;
 		// over repeating dirty hardcoded
 		case 11:
-			args += "\"" + line[i] + ":";
+			args += line[i] + ":";
 			break;
 		case 12:
-			args += "\"" + line[i] + "\",";
+			args += line[i] + ",";
 			break;
 		case 13:
-			args += "\"" + line[i] + ":";
+			args += line[i] + ":";
 			break;
 		case 14:
-			args += "\"" + line[i] + "\",";
+			args += line[i] + ",";
 			break;
 		case 15:
-			args += "\"" + line[i] + ":";
+			args += line[i] + ":";
 			break;
 		case 16:
-			args += "\"" + line[i] + "\",";
+			args += line[i] + ",";
 			break;
+		case 17:
+			dur += "\"dur\": " + line[i] + ",";
 		}
 	}
 	args += "}";
