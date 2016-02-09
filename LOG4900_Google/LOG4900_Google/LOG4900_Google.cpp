@@ -237,7 +237,7 @@ std::string getPhase(std::string &word)
 	else if (word == "\"Async Begin\"")
 		//return "b"; //new version
 		return "S";	  //deprecated version
-	else if (word == "\"Async StepInto\"")
+	else if (word == "\"Async Step Into\"")
 		return "T";
 	else if (word == "\"Sample\"")
 		return "P";
