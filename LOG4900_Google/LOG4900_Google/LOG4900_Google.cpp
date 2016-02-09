@@ -284,16 +284,11 @@ int main(int argc, char** argv)
 
 	etw_insights::ETWReader etwReader;
 
+	start = std::clock();
+
 	// Look if there is no arguments
 	if (argc <= 1)
 		return 0;
-	/// TODO si un argv est un .etl est caller, appeler sa methode dans etw_reader pour convertir en .csv
-	else
-	{
-			start = std::clock();
-			convertCSVToJSON(argv[1]);
-	}
-	/*
 	else if (std::string(argv[1]).find(".etl") != std::string::npos)
 	{
 			//do stuff if is a .etl
@@ -308,7 +303,7 @@ int main(int argc, char** argv)
 	}
 	else
 			return 0;
-			*/
+			
 
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
 	std::cout << "\n\n\nDuree totale de l'application:  " << duration << '\n';
