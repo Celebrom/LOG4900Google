@@ -289,16 +289,18 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 			phase += "\"ph\":\"" + getPhase(line[i]) + "\",";
 			break;
 		case 11|13|15:
-			args += line[i] + ":";
+			if (line[i] != "\"\"")
+				args += line[i] + ":";
 			break;
 		case 12|14|16:
-			args += line[i] + ",";
+			if (line[i] != "\"\"")
+				args += line[i] + ",";
 			break;
 		case 17:
-			dur += "\"dur\": " + line[i] + ",";
+			dur += ",\"dur\": " + line[i] + ",";
 		}
 	}
-	args += "},";
+	args += "}";
 	return "{" + pid + tid + ts + phase + cat + name + args + dur + "}";
 }
 
