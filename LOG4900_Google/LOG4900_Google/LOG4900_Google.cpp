@@ -7,6 +7,9 @@
 #include <algorithm>
 #include <cstdio>
 #include <ctime>
+#include <functional> 
+#include <cctype>
+#include <locale>
 #include <boost/iostreams/device/mapped_file.hpp>
 
 std::clock_t start;
@@ -23,6 +26,9 @@ void convertEtlToCSV(char* argvPath);
 void convertCSVToJSON(char* path);
 void showElapseTime(std::string text);
 int main(int argc, char** argv);
+static inline std::string &ltrim(std::string &s);
+static inline std::string &rtrim(std::string &s);
+static inline std::string &trim(std::string &s);
 
 
 //http://stackoverflow.com/questions/236129/split-a-string-in-c
@@ -65,10 +71,27 @@ std::vector<std::string> removeSpaces(std::vector<std::string> tokens)
 
 		for each(std::string token in tokens)
 		{
-				token.erase(remove(token.begin(), token.end(), ' '), token.end());
-				updatedTokens.push_back(token);
+				//token.erase(remove(token.begin(), token.end(), ' '), token.end());
+				updatedTokens.push_back(trim(token));
 		}
 		return updatedTokens;
+}
+
+// trim from start
+static inline std::string &ltrim(std::string &s) {
+		s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+		return s;
+}
+
+// trim from end
+static inline std::string &rtrim(std::string &s) {
+		s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+		return s;
+}
+
+// trim from both ends
+static inline std::string &trim(std::string &s) {
+		return ltrim(rtrim(s));
 }
 
 const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header)
