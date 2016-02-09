@@ -149,10 +149,14 @@ void writeJSON(char* path, std::vector<std::string>& lines)
 		tokenize(path, fileName, ".");
 		std::ofstream outputFile(fileName[0] + ".json");
 
+		outputFile << "{\"traceEvents\":[";
+
 		for (auto line : lines)
 		{
 				outputFile << line << "\n";
 		}
+
+		outputFile << "]}";
 
 		outputFile.close();
 }
