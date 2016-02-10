@@ -71,7 +71,6 @@ std::vector<std::string> removeSpaces(std::vector<std::string> tokens)
 
 		for each(std::string token in tokens)
 		{
-				//token.erase(remove(token.begin(), token.end(), ' '), token.end());
 				updatedTokens.push_back(trim(token));
 		}
 		return updatedTokens;
@@ -283,18 +282,31 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 			tid += "\"tid\":" + line[i] + ",";
 			break;
 		case 9:
-			name += "\"name\":" + line[i] + ",";
+			line[i].erase(std::remove(line[i].begin(), line[i].end(), '"'), line[i].end());
+			if (line[i][0] == ' ')
+			  line[i].erase(std::remove(line[i].begin(), line[i].begin() + 1, ' '), line[i].begin() + 1);
+			name += "\"name\":\"" + line[i] + "\",";
 			break;
 		case 10:
 			phase += "\"ph\":\"" + getPhase(line[i]) + "\",";
 			break;
-		case 11|13|15:
-			if (line[i] != "\"\"")
-				args += line[i] + ":";
+		case 11:
+		case 13:
+		case 15:
+			line[i].erase(std::remove(line[i].begin(), line[i].end(), '"'), line[i].end());
+			if (line[i][0] == ' ')
+					line[i].erase(std::remove(line[i].begin(), line[i].begin() + 1, ' '), line[i].begin() + 1);
+		  if (line[i] != "")
+		  		args += "\"" + line[i] + "\":";
 			break;
-		case 12|14|16:
-			if (line[i] != "\"\"")
-				args += line[i] + ",";
+		case 12:
+		case 14:
+		case 16:
+			line[i].erase(std::remove(line[i].begin(), line[i].end(), '"'), line[i].end());
+			if (line[i][0] == ' ')
+				line[i].erase(std::remove(line[i].begin(), line[i].begin() + 1, ' '), line[i].begin() + 1);
+			if (line[i] != "")
+				args += "\"" + line[i] + "\",";
 			break;
 		case 17:
 			dur += ",\"dur\": " + line[i] + ",";
