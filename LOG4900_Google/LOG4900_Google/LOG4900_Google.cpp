@@ -185,9 +185,12 @@ void writeJSON(char* path, std::vector<std::string>& lines)
 
 		outputFile << "{\"traceEvents\":[";
 
-		for (auto line : lines)
+		for (int i = 0; i < lines.size(); ++i)
 		{
-				outputFile << line << ",\n";
+			if (i != lines.size() - 1)
+				outputFile << lines[i] << ",\n";
+			else
+				outputFile << lines[i] << "\n";
 		}
 
 		outputFile << "]}";
@@ -296,8 +299,13 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 			line[i].erase(std::remove(line[i].begin(), line[i].end(), '"'), line[i].end());
 			if (line[i][0] == ' ')
 					line[i].erase(std::remove(line[i].begin(), line[i].begin() + 1, ' '), line[i].begin() + 1);
-		  if (line[i] != "")
+			if (line[i] != "" && line[i + 1] != "\"\"")
 		  		args += "\"" + line[i] + "\":";
+			if (line[i] != "" && line[i + 1] == "\"\"")
+			{
+				args.erase(args.end() - 2, args.end());
+				args += "," + line[i] + "\"";
+			}
 			break;
 		case 12:
 		case 14:
@@ -305,11 +313,13 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 			line[i].erase(std::remove(line[i].begin(), line[i].end(), '"'), line[i].end());
 			if (line[i][0] == ' ')
 				line[i].erase(std::remove(line[i].begin(), line[i].begin() + 1, ' '), line[i].begin() + 1);
-			if (line[i] != "")
+			if (line[i] != "" && line[i + 1] != "\"\"")
 				args += "\"" + line[i] + "\",";
+			if (line[i] != "" && line[i + 1] == "\"\"")
+				args += "\"" + line[i] + "\"";
 			break;
 		case 17:
-			dur += ",\"dur\": " + line[i] + ",";
+			dur += ",\"dur\": " + line[i];
 		}
 	}
 	args += "}";
