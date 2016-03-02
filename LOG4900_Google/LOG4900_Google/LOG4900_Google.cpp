@@ -1,3 +1,5 @@
+#include "CSVBlock.h"
+#include "StackBlock.h"
 #include "../etw_reader/etw_reader.h"
 #include <iostream>
 #include <fstream>
@@ -124,9 +126,12 @@ const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<
 void parseLines(const char*& pos, const char*& end, std::vector<std::string>& lines)
 {
 		std::string tempLine = "";
-		std::vector<std::string> line = std::vector<std::string>();
 
-		std::unordered_map<std::string, std::vector<std::vector<std::string>>> tidCompleteStacks;
+		std::unordered_map<std::string, std::vector<std::vector<std::string>>> tidCompletePhaseStacks;
+
+		CSVBlock currentStack;
+		std::unordered_map<std::string, StackBlock> tidStacks;
+		std::unordered_map<std::string, std::vector<StackLine>> tidEndedLines;
 
 		while(pos && pos != end)
 		{
@@ -141,12 +146,12 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& li
 				{
 						 if (tokens[10] == "\"Complete\"")
 						 {
-								tidCompleteStacks[tokens[3]].push_back(tokens);
+								tidCompletePhaseStacks[tokens[3]].push_back(tokens);
 						 }
 						 else if (tokens[10] == "\"Complete End\"")
 						 {
-								auto completeStackIter = tidCompleteStacks.find(tokens[3]);
-								if (completeStackIter != tidCompleteStacks.end() && tidCompleteStacks[tokens[3]].size() > 0)
+								auto completeStackIter = tidCompletePhaseStacks.find(tokens[3]);
+								if (completeStackIter != tidCompletePhaseStacks.end() && tidCompletePhaseStacks[tokens[3]].size() > 0)
 								{
 										std::vector<std::vector<std::string>> completeStack = (*completeStackIter).second;
 										std::vector<std::string> complete = completeStack.back();
@@ -159,7 +164,7 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& li
 										std::string eventJSON = convertEventToJSON(complete);
 										lines.push_back(eventJSON);
 								
-										tidCompleteStacks[tokens[3]].pop_back();
+										tidCompletePhaseStacks[tokens[3]].pop_back();
 								}
 								else
 								{
@@ -172,8 +177,38 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& li
 							 lines.push_back(eventJSON);
 						 }
 				}
+				else if (tokens[0] == "Stack")
+				{
+					int ts = std::stoi(tokens[1]);
+					if (currentStack.Empty())
+						currentStack.Reset(tokens[2], ts);
+
+					if (tokens[2] != currentStack.GetTID() || ts != currentStack.GetTimestamp())
+					{
+						std::vector<StackLine> endedLines = tidStacks[tokens[2]].Update(currentStack);
+						tidEndedLines[tokens[2]].insert(std::end(tidEndedLines[tokens[2]]), std::begin(endedLines), std::end(endedLines));
+
+						currentStack.Reset(tokens[2], ts);
+						currentStack.AddLine(tokens);
+					}
+					else
+					{
+						currentStack.AddLine(tokens);
+					}
+				}
 
 				pos = ++newPos;
+		}
+
+		if (tidStacks.size() >= 0)
+		{
+			if (!currentStack.Empty())
+				tidStacks[currentStack.GetTID()].Update(currentStack);
+			for (auto& stack : tidStacks)
+			{
+				std::vector<StackLine> finalLines = stack.second.GetFinalLines();
+				tidEndedLines[stack.first].insert(std::end(tidEndedLines[stack.first]), std::begin(finalLines), std::end(finalLines));
+			}
 		}
 }
 
