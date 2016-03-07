@@ -183,16 +183,20 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AbstractState.cpp" />
     <ClCompile Include="CSVBlock.cpp" />
     <ClCompile Include="LOG4900_Google.cpp" />
     <ClCompile Include="StackBlock.cpp" />
     <ClCompile Include="StackLine.cpp" />
+    <ClCompile Include="StateManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AbstractState.h" />
     <ClInclude Include="CSVBlock.h" />
     <ClInclude Include="HeaderDefinition.h" />
     <ClInclude Include="StackBlock.h" />
     <ClInclude Include="StackLine.h" />
+    <ClInclude Include="StateManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

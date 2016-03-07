@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\stateIO">
+      <UniqueIdentifier>{00ff06ea-26d1-46c3-aacb-38fb3f473a49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\StateIO">
+      <UniqueIdentifier>{32e5e2a3-6faa-4613-9e21-bf4d5a6489af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LOG4900_Google.cpp">
@@ -27,6 +33,12 @@
     <ClCompile Include="CSVBlock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="StateManager.cpp">
+      <Filter>Source Files\StateIO</Filter>
+    </ClCompile>
+    <ClCompile Include="AbstractState.cpp">
+      <Filter>Source Files\StateIO</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StackBlock.h">
@@ -40,6 +52,12 @@
     </ClInclude>
     <ClInclude Include="HeaderDefinition.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StateManager.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="AbstractState.h">
+      <Filter>Header Files\stateIO</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

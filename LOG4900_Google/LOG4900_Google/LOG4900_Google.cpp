@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <algorithm>
 #include <cstdio>
@@ -126,7 +127,13 @@ const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<
 void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>>& stackEventLines)
 {
 		std::string tempLine = "";
-
+		//types de I/O
+		std::unordered_set<std::string> typesIO{ "FileIoCreate", "FileIoCleanup", "FileIoClose", 
+												 "FileIoFlush", "FileIoRead","FileIoWrite",
+												 "FileIoSetInfo", "FileIoQueryInfo", "FileIoFSCTL",
+												 "FileIoDelete", "FileIoRename", "FileIoDirEnum",
+												 "FileIoDirNotify", "FileIoOpEnd"};
+		
 		std::unordered_map<std::string, std::vector<std::vector<std::string>>> tidCompletePhaseStacks;
 
 		CSVBlock currentStack;
@@ -195,6 +202,11 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 					{
 						currentStack.AddLine(tokens);
 					}
+				}
+				//si le premier tokens est un FileIO et que le troisième est "chrome.exe"
+				else if ((typesIO.find(tokens[0]) != typesIO.end()) && (tokens[2].find("chrome.exe")!=std::string::npos)) 
+				{
+					//logique pour les I/O
 				}
 
 				pos = ++newPos;
@@ -317,7 +329,6 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 	std::string dur = "";
 
 	//dirty code
-
 	std::string event = "";
 	std::string outputText = "";
 	std::string eventType = "";
@@ -376,6 +387,18 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 	args += "}";
 	return "{" + pid + tid + ts + phase + cat + name + args + dur + "}";
 }
+
+
+std::string convertEventIOToJSON(std::vector<std::string>& line)
+{
+	for (int i = 0; i < line.size(); i++)
+	{
+
+	}
+
+	return "";
+}
+
 
 boost::iostreams::mapped_file mapFileToMem(char* path)
 {
