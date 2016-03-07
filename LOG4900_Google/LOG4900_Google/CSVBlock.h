@@ -8,6 +8,8 @@ public:
 	CSVBlock();
 
 	bool Empty() { return lines.empty(); }
+	int Size() { return lines.size(); }
+	const std::vector<std::vector<std::string>>& GetLines() { return lines; }
 	std::string GetTID() { return tid; }
 	int GetTimestamp() { return this->timestamp; }
 

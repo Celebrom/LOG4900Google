@@ -190,6 +190,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CSVBlock.h" />
+    <ClInclude Include="HeaderDefinition.h" />
     <ClInclude Include="StackBlock.h" />
     <ClInclude Include="StackLine.h" />
   </ItemGroup>

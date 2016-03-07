@@ -7,8 +7,8 @@
 class StackBlock
 {
 public:
-	std::vector<StackLine> GetFinalLines();
-	std::vector<StackLine> Update(CSVBlock currentBlock);
+	std::vector<StackLine> GetLines();
+	std::vector<std::string> Update(CSVBlock currentBlock);
 
 private:
 	std::vector<StackLine> lines;

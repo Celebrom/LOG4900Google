@@ -20,8 +20,8 @@ std::clock_t start;
 std::string convertEventToJSON(std::vector<std::string>& lines);
 std::vector<std::string> removeSpaces(std::vector<std::string> tokens);
 const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header);
-void parseLines(const char*& pos, const char*& end, std::vector<std::string>& lines);
-void writeJSON(char* path, std::vector<std::string>& lines);
+void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>>& stackEventLines);
+void writeJSON(char* path, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>> stackEventLines);
 std::string convertEventToJSON(std::vector<std::string>& line);
 boost::iostreams::mapped_file mapFileToMem(char* path);
 void convertEtlToCSV(char* argvPath);
@@ -123,7 +123,7 @@ const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<
 		return pos;
 }
 
-void parseLines(const char*& pos, const char*& end, std::vector<std::string>& lines)
+void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>>& stackEventLines)
 {
 		std::string tempLine = "";
 
@@ -131,7 +131,6 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& li
 
 		CSVBlock currentStack;
 		std::unordered_map<std::string, StackBlock> tidStacks;
-		std::unordered_map<std::string, std::vector<StackLine>> tidEndedLines;
 
 		while(pos && pos != end)
 		{
@@ -162,7 +161,7 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& li
 										complete.push_back(duration);
 								
 										std::string eventJSON = convertEventToJSON(complete);
-										lines.push_back(eventJSON);
+										chromeEventLines.push_back(eventJSON);
 								
 										tidCompletePhaseStacks[tokens[3]].pop_back();
 								}
@@ -173,8 +172,8 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& li
 						 }
 						 else
 						 {
-						   std::string eventJSON = convertEventToJSON(tokens);
-							 lines.push_back(eventJSON);
+							std::string eventJSON = convertEventToJSON(tokens);
+							chromeEventLines.push_back(eventJSON);
 						 }
 				}
 				else if (tokens[0] == "Stack")
@@ -185,8 +184,8 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& li
 
 					if (tokens[2] != currentStack.GetTID() || ts != currentStack.GetTimestamp())
 					{
-						std::vector<StackLine> endedLines = tidStacks[tokens[2]].Update(currentStack);
-						tidEndedLines[tokens[2]].insert(std::end(tidEndedLines[tokens[2]]), std::begin(endedLines), std::end(endedLines));
+						std::vector<std::string> endedLines = tidStacks[tokens[2]].Update(currentStack);
+						stackEventLines[tokens[2]].insert(std::end(stackEventLines[tokens[2]]), std::begin(endedLines), std::end(endedLines));
 
 						currentStack.Reset(tokens[2], ts);
 						currentStack.AddLine(tokens);
@@ -204,30 +203,46 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& li
 		{
 			if (!currentStack.Empty())
 				tidStacks[currentStack.GetTID()].Update(currentStack);
+
 			for (auto& stack : tidStacks)
 			{
-				std::vector<StackLine> finalLines = stack.second.GetFinalLines();
-				tidEndedLines[stack.first].insert(std::end(tidEndedLines[stack.first]), std::begin(finalLines), std::end(finalLines));
+				std::vector<StackLine> finalLines = stack.second.GetLines();
+				for (StackLine& line : finalLines)
+				{
+					line.SetEndTimestamp(currentStack.GetTimestamp());
+					stackEventLines[stack.first].push_back(line.ToJson());
+				}
 			}
 		}
 }
 
-void writeJSON(char* path, std::vector<std::string>& lines)
+void writeJSON(char* path, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>> stackEventLines)
 {
 		std::vector<std::string> fileName;
 		tokenize(path, fileName, ".");
 		std::ofstream outputFile(fileName[0] + ".json");
 
 		outputFile << "{\"traceEvents\":[";
-
-		for (int i = 0; i < lines.size(); ++i)
+		for (int i = 0; i < chromeEventLines.size(); ++i)
 		{
-			if (i != lines.size() - 1)
-				outputFile << lines[i] << ",\n";
-			else
-				outputFile << lines[i] << "\n";
+			if (i != chromeEventLines.size() - 1)
+				outputFile << chromeEventLines[i] << ",\n";
 		}
-
+		outputFile << "],\n\"stacks\":[";
+		for (auto& it = stackEventLines.begin(); it != stackEventLines.end(); ++it)
+		{
+			outputFile << "\"" + (*it).first + "\":[";
+			for (int i = 0; i < (*it).second.size(); ++i)
+			{
+				if (i != (*it).second.size() - 1)
+					outputFile << (*it).second[i] << ",\n";
+			}
+			
+			if (it != --stackEventLines.end())
+				outputFile << "],\n";
+			else
+				outputFile << "]";
+		}
 		outputFile << "]}";
 
 		outputFile.close();
@@ -388,12 +403,13 @@ void convertCSVToJSON(char* path)
 
 		showElapseTime("\n\n\nTemps de fin de parsing du header: ");
 
-		std::vector<std::string> lines;
-		parseLines(posBeginLines, end, lines);
+		std::vector<std::string> chromeEventLines;
+		std::unordered_map<std::string, std::vector<std::string>> stackEventLines;
+		parseLines(posBeginLines, end, chromeEventLines, stackEventLines);
 
 		showElapseTime("\n\n\nTemps de fin de parsing des lignes du fichier: ");
 
-		writeJSON(path, lines);
+		writeJSON(path, chromeEventLines, stackEventLines);
 
 		showElapseTime("\n\n\nTemps de fin d'ecriture du JSON: ");
 		

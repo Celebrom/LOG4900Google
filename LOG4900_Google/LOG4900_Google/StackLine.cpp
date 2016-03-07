@@ -11,5 +11,10 @@ StackLine::StackLine(int id, std::string name, int parent, int beginTimestamp)
 
 std::string StackLine::ToJson()
 {
-	return "";
+	return "{\"id\":" + std::to_string(id) 
+		+ ",\"name\":" + name 
+		+ ",\"parent\":" + std::to_string(parent) 
+		+ ",\"begin\":" + std::to_string(beginTimestamp)
+		+ ",\"duration\":" + std::to_string(endTimestamp - beginTimestamp)
+		+ "}";
 }
