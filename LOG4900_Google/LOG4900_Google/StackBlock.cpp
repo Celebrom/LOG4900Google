@@ -1,6 +1,6 @@
 #include "StackBlock.h"
 #include "HeaderDefinition.h"
-int StackBlock::idCounter = 0;
+int StackBlock::idCounter = 1;
 
 std::vector<StackLine> StackBlock::GetLines()
 {
@@ -38,7 +38,10 @@ std::vector<std::string> StackBlock::Update(CSVBlock currentBlock)
 	for (int i = iCSV; i >= 0; --i)
 	{
 		std::string name = csvLines[i][(int)Stack::ImageFunction];
-		int parentID = lines.back().GetID();
+
+		int parentID = 0;
+		if (lines.size() > 0)
+			parentID = lines.back().GetID();
 		lines.push_back(StackLine(idCounter++, name, parentID, currentTimestamp));
 	}
 

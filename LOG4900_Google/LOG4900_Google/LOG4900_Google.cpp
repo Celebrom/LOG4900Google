@@ -131,6 +131,7 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 
 		CSVBlock currentStack;
 		std::unordered_map<std::string, StackBlock> tidStacks;
+		std::unordered_map<std::string, std::string> timestampProcess;
 
 		while(pos && pos != end)
 		{
