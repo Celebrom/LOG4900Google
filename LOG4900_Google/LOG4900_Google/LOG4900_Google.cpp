@@ -1,6 +1,8 @@
 #include "CSVBlock.h"
 #include "StackBlock.h"
 #include "../etw_reader/etw_reader.h"
+#include "../etw_reader/generate_history_from_trace.h"
+#include "../etw_reader/system_history.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -12,7 +14,10 @@
 #include <functional> 
 #include <cctype>
 #include <locale>
+#include <codecvt>
 #include <boost/iostreams/device/mapped_file.hpp>
+
+using namespace etw_insights;
 
 std::clock_t start;
 
@@ -129,9 +134,9 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 
 		std::unordered_map<std::string, std::vector<std::vector<std::string>>> tidCompletePhaseStacks;
 
-		CSVBlock currentStack;
-		std::unordered_map<std::string, StackBlock> tidStacks;
-		std::unordered_map<std::string, std::string> timestampProcess;
+		//CSVBlock currentStack;
+		//std::unordered_map<std::string, StackBlock> tidStacks;
+		//std::unordered_map<std::string, std::string> timestampProcess;
 
 		while(pos && pos != end)
 		{
@@ -177,51 +182,51 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 							chromeEventLines.push_back(eventJSON);
 						 }
 				}
-				else if (tokens[0] == "Stack")
-				{
-					int ts = std::stoi(tokens[1]);
-					if (currentStack.Empty())
-						currentStack.Reset(tokens[2], ts);
+				//else if (tokens[0] == "Stack")
+				//{
+				//	int ts = std::stoi(tokens[1]);
+				//	if (currentStack.Empty())
+				//		currentStack.Reset(tokens[2], ts);
 
-					if (timestampProcess[tokens[1]].find("chrome.exe") != std::string::npos)
-					{
-						if (tokens[2] != currentStack.GetTID() || ts != currentStack.GetTimestamp()) // Reached a new stack
-						{
-							std::vector<std::string> endedLines = tidStacks[tokens[2]].Update(currentStack);
-							stackEventLines[tokens[2]].insert(std::end(stackEventLines[tokens[2]]), std::begin(endedLines), std::end(endedLines));
+				//	if (timestampProcess[tokens[1]].find("chrome.exe") != std::string::npos)
+				//	{
+				//		if (tokens[2] != currentStack.GetTID() || ts != currentStack.GetTimestamp()) // Reached a new stack
+				//		{
+				//			std::vector<std::string> endedLines = tidStacks[tokens[2]].Update(currentStack);
+				//			stackEventLines[tokens[2]].insert(std::end(stackEventLines[tokens[2]]), std::begin(endedLines), std::end(endedLines));
 
-							currentStack.Reset(tokens[2], ts);
-							currentStack.AddLine(tokens);
-						}
-						else
-						{
-							currentStack.AddLine(tokens);
-						}
-					}
-				}
-				else if (tokens[0] == "SampledProfile" || tokens[0] == "ReadyThread" || tokens[0] == "CSwitch")
-				{
-					timestampProcess[tokens[1]] = tokens[2];
-				}
+				//			currentStack.Reset(tokens[2], ts);
+				//			currentStack.AddLine(tokens);
+				//		}
+				//		else
+				//		{
+				//			currentStack.AddLine(tokens);
+				//		}
+				//	}
+				//}
+				//else if (tokens[0] == "SampledProfile" || tokens[0] == "ReadyThread" || tokens[0] == "CSwitch")
+				//{
+				//	timestampProcess[tokens[1]] = tokens[2];
+				//}
 
 				pos = ++newPos;
 		}
 
-		if (tidStacks.size() >= 0)
-		{
-			if (!currentStack.Empty())
-				tidStacks[currentStack.GetTID()].Update(currentStack);
+		//if (tidStacks.size() >= 0)
+		//{
+		//	if (!currentStack.Empty())
+		//		tidStacks[currentStack.GetTID()].Update(currentStack);
 
-			for (auto& stack : tidStacks)
-			{
-				std::vector<StackLine> finalLines = stack.second.GetLines();
-				for (StackLine& line : finalLines)
-				{
-					line.SetEndTimestamp(currentStack.GetTimestamp());
-					stackEventLines[stack.first].push_back(line.ToJson());
-				}
-			}
-		}
+		//	for (auto& stack : tidStacks)
+		//	{
+		//		std::vector<StackLine> finalLines = stack.second.GetLines();
+		//		for (StackLine& line : finalLines)
+		//		{
+		//			line.SetEndTimestamp(currentStack.GetTimestamp());
+		//			stackEventLines[stack.first].push_back(line.ToJson());
+		//		}
+		//	}
+		//}
 }
 
 void writeJSON(char* path, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>> stackEventLines)
@@ -384,6 +389,48 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 	return "{" + pid + tid + ts + phase + cat + name + args + dur + "}";
 }
 
+void parseStacks(SystemHistory& system_history, std::unordered_map<std::string, std::vector<std::string>>& completedFunctions)
+{
+	// Traverse all threads.
+	for (auto threads_it = system_history.threads_begin(); threads_it != system_history.threads_end(); ++threads_it)
+	{
+		std::string process_name = system_history.GetProcessName(threads_it->second.parent_process_id());
+		if (process_name != "chrome.exe") continue;
+
+		auto& threadStacks = threads_it->second.Stacks();
+		auto  stacksEnd    = threadStacks.IteratorEnd();
+		auto itFirst  = threadStacks.IteratorFromTimestamp(0);
+		auto itSecond = itFirst + 1;
+		// Traverse all stacks comparing first and second to see what functions ended
+		for (; itSecond != stacksEnd; ++itFirst, ++itSecond)
+		{
+			base::Timestamp fstTS = (*itFirst).start_ts;
+			base::Timestamp sndTS = (*itSecond).start_ts;
+			std::vector<std::string> fstVec = (*itFirst).value;
+			std::vector<std::string> sndVec = (*itSecond).value;
+			int fstSize = fstVec.size();
+			int sndSize = sndVec.size();
+			int iFST = 0;
+			int iSND = 0;
+
+			//Scratch that, we'll use the StackBlock(to be renamed)
+			while (iFST < fstSize && iSND < sndSize) // Find the difference point between the two stacks
+			{
+				if (fstVec[iFST] != sndVec[iSND]) break;
+				++iFST, ++iSND;
+			}
+
+			for (; iFST < fstSize; ++iFST)
+			{
+				// Rename itFirst to itInitial
+				// Rename itSecond to it
+				// itFirst becomes the base for a StackBlock (rename that?)
+				// Empilage, dépilage; Fun stuff
+			}
+		}
+	}
+}
+
 boost::iostreams::mapped_file mapFileToMem(char* path)
 {
 		boost::iostreams::mapped_file mmap(path, boost::iostreams::mapped_file::readonly);
@@ -408,18 +455,28 @@ void convertCSVToJSON(char* path)
 
 		std::unordered_map<std::string, std::vector<std::string>> header;
 		const char*& posBeginLines = parseHeader(pos, end, header);
-
 		showElapseTime("\n\n\nTemps de fin de parsing du header: ");
 
-		std::vector<std::string> chromeEventLines;
-		std::unordered_map<std::string, std::vector<std::string>> stackEventLines;
-		parseLines(posBeginLines, end, chromeEventLines, stackEventLines);
 
+		std::vector<std::string> chromeEventLines;
+		std::unordered_map<std::string, std::vector<std::string>> completedFunctions;
+		parseLines(posBeginLines, end, chromeEventLines, completedFunctions);
 		showElapseTime("\n\n\nTemps de fin de parsing des lignes du fichier: ");
 
-		writeJSON(path, chromeEventLines, stackEventLines);
 
+		//std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+		//std::wstring widePath = converter.from_bytes(path);
+		//SystemHistory system_history;
+		//if (!GenerateHistoryFromTrace(widePath, &system_history)) {
+		//	LOG(ERROR) << "Error while generating history from trace.";
+		//	return;
+		//}
+		//parseStacks(system_history, completedFunctions);
+
+
+		writeJSON(path, chromeEventLines, completedFunctions);
 		showElapseTime("\n\n\nTemps de fin d'ecriture du JSON: ");
+
 		
 		//munmap pas necessaire parce que map desallouer a la fin du process
 		//boost::iostreams::mapped_file munmap(mmap, mmap.size());
