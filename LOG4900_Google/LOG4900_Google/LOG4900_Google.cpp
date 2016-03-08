@@ -183,18 +183,25 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 					if (currentStack.Empty())
 						currentStack.Reset(tokens[2], ts);
 
-					if (tokens[2] != currentStack.GetTID() || ts != currentStack.GetTimestamp())
+					if (timestampProcess[tokens[1]].find("chrome.exe") != std::string::npos)
 					{
-						std::vector<std::string> endedLines = tidStacks[tokens[2]].Update(currentStack);
-						stackEventLines[tokens[2]].insert(std::end(stackEventLines[tokens[2]]), std::begin(endedLines), std::end(endedLines));
+						if (tokens[2] != currentStack.GetTID() || ts != currentStack.GetTimestamp()) // Reached a new stack
+						{
+							std::vector<std::string> endedLines = tidStacks[tokens[2]].Update(currentStack);
+							stackEventLines[tokens[2]].insert(std::end(stackEventLines[tokens[2]]), std::begin(endedLines), std::end(endedLines));
 
-						currentStack.Reset(tokens[2], ts);
-						currentStack.AddLine(tokens);
+							currentStack.Reset(tokens[2], ts);
+							currentStack.AddLine(tokens);
+						}
+						else
+						{
+							currentStack.AddLine(tokens);
+						}
 					}
-					else
-					{
-						currentStack.AddLine(tokens);
-					}
+				}
+				else if (tokens[0] == "SampledProfile" || tokens[0] == "ReadyThread" || tokens[0] == "CSwitch")
+				{
+					timestampProcess[tokens[1]] = tokens[2];
 				}
 
 				pos = ++newPos;
