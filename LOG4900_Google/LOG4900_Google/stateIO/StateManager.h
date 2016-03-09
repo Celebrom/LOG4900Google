@@ -1,7 +1,4 @@
 #pragma once
-#ifndef __STATE_MANAGER_H_
-#define _STATE_MANAGER_H_
-
 #include <string>
 #include "AbstractState.h"
 class StateManager
@@ -19,5 +16,3 @@ private:
 	int	   idState_;
 };
 
-
-#endif // __STATE_MANAGER_H_

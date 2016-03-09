@@ -183,20 +183,35 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AbstractState.cpp" />
     <ClCompile Include="CSVBlock.cpp" />
     <ClCompile Include="LOG4900_Google.cpp" />
     <ClCompile Include="StackBlock.cpp" />
     <ClCompile Include="StackLine.cpp" />
-    <ClCompile Include="StateManager.cpp" />
+    <ClCompile Include="stateIO\AbstractState.cpp" />
+    <ClCompile Include="stateIO\FileIO.cpp" />
+    <ClCompile Include="stateIO\StateManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AbstractState.h" />
     <ClInclude Include="CSVBlock.h" />
     <ClInclude Include="HeaderDefinition.h" />
     <ClInclude Include="StackBlock.h" />
     <ClInclude Include="StackLine.h" />
-    <ClInclude Include="StateManager.h" />
+    <ClInclude Include="stateIO\AbstractState.h" />
+    <ClInclude Include="stateIO\FileIOCleanUpState.h" />
+    <ClInclude Include="stateIO\FileIOCloseState.h" />
+    <ClInclude Include="stateIO\FileIOCreateState.h" />
+    <ClInclude Include="stateIO\FileIODeleteState.h" />
+    <ClInclude Include="stateIO\FileIODirEnumState.h" />
+    <ClInclude Include="stateIO\FileIODirNotifyState.h" />
+    <ClInclude Include="stateIO\FileIOFlushState.h" />
+    <ClInclude Include="stateIO\FileIOFSCTLState.h" />
+    <ClInclude Include="stateIO\FileIOOpEndState.h" />
+    <ClInclude Include="stateIO\FileIOQueryInfoState.h" />
+    <ClInclude Include="stateIO\FileIOReadState.h" />
+    <ClInclude Include="stateIO\FileIORenameState.h" />
+    <ClInclude Include="stateIO\FileIOSetInfoState.h" />
+    <ClInclude Include="stateIO\FileIOWriteState.h" />
+    <ClInclude Include="stateIO\StateManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

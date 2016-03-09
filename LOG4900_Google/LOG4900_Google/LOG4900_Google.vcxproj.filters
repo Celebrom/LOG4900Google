@@ -14,10 +14,10 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Header Files\stateIO">
-      <UniqueIdentifier>{00ff06ea-26d1-46c3-aacb-38fb3f473a49}</UniqueIdentifier>
+      <UniqueIdentifier>{5951cf15-a5ac-4691-af42-b3d5d5f5e1bd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\StateIO">
-      <UniqueIdentifier>{32e5e2a3-6faa-4613-9e21-bf4d5a6489af}</UniqueIdentifier>
+    <Filter Include="Source Files\stateIO">
+      <UniqueIdentifier>{183f4779-09e9-4395-9e06-b62437639a91}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -33,11 +33,14 @@
     <ClCompile Include="CSVBlock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StateManager.cpp">
-      <Filter>Source Files\StateIO</Filter>
+    <ClCompile Include="stateIO\AbstractState.cpp">
+      <Filter>Source Files\stateIO</Filter>
     </ClCompile>
-    <ClCompile Include="AbstractState.cpp">
-      <Filter>Source Files\StateIO</Filter>
+    <ClCompile Include="stateIO\StateManager.cpp">
+      <Filter>Source Files\stateIO</Filter>
+    </ClCompile>
+    <ClCompile Include="stateIO\FileIO.cpp">
+      <Filter>Source Files\stateIO</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -53,10 +56,52 @@
     <ClInclude Include="HeaderDefinition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StateManager.h">
+    <ClInclude Include="stateIO\AbstractState.h">
       <Filter>Header Files\stateIO</Filter>
     </ClInclude>
-    <ClInclude Include="AbstractState.h">
+    <ClInclude Include="stateIO\FileIOCreateState.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="stateIO\StateManager.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="stateIO\FileIOCleanUpState.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="stateIO\FileIOCloseState.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="stateIO\FileIODeleteState.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="stateIO\FileIODirEnumState.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="stateIO\FileIODirNotifyState.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="stateIO\FileIOFlushState.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="stateIO\FileIOFSCTLState.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="stateIO\FileIOOpEndState.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="stateIO\FileIOQueryInfoState.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="stateIO\FileIOReadState.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="stateIO\FileIORenameState.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="stateIO\FileIOSetInfoState.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="stateIO\FileIOWriteState.h">
       <Filter>Header Files\stateIO</Filter>
     </ClInclude>
   </ItemGroup>

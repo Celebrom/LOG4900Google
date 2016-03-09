@@ -14,8 +14,10 @@
 #include <cctype>
 #include <locale>
 #include <boost/iostreams/device/mapped_file.hpp>
+#include "stateIO\StateManager.h"
 
 std::clock_t start;
+StateManager stateIO;
 
 // Functions declarations
 std::string convertEventToJSON(std::vector<std::string>& lines);
@@ -190,23 +192,31 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 					if (currentStack.Empty())
 						currentStack.Reset(tokens[2], ts);
 
-					if (tokens[2] != currentStack.GetTID() || ts != currentStack.GetTimestamp())
+					if (timestampProcess[tokens[1]].find("chrome.exe") != std::string::npos)
 					{
-						std::vector<std::string> endedLines = tidStacks[tokens[2]].Update(currentStack);
-						stackEventLines[tokens[2]].insert(std::end(stackEventLines[tokens[2]]), std::begin(endedLines), std::end(endedLines));
+						if (tokens[2] != currentStack.GetTID() || ts != currentStack.GetTimestamp()) // Reached a new stack
+						{
+							std::vector<std::string> endedLines = tidStacks[tokens[2]].Update(currentStack);
+							stackEventLines[tokens[2]].insert(std::end(stackEventLines[tokens[2]]), std::begin(endedLines), std::end(endedLines));
 
-						currentStack.Reset(tokens[2], ts);
-						currentStack.AddLine(tokens);
-					}
-					else
-					{
-						currentStack.AddLine(tokens);
+							currentStack.Reset(tokens[2], ts);
+							currentStack.AddLine(tokens);
+						}
+						else
+						{
+							currentStack.AddLine(tokens);
+						}
 					}
 				}
+
 				//si le premier tokens est un FileIO et que le troisième est "chrome.exe"
-				else if ((typesIO.find(tokens[0]) != typesIO.end()) && (tokens[2].find("chrome.exe")!=std::string::npos)) 
+				else if ((typesIO.find(tokens[0]) != typesIO.end()) && (tokens[2].find("chrome.exe") != std::string::npos))
 				{
 					//logique pour les I/O
+				}
+				else if (tokens[0] == "SampledProfile" || tokens[0] == "ReadyThread" || tokens[0] == "CSwitch")
+				{
+					timestampProcess[tokens[1]] = tokens[2];
 				}
 
 				pos = ++newPos;
@@ -391,12 +401,8 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 
 std::string convertEventIOToJSON(std::vector<std::string>& line)
 {
-	for (int i = 0; i < line.size(); i++)
-	{
-
-	}
-
-	return "";
+	stateIO.changeStateTo(stateIO.fromStringToIntIO(line[0]));
+	return stateIO.getCurrentState()->returnJson(line);
 }
 
 

@@ -1,4 +1,20 @@
 #include "StateManager.h"
+#include "AbstractState.h"
+#include "FileIOCreateState.h"
+#include "FileIOCleanUpState.h"
+#include "FileIOCloseState.h"
+#include "FileIOFlushState.h"
+#include "FileIOReadState.h"
+#include "FileIOWriteState.h"
+#include "FileIOSetInfoState.h"
+#include "FileIOQueryInfoState.h"
+#include "FileIOFSCTLState.h"
+#include "FileIODeleteState.h"
+#include "FIleIORenameState.h"
+#include "FileIODirNotifyState.h"
+#include "FileIOOpEndState.h"
+#include "FileIODirEnumState.h"
+#include "FileIODirNotifyState.h"
 
 
 enum typeIO{
@@ -11,7 +27,7 @@ enum typeIO{
 	FILEIOWRITE,
 	FILEIOSETINFO, 
 	FILEIOQUERYINFO, 
-	FileIoFSCTL,
+	FILEIOFSCTL,
 	FILEIODELETE,
 	FILEIORENAME,
 	FILEIODIRENUM,
@@ -58,46 +74,46 @@ void StateManager::changeStateTo(unsigned int state){
 	switch (state)
 	{
 	case FILEIOCREATE:
-		//currentState_ = new FileIOCreateState();
+		currentState_ = new FileIOCreateState();
 		break;
 	case FILEIOCLEANUP:
-		//currentState_ = new FileIOCleanUp();
+		currentState_ = new FileIOCleanUpState();
 		break;
 	case FILEIOCLOSE:
-		//currentState_ = new FileIOClose();
+		currentState_ = new FileIOCloseState();
 		break;
 	case FILEIOFLUSH:
-		//currentState_ = new FileIOFlush();
+		currentState_ = new FileIOFlushState();
 		break;
 	case FILEIOREAD:
-		//currentState_ = new FileIORead();
+		currentState_ = new FileIOReadState();
 		break;
 	case FILEIOWRITE:
-		//currentState_ = new FileIOWrite();
+		currentState_ = new FileIOWriteState();
 		break;
 	case FILEIOSETINFO:
-		//currentState_ = new FileIOSetInfo();
+		currentState_ = new FileIOSetInfoState();
 		break;
 	case FILEIOQUERYINFO:
-		//currentState_ = new FileIOQueryInfo();
+		currentState_ = new FileIOQueryInfoState();
 		break;
-	case FileIoFSCTL:
-		//currentState_ = new FileIOFSCTL();
+	case FILEIOFSCTL:
+		currentState_ = new FileIOFSCTLState();
 		break;
 	case FILEIODELETE:
-		//currentState_ = new FileIODelete();
+		currentState_ = new FileIODeleteState();
 		break;
 	case FILEIORENAME:
-		//currentState_ = new FileIORename();
+		currentState_ = new FileIORenameState();
 		break;
 	case FILEIODIRENUM:
-		//currentState_ = new FileIODirEnum();
+		currentState_ = new FileIODirEnumState();
 		break;
 	case FILEIODIRNOTIFY:
-		//currentState_ = new FileIODirNotify();
+		currentState_ = new FileIODirNotifyState();
 		break;
 	case FILEIOOPEND:
-		//currentState_ = new FileIOOpEnd();
+		currentState_ = new FileIOOpEndState();
 		break;
 	default:
 		break;
@@ -123,7 +139,7 @@ int StateManager::fromStringToIntIO(std::string value){
 	else if (value == "FileIoQueryInfo")
 		return FILEIOQUERYINFO;
 	else if (value == "FileIoFSCTL")
-		return FileIoFSCTL;
+		return FILEIOFSCTL;
 	else if (value == "FileIoDelete")
 		return FILEIODELETE;
 	else if (value == "FileIoRename")
