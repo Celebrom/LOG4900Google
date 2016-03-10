@@ -1,5 +1,4 @@
-#include "CSVBlock.h"
-#include "StackBlock.h"
+#include "LiveStack.h"
 #include "../etw_reader/etw_reader.h"
 #include "../etw_reader/generate_history_from_trace.h"
 #include "../etw_reader/system_history.h"
@@ -229,7 +228,7 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 		//}
 }
 
-void writeJSON(char* path, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>> stackEventLines)
+void writeJSON(char* path, std::vector<std::string>& chromeEventLines, std::unordered_map<base::Tid, std::vector<std::string>> stackEventLines)
 {
 		std::vector<std::string> fileName;
 		tokenize(path, fileName, ".");
@@ -244,7 +243,7 @@ void writeJSON(char* path, std::vector<std::string>& chromeEventLines, std::unor
 		outputFile << "],\n\"stacks\":[";
 		for (auto& it = stackEventLines.begin(); it != stackEventLines.end(); ++it)
 		{
-			outputFile << "\"" + (*it).first + "\":[";
+			outputFile << "\"" << (*it).first << "\":[";
 			for (int i = 0; i < (*it).second.size(); ++i)
 			{
 				if (i != (*it).second.size() - 1)
@@ -389,7 +388,7 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 	return "{" + pid + tid + ts + phase + cat + name + args + dur + "}";
 }
 
-void parseStacks(SystemHistory& system_history, std::unordered_map<std::string, std::vector<std::string>>& completedFunctions)
+void parseStacks(SystemHistory& system_history, std::unordered_map<base::Tid, std::vector<std::string>>& completedFunctions)
 {
 	// Traverse all threads.
 	for (auto threads_it = system_history.threads_begin(); threads_it != system_history.threads_end(); ++threads_it)
@@ -399,35 +398,19 @@ void parseStacks(SystemHistory& system_history, std::unordered_map<std::string, 
 
 		auto& threadStacks = threads_it->second.Stacks();
 		auto  stacksEnd    = threadStacks.IteratorEnd();
-		auto itFirst  = threadStacks.IteratorFromTimestamp(0);
-		auto itSecond = itFirst + 1;
+
+		LiveStack liveStack;
+		std::vector<std::string> threadCompletedFunctions;
 		// Traverse all stacks comparing first and second to see what functions ended
-		for (; itSecond != stacksEnd; ++itFirst, ++itSecond)
+		for (auto it = threadStacks.IteratorFromTimestamp(0); it != stacksEnd; ++it)
 		{
-			base::Timestamp fstTS = (*itFirst).start_ts;
-			base::Timestamp sndTS = (*itSecond).start_ts;
-			std::vector<std::string> fstVec = (*itFirst).value;
-			std::vector<std::string> sndVec = (*itSecond).value;
-			int fstSize = fstVec.size();
-			int sndSize = sndVec.size();
-			int iFST = 0;
-			int iSND = 0;
-
-			//Scratch that, we'll use the StackBlock(to be renamed)
-			while (iFST < fstSize && iSND < sndSize) // Find the difference point between the two stacks
-			{
-				if (fstVec[iFST] != sndVec[iSND]) break;
-				++iFST, ++iSND;
-			}
-
-			for (; iFST < fstSize; ++iFST)
-			{
-				// Rename itFirst to itInitial
-				// Rename itSecond to it
-				// itFirst becomes the base for a StackBlock (rename that?)
-				// Empilage, dépilage; Fun stuff
-			}
+			std::vector<std::string> actualCompletedFunctions = liveStack.Update((*it));
+			threadCompletedFunctions.insert(std::end(threadCompletedFunctions), std::begin(actualCompletedFunctions), std::end(actualCompletedFunctions));
 		}
+		std::vector<std::string> finalCompletedFunctions = liveStack.GetFinalLines();
+		threadCompletedFunctions.insert(std::end(threadCompletedFunctions), std::begin(finalCompletedFunctions), std::end(finalCompletedFunctions));
+
+		completedFunctions[(*threads_it).first] = threadCompletedFunctions;
 	}
 }
 
@@ -449,33 +432,34 @@ void convertEtlToCSV(char* argvPath)
 void convertCSVToJSON(char* path)
 {
 		// Opening and reading .csv
-		boost::iostreams::mapped_file mmap = mapFileToMem(path);
-		auto pos = mmap.const_data();
-		auto end = pos + mmap.size();
-
-		std::unordered_map<std::string, std::vector<std::string>> header;
-		const char*& posBeginLines = parseHeader(pos, end, header);
-		showElapseTime("\n\n\nTemps de fin de parsing du header: ");
+		//boost::iostreams::mapped_file mmap = mapFileToMem(path);
+		//auto pos = mmap.const_data();
+		//auto end = pos + mmap.size();
+		//
+		//std::unordered_map<std::string, std::vector<std::string>> header;
+		//const char*& posBeginLines = parseHeader(pos, end, header);
+		//showElapseTime("\n\n\nTemps de fin de parsing du header: ");
 
 
 		std::vector<std::string> chromeEventLines;
-		std::unordered_map<std::string, std::vector<std::string>> completedFunctions;
-		parseLines(posBeginLines, end, chromeEventLines, completedFunctions);
-		showElapseTime("\n\n\nTemps de fin de parsing des lignes du fichier: ");
+		//std::unordered_map<std::string, std::vector<std::string>> completedFunctions;
+		//parseLines(posBeginLines, end, chromeEventLines, completedFunctions);
+		//showElapseTime("\n\n\nTemps de fin de parsing des lignes du fichier: ");
 
 
-		//std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-		//std::wstring widePath = converter.from_bytes(path);
-		//SystemHistory system_history;
-		//if (!GenerateHistoryFromTrace(widePath, &system_history)) {
-		//	LOG(ERROR) << "Error while generating history from trace.";
-		//	return;
-		//}
-		//parseStacks(system_history, completedFunctions);
+		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+		std::wstring widePath = converter.from_bytes(path);
+		SystemHistory system_history;
+		if (!GenerateHistoryFromTrace(widePath, &system_history)) {
+			LOG(ERROR) << "Error while generating history from trace.";
+			return;
+		}
+		std::unordered_map<base::Tid, std::vector<std::string>> completedFunctions;
+		parseStacks(system_history, completedFunctions);
 
 
 		writeJSON(path, chromeEventLines, completedFunctions);
-		showElapseTime("\n\n\nTemps de fin d'ecriture du JSON: ");
+		//showElapseTime("\n\n\nTemps de fin d'ecriture du JSON: ");
 
 		
 		//munmap pas necessaire parce que map desallouer a la fin du process
@@ -497,17 +481,17 @@ int main(int argc, char** argv)
 	// Look if there is no arguments
 	if (argc <= 1)
 		return 0;
+	else if (std::string(argv[1]).find(".csv") != std::string::npos)
+	{
+			//do stuff if is a .csv
+			convertCSVToJSON(argv[1]);
+	}
 	else if (std::string(argv[1]).find(".etl") != std::string::npos)
 	{
 			//do stuff if is a .etl
 			convertEtlToCSV(argv[1]);
 			convertCSVToJSON(argv[1]);
 			
-	}
-	else if (std::string(argv[1]).find(".csv") != std::string::npos)
-	{
-			//do stuff if is a .csv
-			convertCSVToJSON(argv[1]);
 	}
 	else
 			return 0;

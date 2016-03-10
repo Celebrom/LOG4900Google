@@ -1,4 +1,4 @@
-enum class Stack
+enum class StackDefinition
 {
 	EventName = 0,
 	Timestamp,
