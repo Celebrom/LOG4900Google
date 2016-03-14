@@ -191,25 +191,29 @@ void writeJSON(std::wstring path, std::vector<std::string>& chromeEventLines, st
 		outputFile << "{\"traceEvents\":[";
 		for (int i = 0; i < chromeEventLines.size(); ++i)
 		{
-			if (i != chromeEventLines.size() - 1)
+			if (i < chromeEventLines.size() - 1)
 				outputFile << chromeEventLines[i] << ",\n";
-		}
-		outputFile << "],\n\"stacks\":[";
-		for (auto& it = stackEventLines.begin(); it != stackEventLines.end(); ++it)
-		{
-			outputFile << "\"" << (*it).first << "\":[";
-			for (int i = 0; i < (*it).second.size(); ++i)
-			{
-				if (i != (*it).second.size() - 1)
-					outputFile << (*it).second[i] << ",\n";
-			}
-			
-			if (it != --stackEventLines.end())
-				outputFile << "],\n";
 			else
-				outputFile << "]";
+				outputFile << chromeEventLines[i];
 		}
-		outputFile << "]}";
+		outputFile << "]";
+		//outputFile << ",\n\"stacks\":[";
+		//for (auto& it = stackEventLines.begin(); it != stackEventLines.end(); ++it)
+		//{
+		//	outputFile << "\"" << (*it).first << "\":[";
+		//	for (int i = 0; i < (*it).second.size(); ++i)
+		//	{
+		//		if (i != (*it).second.size() - 1)
+		//			outputFile << (*it).second[i] << ",\n";
+		//	}
+		//	
+		//	if (it != --stackEventLines.end())
+		//		outputFile << "],\n";
+		//	else
+		//		outputFile << "]";
+		//}
+		//outputFile << "]";
+		outputFile << "}";
 
 		outputFile.close();
 }
@@ -407,13 +411,13 @@ void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path)
 	showElapsedTime("Temps de fin de parsing des lignes du fichier");
 
 
-	SystemHistory system_history;
-	if (!GenerateHistoryFromTrace(etl_path, &system_history)) {
-		LOG(ERROR) << "Error while generating history from trace.";
-		return;
-	}
+	//SystemHistory system_history;
+	//if (!GenerateHistoryFromTrace(etl_path, &system_history)) {
+	//	LOG(ERROR) << "Error while generating history from trace.";
+	//	return;
+	//}
 	std::unordered_map<base::Tid, std::vector<std::string>> completedFunctions;
-	parseStacks(system_history, completedFunctions);
+	//parseStacks(system_history, completedFunctions);
 
 
 	std::wstring json_path = csv_path + L".json";
