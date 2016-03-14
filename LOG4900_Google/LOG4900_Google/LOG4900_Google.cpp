@@ -20,11 +20,12 @@ std::clock_t start;
 StateManager stateIO;
 
 // Functions declarations
+std::string convertIOLineToJSON(std::vector<std::string>& line);
 std::string convertEventToJSON(std::vector<std::string>& lines);
 std::vector<std::string> removeSpaces(std::vector<std::string> tokens);
 const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header);
 void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>>& stackEventLines);
-void writeJSON(char* path, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>> stackEventLines);
+void writeJSON(char* path, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>> stackEventLines, std::vector<std::string>& ioEventLines);
 std::string convertEventToJSON(std::vector<std::string>& line);
 boost::iostreams::mapped_file mapFileToMem(char* path);
 void convertEtlToCSV(char* argvPath);
@@ -126,7 +127,7 @@ const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<
 		return pos;
 }
 
-void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>>& stackEventLines)
+void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>>& stackEventLines, std::vector<std::string>& ioEventLines)
 {
 		std::string tempLine = "";
 		//types de I/O
@@ -209,10 +210,11 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 					}
 				}
 
-				//si le premier tokens est un FileIO et que le troisième est "chrome.exe"
+				//if the first token is a  FileIO the third is "chrome.exe"
 				else if ((typesIO.find(tokens[0]) != typesIO.end()) && (tokens[2].find("chrome.exe") != std::string::npos))
 				{
-					//logique pour les I/O
+					std::string eventFileIO = convertIOLineToJSON(tokens);
+					ioEventLines.push_back(eventFileIO);
 				}
 				else if (tokens[0] == "SampledProfile" || tokens[0] == "ReadyThread" || tokens[0] == "CSwitch")
 				{
@@ -399,7 +401,8 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 }
 
 
-std::string convertEventIOToJSON(std::vector<std::string>& line)
+
+std::string convertIOLineToJSON(std::vector<std::string>& line)
 {
 	stateIO.changeStateTo(stateIO.fromStringToIntIO(line[0]));
 	return stateIO.getCurrentState()->returnJson(line);
@@ -433,9 +436,10 @@ void convertCSVToJSON(char* path)
 
 		showElapseTime("\n\n\nTemps de fin de parsing du header: ");
 
+		std::vector<std::string> ioEventLines;
 		std::vector<std::string> chromeEventLines;
 		std::unordered_map<std::string, std::vector<std::string>> stackEventLines;
-		parseLines(posBeginLines, end, chromeEventLines, stackEventLines);
+		parseLines(posBeginLines, end, chromeEventLines, stackEventLines, ioEventLines);
 
 		showElapseTime("\n\n\nTemps de fin de parsing des lignes du fichier: ");
 

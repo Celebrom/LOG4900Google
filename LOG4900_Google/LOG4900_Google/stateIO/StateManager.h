@@ -12,7 +12,7 @@ public:
 	int fromStringToIntIO(std::string value);
 
 private:
-	static AbstractState* currentState_;
+	AbstractState* currentState_;
 	int	   idState_;
 };
 

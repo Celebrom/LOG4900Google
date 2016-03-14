@@ -39,7 +39,7 @@ enum typeIO{
 StateManager::StateManager()
 {
 	currentState_ = new AbstractState();
-	idState_ = 0;
+	idState_ = NEUTRAL;
 }
 
 
@@ -59,7 +59,7 @@ AbstractState* StateManager::getCurrentState(){
 	if (currentState_ == 0)
 	{
 		currentState_ = new AbstractState();
-		idState_ = 0;
+		idState_ = NEUTRAL;
 	}
 	return currentState_;
 }
