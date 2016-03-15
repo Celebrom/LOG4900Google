@@ -147,15 +147,13 @@ FileIOFlushState::FileIOFlushState(){}
 FileIOFlushState::~FileIOFlushState(){}
 std::string FileIOFlushState::returnJson(std::vector<std::string> lines){
 	/*FileIoFlush, TimeStamp, Process Name ( PID), ThreadID, LoggingProcessName ( PID), LoggingThreadID, CPU, IrpPtr, FileObject, FileName*/
-	int i = 0;
-	std::string line = "\"ts\":" + lines[++i] + ", " +
-		"\"pid\":" + extractPidFromString(lines[++i]) + ", "
-		"\"tid\":" + lines[++i] + ", ";
-	++i; ++i; // (jump the repetition)
-	line += "\"cpu\":" + lines[++i] + ", " +
-		ifNotEmpty("ip", lines[++i]) +
-		ifNotEmpty("fo", lines[++i]) +
-		ifNotEmpty("fn", lines[++i]);
+	std::string line = "\"ts\":" + lines[1] + ", " +
+		"\"pid\":" + extractPidFromString(lines[2]) + ", "
+		"\"tid\":" + lines[3] + ", ";
+	line += "\"cpu\":" + lines[6] + ", " +
+		ifNotEmpty("ip", lines[7]) +
+		ifNotEmpty("fo", lines[8]) +
+		ifNotEmpty("fn", lines[9]);
 	return line;
 }
 
@@ -164,17 +162,16 @@ FileIOFSCTLState::FileIOFSCTLState(){}
 FileIOFSCTLState::~FileIOFSCTLState(){}
 std::string FileIOFSCTLState::returnJson(std::vector<std::string> lines){
 	/*FileIoFSCTL, TimeStamp, Process Name ( PID), ThreadID, LoggingProcessName ( PID), LoggingThreadID, CPU, IrpPtr, FileObject, ExtraInfo, InfoClass, FileName*/
-	int i = 0;
-	std::string line = "\"ts\":" + lines[++i] + ", " +
-		"\"pid\":" + extractPidFromString(lines[++i]) + ", "
-		"\"tid\":" + lines[++i] + ", ";
-	++i; ++i; // (jump the repetition)
-	line += "\"cpu\":" + lines[++i] + ", " +
-		ifNotEmpty("ip", lines[++i]) +
-		ifNotEmpty("fo", lines[++i]) +
-		ifNotEmpty("ei", lines[++i]) +
-		ifNotEmpty("ic", lines[++i]) +
-		ifNotEmpty("fn", lines[++i]);
+	std::string line = "\"ts\":" + lines[1] + ", " +
+		"\"pid\":" + extractPidFromString(lines[2]) + ", "
+		"\"tid\":" + lines[3] + ", ";
+
+	line += "\"cpu\":" + lines[6] + ", " +
+		ifNotEmpty("ip", lines[7]) +
+		ifNotEmpty("fo", lines[8]) +
+		ifNotEmpty("ei", lines[9]) +
+		ifNotEmpty("ic", lines[10]) +
+		ifNotEmpty("fn", lines[11]);
 	return line;
 }
 
@@ -184,19 +181,19 @@ FileIOOpEndState::~FileIOOpEndState(){}
 std::string FileIOOpEndState::returnJson(std::vector<std::string> lines){
 	/*FileIoOpEnd, TimeStamp, Process Name ( PID), ThreadID, LoggingProcessName ( PID), LoggingThreadID, CPU, IrpPtr, FileObject, ElapsedTime, Status, ExtraInfo, Type, FileName*/
 	/*FileIoOpEnd, 1626934, chrome.exe(9336), 6332, chrome.exe(9336), 6332, 0, 0xffffe00014cb3b58, 0xffffe000186e3070, 233, 0x00000000, 0x0000000000004000*/
-	int i = 0;
-	std::string line = "\"ts\":" + lines[++i] + ", " +
-						"\"pid\":" + extractPidFromString(lines[++i]) + ", "
-						"\"tid\":" + lines[++i] + ", ";
-	++i; ++i; // (jump the repetition)
-	line += "\"cpu\":" + lines[++i] + ", " +
-		ifNotEmpty("ip", lines[++i]) +
-		ifNotEmpty("fo", lines[++i]) +
-		ifNotEmpty("et", lines[++i]) +
-		ifNotEmpty("st", lines[++i]) +
-		ifNotEmpty("ei", lines[++i]) +
-		ifNotEmpty("ty", lines[++i]) +
-		ifNotEmpty("fn", lines[++i]);
+	
+	std::string line = "\"ts\":" + lines[1] + ", " +
+						"\"pid\":" + extractPidFromString(lines[2]) + ", "
+						"\"tid\":" + lines[3] + ", ";
+	
+	line += "\"cpu\":" + lines[6] + ", " +
+		ifNotEmpty("ip", lines[7]) +
+		ifNotEmpty("fo", lines[8]) +
+		ifNotEmpty("et", lines[9]) +
+		ifNotEmpty("st", lines[10]) +
+		ifNotEmpty("ei", lines[11]) +
+		ifNotEmpty("ty", lines[12]) +
+		ifNotEmpty("fn", lines[13]);
 		return line;	
 }
 
@@ -206,17 +203,17 @@ FileIOQueryInfoState::~FileIOQueryInfoState(){}
 std::string FileIOQueryInfoState::returnJson(std::vector<std::string> lines){
 	/*FileIoQueryInfo, TimeStamp, Process Name ( PID), ThreadID, LoggingProcessName ( PID), LoggingThreadID, CPU, IrpPtr, FileObject, ExtraInfo, InfoClass, FileName*/
 	/*FileIoQueryInfo, 14195102, chrome.exe (12192), 12352, chrome.exe (12192), 12352, 2, 0xffffe0001cbb8508, 0xffffe000142b0070, 0x0000000000000000, FileBasicInformation, "C:\Users\Alexandre\AppData\Local\Google\Chrome\User Data\Default\databases\Databases.db-journal"*/
-	int i = 0;
-	std::string line = "\"ts\":" + lines[++i] + ", " +
-		"\"pid\":" + extractPidFromString(lines[++i]) + ", "
-		"\"tid\":" + lines[++i] + ", ";
-	++i; ++i; // (jump the repetition)
-	line += "\"cpu\":" + lines[++i] + ", " +
-		ifNotEmpty("ip", lines[++i]) +
-		ifNotEmpty("fo", lines[++i]) +
-		ifNotEmpty("ei", lines[++i]) +
-		ifNotEmpty("ic", lines[++i]) +
-		ifNotEmpty("fn", lines[++i]);
+	
+	std::string line = "\"ts\":" + lines[1] + ", " +
+		"\"pid\":" + extractPidFromString(lines[2]) + ", "
+		"\"tid\":" + lines[3] + ", ";
+	
+	line += "\"cpu\":" + lines[6] + ", " +
+		ifNotEmpty("ip", lines[7]) +
+		ifNotEmpty("fo", lines[8]) +
+		ifNotEmpty("ei", lines[9]) +
+		ifNotEmpty("ic", lines[10]) +
+		ifNotEmpty("fn", lines[11]);
 	return line;
 }
 
@@ -226,21 +223,21 @@ FileIOReadState::~FileIOReadState(){}
 std::string FileIOReadState::returnJson(std::vector<std::string> lines){
 	/*FileIoRead, TimeStamp, Process Name ( PID), ThreadID, LoggingProcessName ( PID), LoggingThreadID, CPU, IrpPtr, FileObject, ByteOffset, Size, Flags, ExtraFlags, Priority, FileName, ParsedFlags*/
 	/*FileIoRead, 14195127, chrome.exe (12192), 12352, chrome.exe (12192), 12352, 2, 0xffffe00018843568, 0xffffe000142b0070, 0x0000000000, 0x00000001, 0x00060900, 0x00000000, Normal, */
-	int i = 0;
-	std::string line = "\"ts\":" + lines[++i] + ", " +
-		"\"pid\":" + extractPidFromString(lines[++i]) + ", "
-		"\"tid\":" + lines[++i] + ", ";
-	++i; ++i; // (jump the repetition)
-	line += "\"cpu\":" + lines[++i] + ", " +
-		ifNotEmpty("ip", lines[++i]) +
-		ifNotEmpty("fo", lines[++i]) +
-		ifNotEmpty("bo", lines[++i]) +
-		ifNotEmpty("sz", lines[++i]) +
-		ifNotEmpty("fs", lines[++i]) +
-		ifNotEmpty("efs", lines[++i]) + 
-		ifNotEmpty("pt", lines[++i]) + 
-		ifNotEmpty("fn", lines[++i]) + 
-		ifNotEmpty("pf", lines[++i]) ;
+	
+	std::string line = "\"ts\":" + lines[1] + ", " +
+		"\"pid\":" + extractPidFromString(lines[2]) + ", "
+		"\"tid\":" + lines[3] + ", ";
+	
+	line += "\"cpu\":" + lines[6] + ", " +
+		ifNotEmpty("ip", lines[7]) +
+		ifNotEmpty("fo", lines[8]) +
+		ifNotEmpty("bo", lines[9]) +
+		ifNotEmpty("sz", lines[10]) +
+		ifNotEmpty("fs", lines[11]) +
+		ifNotEmpty("efs", lines[12]) + 
+		ifNotEmpty("pt", lines[13]) + 
+		ifNotEmpty("fn", lines[14]) + 
+		ifNotEmpty("pf", lines[15]) ;
 	return line;
 }
 
@@ -249,17 +246,17 @@ FileIORenameState::FileIORenameState(){}
 FileIORenameState::~FileIORenameState(){}
 std::string FileIORenameState::returnJson(std::vector<std::string> lines){
 	/*FileIoRename, TimeStamp, Process Name ( PID), ThreadID, LoggingProcessName ( PID), LoggingThreadID, CPU, IrpPtr, FileObject, ExtraInfo, InfoClass, FileName*/
-	int i = 0;
-	std::string line = "\"ts\":" + lines[++i] + ", " +
-		"\"pid\":" + extractPidFromString(lines[++i]) + ", "
-		"\"tid\":" + lines[++i] + ", ";
-	++i; ++i; // (jump the repetition)
-	line += "\"cpu\":" + lines[++i] + ", " +
-		ifNotEmpty("ip", lines[++i]) +
-		ifNotEmpty("fo", lines[++i]) +
-		ifNotEmpty("ei", lines[++i]) +
-		ifNotEmpty("ic", lines[++i]) +
-		ifNotEmpty("fn", lines[++i]);
+	
+	std::string line = "\"ts\":" + lines[1] + ", " +
+		"\"pid\":" + extractPidFromString(lines[2]) + ", "
+		"\"tid\":" + lines[3] + ", ";
+	
+	line += "\"cpu\":" + lines[6] + ", " +
+		ifNotEmpty("ip", lines[7]) +
+		ifNotEmpty("fo", lines[8]) +
+		ifNotEmpty("ei", lines[9]) +
+		ifNotEmpty("ic", lines[10]) +
+		ifNotEmpty("fn", lines[11]);
 	return line;
 }
 
@@ -268,17 +265,17 @@ FileIOSetInfoState::FileIOSetInfoState(){}
 FileIOSetInfoState::~FileIOSetInfoState(){}
 std::string FileIOSetInfoState::returnJson(std::vector<std::string> lines){
 	/*FileIoSetInfo, TimeStamp, Process Name ( PID), ThreadID, LoggingProcessName ( PID), LoggingThreadID, CPU, IrpPtr, FileObject, ExtraInfo, InfoClass, FileName*/
-	int i = 0;
-	std::string line = "\"ts\":" + lines[++i] + ", " +
-		"\"pid\":" + extractPidFromString(lines[++i]) + ", "
-		"\"tid\":" + lines[++i] + ", ";
-	++i; ++i; // (jump the repetition)
-	line += "\"cpu\":" + lines[++i] + ", " +
-		ifNotEmpty("ip", lines[++i]) +
-		ifNotEmpty("fo", lines[++i]) +
-		ifNotEmpty("ei", lines[++i]) +
-		ifNotEmpty("ic", lines[++i]) +
-		ifNotEmpty("fn", lines[++i]);
+	
+	std::string line = "\"ts\":" + lines[1] + ", " +
+		"\"pid\":" + extractPidFromString(lines[2]) + ", "
+		"\"tid\":" + lines[3] + ", ";
+	
+	line += "\"cpu\":" + lines[6] + ", " +
+		ifNotEmpty("ip", lines[7]) +
+		ifNotEmpty("fo", lines[8]) +
+		ifNotEmpty("ei", lines[9]) +
+		ifNotEmpty("ic", lines[10]) +
+		ifNotEmpty("fn", lines[11]);
 	return line;
 }
 
@@ -287,21 +284,21 @@ FileIOWriteState::FileIOWriteState(){}
 FileIOWriteState::~FileIOWriteState(){}
 std::string FileIOWriteState::returnJson(std::vector<std::string> lines){
 	/*FileIoWrite, TimeStamp, Process Name ( PID), ThreadID, LoggingProcessName ( PID), LoggingThreadID, CPU, IrpPtr, FileObject, ByteOffset, Size, Flags, ExtraFlags, Priority, FileName, ParsedFlags*/
-	int i = 0;
-	std::string line = "\"ts\":" + lines[++i] + ", " +
-		"\"pid\":" + extractPidFromString(lines[++i]) + ", "
-		"\"tid\":" + lines[++i] + ", ";
-	++i; ++i; // (jump the repetition)
-	line += "\"cpu\":" + lines[++i] + ", " +
-		ifNotEmpty("ip", lines[++i]) +
-		ifNotEmpty("fo", lines[++i]) +
-		ifNotEmpty("bo", lines[++i]) +
-		ifNotEmpty("sz", lines[++i]) +
-		ifNotEmpty("fs", lines[++i]) +
-		ifNotEmpty("efs", lines[++i]) +
-		ifNotEmpty("pt", lines[++i]) +
-		ifNotEmpty("fn", lines[++i]) +
-		ifNotEmpty("pf", lines[++i]);
+	
+	std::string line = "\"ts\":" + lines[1] + ", " +
+		"\"pid\":" + extractPidFromString(lines[2]) + ", "
+		"\"tid\":" + lines[3] + ", ";
+	
+	line += "\"cpu\":" + lines[6] + ", " +
+		ifNotEmpty("ip", lines[7]) +
+		ifNotEmpty("fo", lines[8]) +
+		ifNotEmpty("bo", lines[9]) +
+		ifNotEmpty("sz", lines[10]) +
+		ifNotEmpty("fs", lines[11]) +
+		ifNotEmpty("efs", lines[12]) +
+		ifNotEmpty("pt", lines[13]) +
+		ifNotEmpty("fn", lines[14]) +
+		ifNotEmpty("pf", lines[15]);
 	return line;
 }
 
