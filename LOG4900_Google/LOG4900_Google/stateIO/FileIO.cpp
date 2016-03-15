@@ -46,22 +46,20 @@ FileIOCreateState::FileIOCreateState(){}
 FileIOCreateState::~FileIOCreateState(){}
 std::string FileIOCreateState::returnJson(std::vector<std::string> lines){
 	/*FileIoCreate,  TimeStamp, Process Name ( PID), ThreadID, LoggingProcessName ( PID), LoggingThreadID, CPU, IrpPtr, FileObject, Options, Attributes, ShareAccess, FileName, ParsedOptions, ParsedAttributes, ParsedShareAccess*/
-	int i = 0;
-	std::string line = "\"ts\":" + lines[++i] + ", " +
-		"\"pid\":" + extractPidFromString(lines[++i]) + ", "
-		"\"tid\":" + lines[++i] + ", ";
-	++i; ++i; // (jump the repetition)
-	line += "\"cpu\":" + lines[++i] + ", " +
-		ifNotEmpty("ip", lines[++i]) +
-		ifNotEmpty("fo", lines[++i]) +
-		ifNotEmpty("op", lines[++i]) +
-		ifNotEmpty("at", lines[++i]) +
-		ifNotEmpty("sa", lines[++i]) +
-		ifNotEmpty("fo", lines[++i]) +
-		ifNotEmpty("fn", lines[++i]) +
-		ifNotEmpty("po", lines[++i]) +
-		ifNotEmpty("pa", lines[++i]) +
-		ifNotEmpty("ps", lines[++i]);
+		std::string line = "\"ts\":" + lines[1] + ", " +
+		"\"pid\":" + extractPidFromString(lines[2]) + ", "
+		"\"tid\":" + lines[3] + ", ";
+	// (jump the repetition)
+	line += "\"cpu\":" + lines[6] + ", " +
+		ifNotEmpty("ip", lines[7]) +
+		ifNotEmpty("fo", lines[8]) +
+		ifNotEmpty("op", lines[9]) +
+		ifNotEmpty("at", lines[10]) +
+		ifNotEmpty("sa", lines[11]) +
+		ifNotEmpty("fn", lines[12]) +
+		ifNotEmpty("po", lines[13]) +
+		ifNotEmpty("pa", lines[14]) +
+		ifNotEmpty("ps", lines[15]);
 	return line;
 }
 
@@ -71,15 +69,14 @@ FileIOCleanUpState::~FileIOCleanUpState(){}
 std::string FileIOCleanUpState::returnJson(std::vector<std::string> lines){
 	/*FileIoCleanup,TimeStamp, Process Name ( PID),   ThreadID, LoggingProcessName(PID), LoggingThreadID, CPU,IrpPtr, FileObject, FileName*/
 	/* FileIoCleanup, 14195148, chrome.exe (12192), 12352, chrome.exe (12192), 12352, 2, 0xffffe00018843568, 0xffffe000142b0070, "C:\Users\Alexandre\AppData\Local\Google\Chrome\User Data\Default\databases\Databases.db-journal"*/
-	int i = 0;
-	std::string line = "\"ts\":" + lines[++i] + ", " +
-		"\"pid\":" + extractPidFromString(lines[++i]) + ", "
-		"\"tid\":" + lines[++i] + ", ";
-	++i; ++i; // (jump the repetition)
-	line += "\"cpu\":" + lines[++i] + ", " +
-		ifNotEmpty("ip", lines[++i]) +
-		ifNotEmpty("fo", lines[++i]) +
-		ifNotEmpty("fn", lines[++i]);
+	std::string line = "\"ts\":" + lines[1] + ", " +
+		"\"pid\":" + extractPidFromString(lines[2]) + ", "
+		"\"tid\":" + lines[3] + ", ";
+	// (jump the repetition)
+	line += "\"cpu\":" + lines[6] + ", " +
+		ifNotEmpty("ip", lines[7]) +
+		ifNotEmpty("fo", lines[8]) +
+		ifNotEmpty("fn", lines[9]);
 	return line;
 }
 
@@ -89,15 +86,14 @@ FileIOCloseState::~FileIOCloseState(){}
 std::string FileIOCloseState::returnJson(std::vector<std::string> lines){
 	/*FileIoClose,  TimeStamp, Process Name ( PID), ThreadID, LoggingProcessName ( PID), LoggingThreadID, CPU,IrpPtr, FileObject, FileName*/
 	/* FileIoClose, 14195158, chrome.exe (12192), 12352, chrome.exe (12192), 12352, 2, 0xffffe00018843568, 0xffffe000142b0070, "C:\Users\Alexandre\AppData\Local\Google\Chrome\User */
-	int i = 0;
-	std::string line = "\"ts\":" + lines[++i] + ", " +
-		"\"pid\":" + extractPidFromString(lines[++i]) + ", "
-		"\"tid\":" + lines[++i] + ", ";
-	++i; ++i; // (jump the repetition)
-	line += "\"cpu\":" + lines[++i] + ", " +
-		ifNotEmpty("ip", lines[++i]) +
-		ifNotEmpty("fo", lines[++i]) +
-		ifNotEmpty("fn", lines[++i]);
+	std::string line = "\"ts\":" + lines[1] + ", " +
+		"\"pid\":" + extractPidFromString(lines[2]) + ", "
+		"\"tid\":" + lines[3] + ", ";
+	// (jump the repetition)
+	line += "\"cpu\":" + lines[6] + ", " +
+		ifNotEmpty("ip", lines[7]) +
+		ifNotEmpty("fo", lines[8]) +
+		ifNotEmpty("fn", lines[9]);
 	return line;
 }
 
@@ -106,17 +102,16 @@ FileIODeleteState::FileIODeleteState(){}
 FileIODeleteState::~FileIODeleteState(){}
 std::string FileIODeleteState::returnJson(std::vector<std::string> lines){
 	/*FileIoDelete, TimeStamp, Process Name ( PID), ThreadID, LoggingProcessName ( PID), LoggingThreadID, CPU, IrpPtr, FileObject, ExtraInfo, InfoClass, FileName*/
-	int i = 0;
-	std::string line = "\"ts\":" + lines[++i] + ", " +
-		"\"pid\":" + extractPidFromString(lines[++i]) + ", "
-		"\"tid\":" + lines[++i] + ", ";
-	++i; ++i; // (jump the repetition)
-	line += "\"cpu\":" + lines[++i] + ", " +
-		ifNotEmpty("ip", lines[++i]) +
-		ifNotEmpty("fo", lines[++i]) +
-		ifNotEmpty("ei", lines[++i]) +
-		ifNotEmpty("ic", lines[++i]) +
-		ifNotEmpty("fn", lines[++i]);
+	std::string line = "\"ts\":" + lines[1] + ", " +
+		"\"pid\":" + extractPidFromString(lines[2]) + ", "
+		"\"tid\":" + lines[3] + ", ";
+	// (jump the repetition)
+	line += "\"cpu\":" + lines[6] + ", " +
+		ifNotEmpty("ip", lines[7]) +
+		ifNotEmpty("fo", lines[8]) +
+		ifNotEmpty("ei", lines[9]) +
+		ifNotEmpty("ic", lines[10]) +
+		ifNotEmpty("fn", lines[11]);
 	return line;
 }
 
@@ -133,18 +128,17 @@ FileIODirNotifyState::FileIODirNotifyState(){}
 FileIODirNotifyState::~FileIODirNotifyState(){}
 std::string FileIODirNotifyState::returnJson(std::vector<std::string> lines){
 	/*FileIoDirNotify, TimeStamp, Process Name ( PID), ThreadID, LoggingProcessName ( PID), LoggingThreadID, CPU, IrpPtr, FileObject, FileIndex, Size, InfoClass, FileName, FileName*/
-	int i = 0;
-	std::string line = "\"ts\":" + lines[++i] + ", " +
-		"\"pid\":" + extractPidFromString(lines[++i]) + ", "
-		"\"tid\":" + lines[++i] + ", ";
-	++i; ++i; // (jump the repetition)
-	line += "\"cpu\":" + lines[++i] + ", " +
-		ifNotEmpty("ip", lines[++i]) +
-		ifNotEmpty("fo", lines[++i]) +
-		ifNotEmpty("fi", lines[++i]) +
-		ifNotEmpty("sz", lines[++i]) +
-		ifNotEmpty("ic", lines[++i]) +
-		ifNotEmpty("fn", lines[++i]); //avoid the repetition by not repeating the FileName
+	std::string line = "\"ts\":" + lines[1] + ", " +
+		"\"pid\":" + extractPidFromString(lines[2]) + ", "
+		"\"tid\":" + lines[3] + ", ";
+	// (jump the repetition)
+	line += "\"cpu\":" + lines[6] + ", " +
+		ifNotEmpty("ip", lines[7]) +
+		ifNotEmpty("fo", lines[8]) +
+		ifNotEmpty("fi", lines[9]) +
+		ifNotEmpty("sz", lines[10]) +
+		ifNotEmpty("ic", lines[11]) +
+		ifNotEmpty("fn", lines[12]); //avoid the repetition by not repeating the FileName
 	return line;
 }
 
