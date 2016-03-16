@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "AbstractState.h"
+#include "AbstractState.h"/
 class StateManager
 {
 public:
@@ -14,5 +14,6 @@ public:
 private:
 	AbstractState* currentState_;
 	int	   idState_;
+	std::vector<AbstractState *> stateVector;
 };
 
