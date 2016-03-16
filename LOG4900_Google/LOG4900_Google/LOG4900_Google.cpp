@@ -25,7 +25,7 @@ std::string convertEventToJSON(std::vector<std::string>& lines);
 std::vector<std::string> removeSpaces(std::vector<std::string> tokens);
 const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header);
 void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>>& stackEventLines);
-void writeJSON(char* path, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>> stackEventLines, std::vector<std::string> ioEventLines);
+void writeJSON(char* path, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>> stackEventLines);
 std::string convertEventToJSON(std::vector<std::string>& line);
 boost::iostreams::mapped_file mapFileToMem(char* path);
 void convertEtlToCSV(char* argvPath);
@@ -127,7 +127,7 @@ const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<
 		return pos;
 }
 
-void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>>& stackEventLines, std::vector<std::string>& ioEventLines)
+void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>>& stackEventLines)
 {
 		std::string tempLine = "";
 		//types de I/O
@@ -214,7 +214,7 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 				else if ((typesIO.find(tokens[0]) != typesIO.end()) && (tokens[2].find("chrome.exe") != std::string::npos))
 				{
 					std::string eventFileIO = convertIOLineToJSON(tokens);
-					ioEventLines.push_back(eventFileIO);
+					chromeEventLines.push_back(eventFileIO);
 				}
 				else if (tokens[0] == "SampledProfile" || tokens[0] == "ReadyThread" || tokens[0] == "CSwitch")
 				{
@@ -241,7 +241,7 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 		}
 }
 
-void writeJSON(char* path, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>> stackEventLines, std::vector<std::string> ioEventLines)
+void writeJSON(char* path, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>> stackEventLines)
 {
 		std::vector<std::string> fileName;
 		tokenize(path, fileName, ".");
@@ -252,12 +252,6 @@ void writeJSON(char* path, std::vector<std::string>& chromeEventLines, std::unor
 		{
 			if (i != chromeEventLines.size() - 1)
 				outputFile << chromeEventLines[i] << ",\n";
-		}
-		outputFile << "],\n\"IOLines\":[";
-		for (int i = 0; i < ioEventLines.size(); ++i)
-		{
-			if (i != ioEventLines.size() - 1)
-				outputFile << ioEventLines[i] << ",\n";
 		}
 		outputFile << "],\n\"stacks\":[";
 		for (auto& it = stackEventLines.begin(); it != stackEventLines.end(); ++it)
@@ -442,14 +436,13 @@ void convertCSVToJSON(char* path)
 
 		showElapseTime("\n\n\nTemps de fin de parsing du header: ");
 
-		std::vector<std::string> ioEventLines;
 		std::vector<std::string> chromeEventLines;
 		std::unordered_map<std::string, std::vector<std::string>> stackEventLines;
-		parseLines(posBeginLines, end, chromeEventLines, stackEventLines, ioEventLines);
+		parseLines(posBeginLines, end, chromeEventLines, stackEventLines);
 
 		showElapseTime("\n\n\nTemps de fin de parsing des lignes du fichier: ");
 
-		writeJSON(path, chromeEventLines, stackEventLines, ioEventLines);
+		writeJSON(path, chromeEventLines, stackEventLines);
 
 		showElapseTime("\n\n\nTemps de fin d'ecriture du JSON: ");
 		
