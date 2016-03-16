@@ -74,11 +74,6 @@ int StateManager::getStateId(){
 }
 
 AbstractState* StateManager::getCurrentState(){
-	if (currentState_ == 0)
-	{
-		currentState_ = new AbstractState();
-		idState_ = NEUTRAL;
-	}
 	return currentState_;
 }
 
@@ -113,7 +108,7 @@ int StateManager::fromStringToIntIO(std::string value){
 		return FILEIORENAME;
 	else if (value == "FileIoDirEnum")
 		return FILEIODIRENUM;
-	else if (value == "FileIoDirNotify,")
+	else if (value == "FileIoDirNotify")
 		return FILEIODIRNOTIFY;
 	else if (value == "FileIoOpEnd")
 		return FILEIOOPEND;
