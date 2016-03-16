@@ -139,7 +139,7 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 												 "FileIoDirNotify", "FileIoOpEnd"};
 		
 		std::unordered_map<std::string, std::vector<std::vector<std::string>>> tidCompletePhaseStacks;
-		std::unordered_map<std::string, std::vector<std::vector<std::string>>> tidFileIoStacks;
+		std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> tidFileIoStacks;
 
 		CSVBlock currentStack;
 		std::unordered_map<std::string, StackBlock> tidStacks;
@@ -215,52 +215,22 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 				else if ((typesIO.find(tokens[0]) != typesIO.end()) && (tokens[2].find("chrome.exe") != std::string::npos))
 				{
 						if (*(typesIO.find(tokens[0])) == "FileIoOpEnd")
-						{
-								auto FileIoStackIter = tidFileIoStacks.find(tokens[3]); // We look for the same Tid
-								if (FileIoStackIter != tidFileIoStacks.end() && tidFileIoStacks[tokens[3]].size() > 0)
-								{
-										for (auto FileIoEvent : (*FileIoStackIter).second)
-										{  
-												std::string fileName;
-												//Get the filename
-												switch (stateIO.fromStringToIntIO(tokens[13]))
-												{
-												case typeIO::FILEIOCREATE:
-														fileName = FileIoEvent[12];
-														break;
-												case typeIO::FILEIODIRENUM:
-												case typeIO::FILEIODIRNOTIFY:
-														fileName = FileIoEvent[13];
-														break;
-												case typeIO::FILEIOCLEANUP:
-												case typeIO::FILEIOCLOSE:
-												case typeIO::FILEIOFLUSH:
-														fileName = FileIoEvent[9];
-														break;
-												case typeIO::FILEIOREAD:
-												case typeIO::FILEIOWRITE:
-														fileName = FileIoEvent[14];
-														break;
-												case typeIO::FILEIODELETE:
-												case typeIO::FILEIOFSCTL:
-												case typeIO::FILEIORENAME:
-												case typeIO::FILEIOQUERYINFO:
-												case typeIO::FILEIOSETINFO:
-														fileName = FileIoEvent[11];
-														break;
-												}
-												       //IrpPtr compare      //FileObject compare     //Type compare           //fileName compare
-												if (FileIoEvent[7] == tokens[7] && FileIoEvent[8] == tokens[8] && FileIoEvent[0] == tokens[12] && fileName == tokens[13])
-												{
-														chromeEventLines.push_back(convertIOLineToJSON(FileIoEvent, tokens));
-												}
+						{   // We look for the same Tid
+								auto FileIoStackIter = tidFileIoStacks.find(tokens[3]); 
+								if (FileIoStackIter != tidFileIoStacks.end())
+								{   //We look for the same FileObject
+										auto FileIoEvent = FileIoStackIter->second.find(tokens[8]);
+								 				                 //IrpPtr compare          //FileObject compare              //Type compare         
+										if (FileIoEvent != FileIoStackIter->second.end() && FileIoEvent->second[7] == tokens[7] && FileIoEvent->second[8] == tokens[8] && FileIoEvent->second[0] == tokens[12])
+										{
+												chromeEventLines.push_back(convertIOLineToJSON(FileIoEvent->second, tokens));
+												FileIoStackIter->second.erase(tokens[8]);
 										}
-
 								}
 						}
 						else
 						{
-								tidFileIoStacks[tokens[3]].push_back(tokens);
+								tidFileIoStacks[tokens[3]][tokens[8]] = tokens;
 						}
 					//	std::string eventFileIO = convertIOLineToJSON(tokens);
 					//  chromeEventLines.push_back(eventFileIO);
