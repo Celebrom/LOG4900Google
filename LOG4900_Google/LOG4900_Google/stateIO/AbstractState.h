@@ -8,6 +8,6 @@ public:
 	std::string extractPidFromString(std::string &word);
 	std::string ifNotEmpty(std::string tag, std::string value);
 	~AbstractState();
-	virtual std::string returnJson(std::vector<std::string> lines);
+	virtual std::string returnJson(std::vector<std::string> FileIoEvent, std::vector<std::string> OpEnd);
 };
 

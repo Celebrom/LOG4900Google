@@ -15,12 +15,13 @@
 #include <locale>
 #include <boost/iostreams/device/mapped_file.hpp>
 #include "stateIO\StateManager.h"
+#include "stateIO\typeIO.h"
 
 std::clock_t start;
 StateManager stateIO;
 
 // Functions declarations
-std::string convertIOLineToJSON(std::vector<std::string>& line);
+std::string convertIOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
 std::string convertEventToJSON(std::vector<std::string>& lines);
 std::vector<std::string> removeSpaces(std::vector<std::string> tokens);
 const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header);
@@ -138,6 +139,7 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 												 "FileIoDirNotify", "FileIoOpEnd"};
 		
 		std::unordered_map<std::string, std::vector<std::vector<std::string>>> tidCompletePhaseStacks;
+		std::unordered_map<std::string, std::vector<std::vector<std::string>>> tidFileIoStacks;
 
 		CSVBlock currentStack;
 		std::unordered_map<std::string, StackBlock> tidStacks;
@@ -209,12 +211,59 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 						}
 					}
 				}
-
 				//if the first token is a  FileIO the third is "chrome.exe"
 				else if ((typesIO.find(tokens[0]) != typesIO.end()) && (tokens[2].find("chrome.exe") != std::string::npos))
 				{
-					std::string eventFileIO = convertIOLineToJSON(tokens);
-					chromeEventLines.push_back(eventFileIO);
+						if (*(typesIO.find(tokens[0])) == "FileIoOpEnd")
+						{
+								auto FileIoStackIter = tidFileIoStacks.find(tokens[3]); // We look for the same Tid
+								if (FileIoStackIter != tidFileIoStacks.end() && tidFileIoStacks[tokens[3]].size() > 0)
+								{
+										for (auto FileIoEvent : (*FileIoStackIter).second)
+										{  
+												std::string fileName;
+												//Get the filename
+												switch (stateIO.fromStringToIntIO(tokens[13]))
+												{
+												case typeIO::FILEIOCREATE:
+														fileName = FileIoEvent[12];
+														break;
+												case typeIO::FILEIODIRENUM:
+												case typeIO::FILEIODIRNOTIFY:
+														fileName = FileIoEvent[13];
+														break;
+												case typeIO::FILEIOCLEANUP:
+												case typeIO::FILEIOCLOSE:
+												case typeIO::FILEIOFLUSH:
+														fileName = FileIoEvent[9];
+														break;
+												case typeIO::FILEIOREAD:
+												case typeIO::FILEIOWRITE:
+														fileName = FileIoEvent[14];
+														break;
+												case typeIO::FILEIODELETE:
+												case typeIO::FILEIOFSCTL:
+												case typeIO::FILEIORENAME:
+												case typeIO::FILEIOQUERYINFO:
+												case typeIO::FILEIOSETINFO:
+														fileName = FileIoEvent[11];
+														break;
+												}
+												       //IrpPtr compare      //FileObject compare     //Type compare           //fileName compare
+												if (FileIoEvent[7] == tokens[7] && FileIoEvent[8] == tokens[8] && FileIoEvent[0] == tokens[12] && fileName == tokens[13])
+												{
+														chromeEventLines.push_back(convertIOLineToJSON(FileIoEvent, tokens));
+												}
+										}
+
+								}
+						}
+						else
+						{
+								tidFileIoStacks[tokens[3]].push_back(tokens);
+						}
+					//	std::string eventFileIO = convertIOLineToJSON(tokens);
+					//  chromeEventLines.push_back(eventFileIO);
 				}
 				else if (tokens[0] == "SampledProfile" || tokens[0] == "ReadyThread" || tokens[0] == "CSwitch")
 				{
@@ -401,11 +450,10 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 }
 
 
-
-std::string convertIOLineToJSON(std::vector<std::string>& line)
+std::string convertIOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd)
 {
-	stateIO.changeStateTo(stateIO.fromStringToIntIO(line[0]));
-	return stateIO.getCurrentState()->returnJson(line);
+		stateIO.changeStateTo(stateIO.fromStringToIntIO(FileIoEvent[0]));
+		return stateIO.getCurrentState()->returnJson(FileIoEvent, OpEnd);
 }
 
 

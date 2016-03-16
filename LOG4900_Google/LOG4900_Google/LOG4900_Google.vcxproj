@@ -212,6 +212,7 @@
     <ClInclude Include="stateIO\FileIOSetInfoState.h" />
     <ClInclude Include="stateIO\FileIOWriteState.h" />
     <ClInclude Include="stateIO\StateManager.h" />
+    <ClInclude Include="typeIO.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

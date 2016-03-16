@@ -1,5 +1,6 @@
 #include "StateManager.h"
 #include "AbstractState.h"
+#include "typeIO.h"
 #include "FileIOCreateState.h"
 #include "FileIOCleanUpState.h"
 #include "FileIOCloseState.h"
@@ -16,24 +17,6 @@
 #include "FileIODirEnumState.h"
 #include "FileIODirNotifyState.h"
 
-
-enum typeIO{
-	NEUTRAL,
-	FILEIOCREATE, 
-	FILEIOCLEANUP,
-	FILEIOCLOSE,
-	FILEIOFLUSH, 
-	FILEIOREAD, 
-	FILEIOWRITE,
-	FILEIOSETINFO, 
-	FILEIOQUERYINFO, 
-	FILEIOFSCTL,
-	FILEIODELETE,
-	FILEIORENAME,
-	FILEIODIRENUM,
-	FILEIODIRNOTIFY,
-	FILEIOOPEND
-};
 
 
 StateManager::StateManager()
@@ -146,7 +129,7 @@ int StateManager::fromStringToIntIO(std::string value){
 		return FILEIORENAME;
 	else if (value == "FileIoDirEnum")
 		return FILEIODIRENUM;
-	else if (value == "FileIoDirNotify,")
+	else if (value == "FileIoDirNotify")
 		return FILEIODIRNOTIFY;
 	else if (value == "FileIoOpEnd")
 		return FILEIOOPEND;

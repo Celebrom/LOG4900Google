@@ -10,7 +10,7 @@ AbstractState::~AbstractState()
 {
 }
 
-std::string AbstractState::returnJson(std::vector<std::string> lines){
+std::string AbstractState::returnJson(std::vector<std::string> FileIoEvent, std::vector<std::string> OpEnd){
 	return "";
 }
 

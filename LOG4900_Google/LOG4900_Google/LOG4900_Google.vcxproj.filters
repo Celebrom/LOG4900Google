@@ -104,5 +104,8 @@
     <ClInclude Include="stateIO\FileIOWriteState.h">
       <Filter>Header Files\stateIO</Filter>
     </ClInclude>
+    <ClInclude Include="typeIO.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
