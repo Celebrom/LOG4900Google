@@ -38,16 +38,34 @@ enum typeIO{
 
 StateManager::StateManager()
 {
-	currentState_ = new AbstractState();
+	
 	idState_ = NEUTRAL;
+
+	stateVector.push_back(new AbstractState());
+	stateVector.push_back(new FileIOCreateState());
+	stateVector.push_back(new FileIOCleanUpState());
+	stateVector.push_back(new FileIOCloseState());
+	stateVector.push_back(new FileIOFlushState());
+	stateVector.push_back(new FileIOReadState());
+	stateVector.push_back(new FileIOWriteState());
+	stateVector.push_back(new FileIOSetInfoState());
+	stateVector.push_back(new FileIOQueryInfoState());
+	stateVector.push_back(new FileIOFSCTLState());
+	stateVector.push_back(new FileIODeleteState());
+	stateVector.push_back(new FileIORenameState());
+	stateVector.push_back(new FileIODirEnumState());
+	stateVector.push_back(new FileIODirNotifyState());
+	stateVector.push_back(new FileIOOpEndState());
+
+	currentState_ = stateVector[0];
 }
 
 
 StateManager::~StateManager()
 {
-	if (currentState_ != 0){
-		delete currentState_;
-		currentState_ = 0;
+	for (auto state : stateVector)
+	{
+		delete state;
 	}
 }
 
@@ -65,59 +83,8 @@ AbstractState* StateManager::getCurrentState(){
 }
 
 void StateManager::changeStateTo(unsigned int state){
-	idState_ = state;
-	if (currentState_ == 0)
-	{
-		currentState_ = new AbstractState();
-		idState_ = NEUTRAL;
-	}
-	switch (state)
-	{
-	case FILEIOCREATE:
-		currentState_ = new FileIOCreateState();
-		break;
-	case FILEIOCLEANUP:
-		currentState_ = new FileIOCleanUpState();
-		break;
-	case FILEIOCLOSE:
-		currentState_ = new FileIOCloseState();
-		break;
-	case FILEIOFLUSH:
-		currentState_ = new FileIOFlushState();
-		break;
-	case FILEIOREAD:
-		currentState_ = new FileIOReadState();
-		break;
-	case FILEIOWRITE:
-		currentState_ = new FileIOWriteState();
-		break;
-	case FILEIOSETINFO:
-		currentState_ = new FileIOSetInfoState();
-		break;
-	case FILEIOQUERYINFO:
-		currentState_ = new FileIOQueryInfoState();
-		break;
-	case FILEIOFSCTL:
-		currentState_ = new FileIOFSCTLState();
-		break;
-	case FILEIODELETE:
-		currentState_ = new FileIODeleteState();
-		break;
-	case FILEIORENAME:
-		currentState_ = new FileIORenameState();
-		break;
-	case FILEIODIRENUM:
-		currentState_ = new FileIODirEnumState();
-		break;
-	case FILEIODIRNOTIFY:
-		currentState_ = new FileIODirNotifyState();
-		break;
-	case FILEIOOPEND:
-		currentState_ = new FileIOOpEndState();
-		break;
-	default:
-		break;
-	}
+	idState_ = state;	
+	currentState_ = stateVector[state];
 }
 
 
