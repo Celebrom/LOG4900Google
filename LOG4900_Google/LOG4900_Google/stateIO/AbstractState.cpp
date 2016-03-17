@@ -30,13 +30,9 @@ std::string AbstractState::ifNotEmpty(std::string tag, std::string value)
 
 std::string AbstractState::commonJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd)
 {
-		std::string commonLine = "{ \"name\": \"" + FileIoEvent[0] + "\"," +
-				" \"cat\" : \"IO\"," +
-				" \"ph\" : \"X\"," +
-				" \"ts\" : " + FileIoEvent[1] + "," +
+		return " \"cat\" : \"IO\", \"ph\" : \"X\", \"ts\" : " + FileIoEvent[1] + "," +
 				" \"dur\" : " + OpEnd[9] + "," +
 				" \"pid\" : " + extractPidFromString(FileIoEvent[2]) + "," +
 				" \"tid\" : " + FileIoEvent[3] + "," +
 				" \"args\" : {";
-		return commonLine;
 }
