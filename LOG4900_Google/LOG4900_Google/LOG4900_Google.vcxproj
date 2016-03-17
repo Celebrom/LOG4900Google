@@ -91,15 +91,17 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)/$(Configuration);"$(SolutionDir)/../ExternalLibraries/boost_1_60_0/libs/iostreams"</AdditionalLibraryDirectories>
-      <AdditionalDependencies>base.lib;etw_reader.lib;boost_iostreams-vc120-mt-gd-1_60.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)/$(Configuration);$(SolutionDir)/../ExternalLibraries/boost_1_60_0/libs/filesystem;$(SolutionDir)/../ExternalLibraries/boost_1_60_0/libs/iostreams;$(SolutionDir)/../ExternalLibraries/boost_1_60_0/libs/system</AdditionalLibraryDirectories>
+      <AdditionalDependencies>base.lib;etw_reader.lib;boost_filesystem-vc120-mt-gd-1_60.lib;boost_iostreams-vc120-mt-gd-1_60.lib;boost_system-vc120-mt-gd-1_60.lib</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\iostreams\boost_iostreams-vc120-mt-gd-1_60.dll" "$(OutputPath)"</Command>
+      <Command>xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\filesystem\boost_filesystem-vc120-mt-gd-1_60.dll" "$(OutputPath)"
+xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\iostreams\boost_iostreams-vc120-mt-gd-1_60.dll" "$(OutputPath)"
+xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\system\boost_system-vc120-mt-gd-1_60.dll" "$(OutputPath)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -143,15 +145,17 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)/$(Configuration);"$(SolutionDir)/../ExternalLibraries/boost_1_60_0/libs/iostreams"</AdditionalLibraryDirectories>
-      <AdditionalDependencies>base.lib;etw_reader.lib;boost_iostreams-vc120-mt-1_60.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)/$(Configuration);$(SolutionDir)/../ExternalLibraries/boost_1_60_0/libs/filesystem;$(SolutionDir)/../ExternalLibraries/boost_1_60_0/libs/iostreams;$(SolutionDir)/../ExternalLibraries/boost_1_60_0/libs/system</AdditionalLibraryDirectories>
+      <AdditionalDependencies>base.lib;etw_reader.lib;boost_filesystem-vc120-mt-1_60.lib;boost_iostreams-vc120-mt-1_60.lib;boost_system-vc120-mt-1_60.lib</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\iostreams\boost_iostreams-vc120-mt-1_60.dll" "$(OutputPath)"</Command>
+      <Command>xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\filesystem\boost_filesystem-vc120-mt-1_60.dll" "$(OutputPath)"
+xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\iostreams\boost_iostreams-vc120-mt-1_60.dll" "$(OutputPath)"
+xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\system\boost_system-vc120-mt-1_60.dll" "$(OutputPath)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -183,18 +187,16 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CSVBlock.cpp" />
     <ClCompile Include="LOG4900_Google.cpp" />
-    <ClCompile Include="StackBlock.cpp" />
+    <ClCompile Include="LiveStack.cpp" />
     <ClCompile Include="StackLine.cpp" />
     <ClCompile Include="stateIO\AbstractState.cpp" />
     <ClCompile Include="stateIO\FileIO.cpp" />
     <ClCompile Include="stateIO\StateManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CSVBlock.h" />
     <ClInclude Include="HeaderDefinition.h" />
-    <ClInclude Include="StackBlock.h" />
+    <ClInclude Include="LiveStack.h" />
     <ClInclude Include="StackLine.h" />
     <ClInclude Include="stateIO\AbstractState.h" />
     <ClInclude Include="stateIO\FileIOCleanUpState.h" />

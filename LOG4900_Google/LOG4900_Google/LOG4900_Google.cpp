@@ -1,6 +1,9 @@
-#include "CSVBlock.h"
-#include "StackBlock.h"
+#include "LiveStack.h"
+#include "../base/command_line.h"
+#include "../base/file.h"
 #include "../etw_reader/etw_reader.h"
+#include "../etw_reader/generate_history_from_trace.h"
+#include "../etw_reader/system_history.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -13,9 +16,13 @@
 #include <functional> 
 #include <cctype>
 #include <locale>
+#include <codecvt>
+#include <boost/filesystem.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
 #include "stateIO\StateManager.h"
 #include "stateIO\typeIO.h"
+
+using namespace etw_insights;
 
 std::clock_t start;
 StateManager stateIO;
@@ -25,13 +32,14 @@ std::string convertIOLineToJSON(std::vector<std::string>& FileIoEvent, std::vect
 std::string convertEventToJSON(std::vector<std::string>& lines);
 std::vector<std::string> removeSpaces(std::vector<std::string> tokens);
 const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header);
-void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>>& stackEventLines);
-void writeJSON(char* path, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>> stackEventLines);
+void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines);
+void writeJSON(std::wstring path, std::vector<std::string>& chromeEventLines, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines);
 std::string convertEventToJSON(std::vector<std::string>& line);
 boost::iostreams::mapped_file mapFileToMem(char* path);
-void convertEtlToCSV(char* argvPath);
-void convertCSVToJSON(char* path);
-void showElapseTime(std::string text);
+void convertETLToJSON(std::wstring path, std::wstring type);
+void convertETLToCSV(std::wstring path);
+void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path);
+void showElapsedTime(std::string text);
 int main(int argc, char** argv);
 static inline std::string &ltrim(std::string &s);
 static inline std::string &rtrim(std::string &s);
@@ -128,7 +136,7 @@ const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<
 		return pos;
 }
 
-void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>>& stackEventLines)
+void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines)
 {
 		std::string tempLine = "";
 		//types de I/O
@@ -140,10 +148,6 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 		
 		std::unordered_map<std::string, std::vector<std::vector<std::string>>> tidCompletePhaseStacks;
 		std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> tidFileIoStacks;
-
-		CSVBlock currentStack;
-		std::unordered_map<std::string, StackBlock> tidStacks;
-		std::unordered_map<std::string, std::string> timestampProcess;
 
 		while(pos && pos != end)
 		{
@@ -189,28 +193,6 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 							chromeEventLines.push_back(eventJSON);
 						 }
 				}
-				else if (tokens[0] == "Stack")
-				{
-					int ts = std::stoi(tokens[1]);
-					if (currentStack.Empty())
-						currentStack.Reset(tokens[2], ts);
-
-					if (timestampProcess[tokens[1]].find("chrome.exe") != std::string::npos)
-					{
-						if (tokens[2] != currentStack.GetTID() || ts != currentStack.GetTimestamp()) // Reached a new stack
-						{
-							std::vector<std::string> endedLines = tidStacks[tokens[2]].Update(currentStack);
-							stackEventLines[tokens[2]].insert(std::end(stackEventLines[tokens[2]]), std::begin(endedLines), std::end(endedLines));
-
-							currentStack.Reset(tokens[2], ts);
-							currentStack.AddLine(tokens);
-						}
-						else
-						{
-							currentStack.AddLine(tokens);
-						}
-					}
-				}
 				//if the first token is a  FileIO the third is "chrome.exe"
 				else if ((typesIO.find(tokens[0]) != typesIO.end()) && (tokens[2].find("chrome.exe") != std::string::npos))
 				{
@@ -235,36 +217,13 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 					//	std::string eventFileIO = convertIOLineToJSON(tokens);
 					//  chromeEventLines.push_back(eventFileIO);
 				}
-				else if (tokens[0] == "SampledProfile" || tokens[0] == "ReadyThread" || tokens[0] == "CSwitch")
-				{
-					timestampProcess[tokens[1]] = tokens[2];
-				}
-
 				pos = ++newPos;
-		}
-
-		if (tidStacks.size() >= 0)
-		{
-			if (!currentStack.Empty())
-				tidStacks[currentStack.GetTID()].Update(currentStack);
-
-			for (auto& stack : tidStacks)
-			{
-				std::vector<StackLine> finalLines = stack.second.GetLines();
-				for (StackLine& line : finalLines)
-				{
-					line.SetEndTimestamp(currentStack.GetTimestamp());
-					stackEventLines[stack.first].push_back(line.ToJson());
-				}
-			}
 		}
 }
 
-void writeJSON(char* path, std::vector<std::string>& chromeEventLines, std::unordered_map<std::string, std::vector<std::string>> stackEventLines)
+void writeJSON(std::wstring path, std::vector<std::string>& chromeEventLines, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines)
 {
-		std::vector<std::string> fileName;
-		tokenize(path, fileName, ".");
-		std::ofstream outputFile(fileName[0] + ".json");
+		std::ofstream outputFile(path);
 
 		outputFile << "{\"traceEvents\":[";
 		for (int i = 0; i < chromeEventLines.size(); ++i)
@@ -275,7 +234,7 @@ void writeJSON(char* path, std::vector<std::string>& chromeEventLines, std::unor
 		outputFile << "],\n\"stacks\":[";
 		for (auto& it = stackEventLines.begin(); it != stackEventLines.end(); ++it)
 		{
-			outputFile << "\"" + (*it).first + "\":[";
+			outputFile << "\"" << (*it).first << "\":[";
 			for (int i = 0; i < (*it).second.size(); ++i)
 			{
 				if (i != (*it).second.size() - 1)
@@ -419,87 +378,138 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 	return "{" + pid + tid + ts + phase + cat + name + args + dur + "}";
 }
 
-
 std::string convertIOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd)
 {
 		stateIO.changeStateTo(stateIO.fromStringToIntIO(FileIoEvent[0]));
 		return stateIO.getCurrentState()->returnJson(FileIoEvent, OpEnd);
 }
 
-
-boost::iostreams::mapped_file mapFileToMem(char* path)
+void parseStacks(SystemHistory& system_history, std::unordered_map<base::Tid, std::vector<std::string>>& completedFunctions)
 {
-		boost::iostreams::mapped_file mmap(path, boost::iostreams::mapped_file::readonly);
-		return mmap;
+	// Traverse all threads.
+	for (auto threads_it = system_history.threads_begin(); threads_it != system_history.threads_end(); ++threads_it)
+	{
+		std::string process_name = system_history.GetProcessName(threads_it->second.parent_process_id());
+		if (process_name != "chrome.exe") continue;
+
+		auto& threadStacks = threads_it->second.Stacks();
+		auto  stacksEnd    = threadStacks.IteratorEnd();
+
+		LiveStack liveStack;
+		std::vector<std::string> threadCompletedFunctions;
+		// Traverse all stacks comparing first and second to see what functions ended
+		for (auto it = threadStacks.IteratorFromTimestamp(0); it != stacksEnd; ++it)
+		{
+			std::vector<std::string> actualCompletedFunctions = liveStack.Update((*it));
+			threadCompletedFunctions.insert(std::end(threadCompletedFunctions), std::begin(actualCompletedFunctions), std::end(actualCompletedFunctions));
+		}
+		std::vector<std::string> finalCompletedFunctions = liveStack.GetFinalLines();
+		threadCompletedFunctions.insert(std::end(threadCompletedFunctions), std::begin(finalCompletedFunctions), std::end(finalCompletedFunctions));
+
+		completedFunctions[(*threads_it).first] = threadCompletedFunctions;
+	}
 }
 
-void convertEtlToCSV(char* argvPath)
+boost::iostreams::mapped_file mapFileToMem(std::wstring path)
 {
-		etw_insights::ETWReader etwReader;
-
-		std::string pathTemp = std::string(argvPath);
-		const std::wstring path(pathTemp.begin(), pathTemp.end());
-		etwReader.Open(path);
+	boost::filesystem::path p(path);
+	boost::iostreams::mapped_file mmap(p, boost::iostreams::mapped_file::readonly);
+	return mmap;
 }
 
-void convertCSVToJSON(char* path)
+void convertETLToJSON(std::wstring etl_path)
 {
-		// Opening and reading .csv
-		boost::iostreams::mapped_file mmap = mapFileToMem(path);
-		auto pos = mmap.const_data();
-		auto end = pos + mmap.size();
+	std::wstring csv_path = etl_path + L".csv";
+	if (!base::FilePathExists(csv_path))
+		convertETLToCSV(etl_path);
 
-		std::unordered_map<std::string, std::vector<std::string>> header;
-		const char*& posBeginLines = parseHeader(pos, end, header);
+	convertCSVToJSON(etl_path, csv_path);
+}
 
-		showElapseTime("\n\n\nTemps de fin de parsing du header: ");
+void convertETLToCSV(std::wstring path)
+{
+	etw_insights::ETWReader etwReader;
+	etwReader.Open(path);
+}
 
-		std::vector<std::string> chromeEventLines;
-		std::unordered_map<std::string, std::vector<std::string>> stackEventLines;
-		parseLines(posBeginLines, end, chromeEventLines, stackEventLines);
+// TODO: We should only need one of the path by using the same method for the Chrome Event and Flame graph
+void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path)
+{
+	boost::iostreams::mapped_file mmap = mapFileToMem(csv_path);
+	auto pos = mmap.const_data();
+	auto end = pos + mmap.size();
+	
+	std::unordered_map<std::string, std::vector<std::string>> header;
+	const char*& posBeginLines = parseHeader(pos, end, header);
+	showElapsedTime("Temps de fin de parsing du header");
 
-		showElapseTime("\n\n\nTemps de fin de parsing des lignes du fichier: ");
 
-		writeJSON(path, chromeEventLines, stackEventLines);
+	std::vector<std::string> chromeEventLines;
+	parseLines(posBeginLines, end, chromeEventLines);
+	showElapsedTime("Temps de fin de parsing des lignes du fichier");
 
-		showElapseTime("\n\n\nTemps de fin d'ecriture du JSON: ");
+
+	SystemHistory system_history;
+	if (!GenerateHistoryFromTrace(etl_path, &system_history)) {
+		LOG(ERROR) << "Error while generating history from trace.";
+		return;
+	}
+	std::unordered_map<base::Tid, std::vector<std::string>> completedFunctions;
+	parseStacks(system_history, completedFunctions);
+
+
+	std::wstring json_path = csv_path + L".json";
+	writeJSON(json_path, chromeEventLines, completedFunctions);
+	showElapsedTime("Temps de fin d'ecriture du JSON");
+
 		
-		//munmap pas necessaire parce que map desallouer a la fin du process
-		//boost::iostreams::mapped_file munmap(mmap, mmap.size());
+	//munmap pas necessaire parce que map desallouer a la fin du process
+	//boost::iostreams::mapped_file munmap(mmap, mmap.size());
 }
 
-void showElapseTime(std::string text)
+void showElapsedTime(std::string text)
 {
-		std::cout << text << (std::clock() - start) / (double)CLOCKS_PER_SEC << '\n';
+	std::cout << "\n\n" << text << ": " << (std::clock() - start) / (double)CLOCKS_PER_SEC << "\n";
 }
 
+void ShowUsage() {
+	std::cout
+		<< "Usage: .exe --trace <trace_file_path>"
+		<< std::endl
+		<< std::endl;
+}
 
-
-int main(int argc, char** argv)
+int wmain(int argc, wchar_t* argv[], wchar_t* /*envp */[])
 {
-	double duration = 0;
 	start = std::clock();
 
-	// Look if there is no arguments
-	if (argc <= 1)
-		return 0;
-	else if (std::string(argv[1]).find(".etl") != std::string::npos)
-	{
-			//do stuff if is a .etl
-			convertEtlToCSV(argv[1]);
-			convertCSVToJSON(argv[1]);
-			
-	}
-	else if (std::string(argv[1]).find(".csv") != std::string::npos)
-	{
-			//do stuff if is a .csv
-			convertCSVToJSON(argv[1]);
-	}
-	else
-			return 0;
-			
-	showElapseTime("\n\n\nDuree totale de l'application:  ");
+	base::CommandLine command_line(argc, argv);
 
+	if (command_line.GetNumSwitches() == 0) 
+	{
+		ShowUsage();
+		return 1;
+	}
+
+	std::wstring trace_path = command_line.GetSwitchValue(L"trace");
+	if (trace_path.empty())
+	{
+		std::cout << "Please specify a trace path (--trace)." << std::endl << std::endl;
+		ShowUsage();
+		return 1;
+	}
+	
+	std::wstring file_type = trace_path.substr(trace_path.length() - 3, 3);
+	if (file_type.empty() || file_type != L"etl")
+	{
+		std::cout << "Please make sure the trace is of ETW type (.etl)" << std::endl << std::endl;
+		ShowUsage();
+		return 1;
+	}
+
+	convertETLToJSON(trace_path);
+			
+	showElapsedTime("\n\n\nDuree totale de l'application:  ");
 	system("PAUSE");
 
 	return 1;

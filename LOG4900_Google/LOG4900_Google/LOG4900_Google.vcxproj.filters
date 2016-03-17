@@ -24,13 +24,10 @@
     <ClCompile Include="LOG4900_Google.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StackBlock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="StackLine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CSVBlock.cpp">
+    <ClCompile Include="LiveStack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="stateIO\AbstractState.cpp">
@@ -44,16 +41,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="StackBlock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="StackLine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CSVBlock.h">
+    <ClInclude Include="HeaderDefinition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HeaderDefinition.h">
+    <ClInclude Include="LiveStack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stateIO\AbstractState.h">
