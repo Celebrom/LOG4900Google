@@ -5,5 +5,5 @@ class FileIORenameState : public AbstractState{
 public:
 	FileIORenameState();
 	~FileIORenameState();
-	virtual std::string returnJson(std::vector<std::string> FileIoEvent, std::vector<std::string> OpEnd);
+	virtual std::string returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
 };
