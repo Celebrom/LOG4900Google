@@ -228,8 +228,10 @@ void writeJSON(std::wstring path, std::vector<std::string>& chromeEventLines, st
 		outputFile << "{\"traceEvents\":[";
 		for (int i = 0; i < chromeEventLines.size(); ++i)
 		{
-			if (i < chromeEventLines.size())
+			if (i < chromeEventLines.size() - 1)
 				outputFile << chromeEventLines[i] << ",\n";
+			else if (i == chromeEventLines.size() - 1)
+				outputFile << chromeEventLines[i] << "\n";
 		}
 		outputFile << "],\n\"stacks\":[";
 		for (auto& it = stackEventLines.begin(); it != stackEventLines.end(); ++it)
