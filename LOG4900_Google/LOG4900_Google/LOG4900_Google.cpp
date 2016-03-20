@@ -19,16 +19,17 @@
 #include <codecvt>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
-#include "stateIO\StateManager.h"
+#include "stateIO\IoStateManager.h"
 #include "stateIO\typeIO.h"
 
 using namespace etw_insights;
 
 std::clock_t start;
-StateManager stateIO;
+IoStateManager stateIO;
 
 // Functions declarations
 std::string convertIOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
+std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent);
 std::string convertEventToJSON(std::vector<std::string>& lines);
 std::vector<std::string> removeSpaces(std::vector<std::string> tokens);
 const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header);
@@ -113,7 +114,6 @@ const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<
 		std::vector<std::string> tokens;
 		std::string eventType;
 		std::string line = "";
-		
 
 		while (eventType.find("EndHeader") == std::string::npos)
 		{
@@ -140,11 +140,13 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 {
 		std::string tempLine = "";
 		//types de I/O
-		std::unordered_set<std::string> typesIO{ "FileIoCreate", "FileIoCleanup", "FileIoClose", 
+		std::unordered_set<std::string> typesIO{"FileIoCreate", "FileIoCleanup", "FileIoClose", 
 												 "FileIoFlush", "FileIoRead","FileIoWrite",
 												 "FileIoSetInfo", "FileIoQueryInfo", "FileIoFSCTL",
 												 "FileIoDelete", "FileIoRename", "FileIoDirEnum",
 												 "FileIoDirNotify", "FileIoOpEnd"};
+
+		std::unordered_set<std::string> typesDisk{"DiskRead", "DiskWrite", "DiskFlush"};
 		
 		std::unordered_map<std::string, std::vector<std::vector<std::string>>> tidCompletePhaseStacks;
 		std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> tidFileIoStacks;
@@ -214,8 +216,10 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 						{
 								tidFileIoStacks[tokens[3]][tokens[8]] = tokens;
 						}
-					//	std::string eventFileIO = convertIOLineToJSON(tokens);
-					//  chromeEventLines.push_back(eventFileIO);
+				}
+				else if ((typesDisk.find(tokens[0]) != typesDisk.end()) && (tokens[2].find("chrome.exe") != std::string::npos))
+				{
+						chromeEventLines.push_back(convertDiskLineToJSON(tokens));
 				}
 				pos = ++newPos;
 		}
@@ -382,6 +386,53 @@ std::string convertIOLineToJSON(std::vector<std::string>& FileIoEvent, std::vect
 {
 		stateIO.changeStateTo(stateIO.fromStringToIntIO(FileIoEvent[0]));
 		return stateIO.getCurrentState()->returnJson(FileIoEvent, OpEnd);
+}
+
+std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent)
+{
+		std::string jsonLine = "";
+
+		if (diskEndEvent[0] == "DiskRead" || diskEndEvent[0] == "DiskWrite")
+		{
+				jsonLine = " \"cat\" : \"Disk\", \"ph\" : \"X\", \"ts\" : " + diskEndEvent[1] + "," +
+						" \"dur\" : " + diskEndEvent[8] + "," +
+						" \"pid\" : " + extractPidFromString(diskEndEvent[2]) + "," +
+						" \"tid\" : " + diskEndEvent[3] + "," +
+						" \"args\" : {";
+
+				if (diskEndEvent[15] != "")
+				{
+						std::string FileName = diskEndEvent[15];
+						FileName.erase(std::remove(FileName.begin(), FileName.end(), '"'), FileName.end());
+						jsonLine += "\"FileName\":\"" + FileName + "\",";
+				}
+
+				if (diskEndEvent[12] != "")
+						jsonLine += "\"I/O Pri\":\"" + diskEndEvent[12] + "\",";
+
+				if (diskEndEvent[7] != "")
+						jsonLine += "\"IOSize\":\"" + diskEndEvent[7] + "\"";
+
+				if (jsonLine[jsonLine.size()-1] == ',')
+						jsonLine = jsonLine.substr(0, jsonLine.size() - 1);
+
+				return jsonLine + "}}";
+		}
+		else if (diskEndEvent[0] == "DiskFlush")
+		{
+				jsonLine = " \"cat\" : \"Disk\", \"ph\" : \"X\", \"ts\" : " + diskEndEvent[1] + "," +
+						" \"dur\" : " + diskEndEvent[6] + "," +
+						" \"pid\" : " + extractPidFromString(diskEndEvent[2]) + "," +
+						" \"tid\" : " + diskEndEvent[3] + "," +
+						" \"args\" : {";
+
+				if (diskEndEvent[10] != "")
+						jsonLine += "\"I/O Pri\":\"" + diskEndEvent[10] + "\"";
+
+				return jsonLine + "}}";
+		}
+
+		return jsonLine;
 }
 
 void parseStacks(SystemHistory& system_history, std::unordered_map<base::Tid, std::vector<std::string>>& completedFunctions)

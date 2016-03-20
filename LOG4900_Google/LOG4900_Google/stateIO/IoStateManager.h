@@ -1,11 +1,11 @@
 #pragma once
 #include <string>
 #include "AbstractState.h"/
-class StateManager
+class IoStateManager
 {
 public:
-	StateManager();
-	~StateManager();
+	IoStateManager();
+	~IoStateManager();
 	int getStateId();
 	AbstractState* getCurrentState();
 	void changeStateTo(unsigned int state);
