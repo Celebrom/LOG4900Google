@@ -1,4 +1,5 @@
 #include "AbstractState.h"
+#include <algorithm>
 
 
 AbstractState::AbstractState()
@@ -35,4 +36,10 @@ std::string AbstractState::commonJson(std::vector<std::string>& FileIoEvent, std
 				" \"pid\" : " + extractPidFromString(FileIoEvent[2]) + "," +
 				" \"tid\" : " + FileIoEvent[3] + "," +
 				" \"args\" : {";
+}
+
+void AbstractState::formatFileName(std::string &FileName)
+{	
+	FileName.erase(std::remove(FileName.begin(), FileName.end(), '"'), FileName.end());
+	std::replace(FileName.begin(), FileName.end(), '\\', '/'); 
 }

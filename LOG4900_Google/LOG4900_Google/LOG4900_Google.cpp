@@ -370,12 +370,20 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 			if (line[i][0] == ' ')
 				line[i].erase(std::remove(line[i].begin(), line[i].begin() + 1, ' '), line[i].begin() + 1);
 			if (line[i] != "" && line[i + 1] != "\"\"")
-				args += "\"" + line[i] + "\",";
+			{
+				if (line[11] == "url")
+					int l = 0;
+				if (i != 16)
+					args += "\"" + line[i] + "\",";
+				else
+					args += "\"" + line[i] + "\"";
+			}
 			if (line[i] != "" && line[i + 1] == "\"\"")
 				args += "\"" + line[i] + "\"";
 			break;
 		case 17:
-			dur += ",\"dur\": " + line[i];
+			dur += ",\"dur\": " + line[line.size() - 1];
+			break;
 		}
 	}
 	args += "}";
