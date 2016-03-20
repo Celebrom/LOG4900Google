@@ -33,10 +33,10 @@
     <ClCompile Include="stateIO\AbstractState.cpp">
       <Filter>Source Files\stateIO</Filter>
     </ClCompile>
-    <ClCompile Include="stateIO\StateManager.cpp">
+    <ClCompile Include="stateIO\FileIO.cpp">
       <Filter>Source Files\stateIO</Filter>
     </ClCompile>
-    <ClCompile Include="stateIO\FileIO.cpp">
+    <ClCompile Include="stateIO\IoStateManager.cpp">
       <Filter>Source Files\stateIO</Filter>
     </ClCompile>
   </ItemGroup>
@@ -54,9 +54,6 @@
       <Filter>Header Files\stateIO</Filter>
     </ClInclude>
     <ClInclude Include="stateIO\FileIOCreateState.h">
-      <Filter>Header Files\stateIO</Filter>
-    </ClInclude>
-    <ClInclude Include="stateIO\StateManager.h">
       <Filter>Header Files\stateIO</Filter>
     </ClInclude>
     <ClInclude Include="stateIO\FileIOCleanUpState.h">
@@ -99,6 +96,9 @@
       <Filter>Header Files\stateIO</Filter>
     </ClInclude>
     <ClInclude Include="typeIO.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="stateIO\IoStateManager.h">
       <Filter>Header Files\stateIO</Filter>
     </ClInclude>
   </ItemGroup>

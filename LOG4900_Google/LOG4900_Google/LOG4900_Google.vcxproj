@@ -192,7 +192,7 @@ xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\system\boost_sys
     <ClCompile Include="StackLine.cpp" />
     <ClCompile Include="stateIO\AbstractState.cpp" />
     <ClCompile Include="stateIO\FileIO.cpp" />
-    <ClCompile Include="stateIO\StateManager.cpp" />
+    <ClCompile Include="stateIO\IoStateManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HeaderDefinition.h" />
@@ -213,7 +213,7 @@ xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\system\boost_sys
     <ClInclude Include="stateIO\FileIORenameState.h" />
     <ClInclude Include="stateIO\FileIOSetInfoState.h" />
     <ClInclude Include="stateIO\FileIOWriteState.h" />
-    <ClInclude Include="stateIO\StateManager.h" />
+    <ClInclude Include="stateIO\IoStateManager.h" />
     <ClInclude Include="typeIO.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,4 +1,4 @@
-#include "StateManager.h"
+#include "IoStateManager.h"
 #include "AbstractState.h"
 #include "typeIO.h"
 #include "FileIOCreateState.h"
@@ -19,7 +19,7 @@
 
 
 
-StateManager::StateManager()
+IoStateManager::IoStateManager()
 {
 	
 	idState_ = NEUTRAL;
@@ -44,7 +44,7 @@ StateManager::StateManager()
 }
 
 
-StateManager::~StateManager()
+IoStateManager::~IoStateManager()
 {
 	for (auto state : stateVector)
 	{
@@ -52,21 +52,21 @@ StateManager::~StateManager()
 	}
 }
 
-int StateManager::getStateId(){
+int IoStateManager::getStateId(){
 	return idState_;
 }
 
-AbstractState* StateManager::getCurrentState(){
+AbstractState* IoStateManager::getCurrentState(){
 	return currentState_;
 }
 
-void StateManager::changeStateTo(unsigned int state){
+void IoStateManager::changeStateTo(unsigned int state){
 	idState_ = state;	
 	currentState_ = stateVector[state];
 }
 
 
-int StateManager::fromStringToIntIO(std::string value){
+int IoStateManager::fromStringToIntIO(std::string value){
 	if (value == "FileIoCreate")
 		return FILEIOCREATE;
 	else if (value == "FileIoCleanup")
