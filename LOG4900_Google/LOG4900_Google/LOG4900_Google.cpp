@@ -31,6 +31,7 @@ IoStateManager stateIO;
 std::string convertIOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
 std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent);
 std::string convertEventToJSON(std::vector<std::string>& lines);
+void formatFileName(std::string &FileName);
 std::vector<std::string> removeSpaces(std::vector<std::string> tokens);
 const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header);
 void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines);
@@ -402,18 +403,14 @@ std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent)
 
 		if (diskEndEvent[0] == "DiskRead" || diskEndEvent[0] == "DiskWrite")
 		{
-				jsonLine = " \"cat\" : \"Disk\", \"ph\" : \"X\", \"ts\" : " + diskEndEvent[1] + "," +
+				formatFileName(diskEndEvent[15]);
+
+				jsonLine = "{ \"name\": \"[" + diskEndEvent[0] + "] " + diskEndEvent[15] + "\"," +
+						" \"cat\" : \"Disk\", \"ph\" : \"X\", \"ts\" : " + diskEndEvent[1] + "," +
 						" \"dur\" : " + diskEndEvent[8] + "," +
 						" \"pid\" : " + extractPidFromString(diskEndEvent[2]) + "," +
 						" \"tid\" : " + diskEndEvent[3] + "," +
 						" \"args\" : {";
-
-				if (diskEndEvent[15] != "")
-				{
-						std::string FileName = diskEndEvent[15];
-						FileName.erase(std::remove(FileName.begin(), FileName.end(), '"'), FileName.end());
-						jsonLine += "\"FileName\":\"" + FileName + "\",";
-				}
 
 				if (diskEndEvent[12] != "")
 						jsonLine += "\"I/O Pri\":\"" + diskEndEvent[12] + "\",";
@@ -428,7 +425,8 @@ std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent)
 		}
 		else if (diskEndEvent[0] == "DiskFlush")
 		{
-				jsonLine = " \"cat\" : \"Disk\", \"ph\" : \"X\", \"ts\" : " + diskEndEvent[1] + "," +
+				jsonLine = "{ \"name\": \"[" + diskEndEvent[0] + "]\"," +
+						" \"cat\" : \"Disk\", \"ph\" : \"X\", \"ts\" : " + diskEndEvent[1] + "," +
 						" \"dur\" : " + diskEndEvent[6] + "," +
 						" \"pid\" : " + extractPidFromString(diskEndEvent[2]) + "," +
 						" \"tid\" : " + diskEndEvent[3] + "," +
@@ -441,6 +439,12 @@ std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent)
 		}
 
 		return jsonLine;
+}
+
+void formatFileName(std::string &FileName)
+{
+		FileName.erase(std::remove(FileName.begin(), FileName.end(), '"'), FileName.end());
+		std::replace(FileName.begin(), FileName.end(), '\\', '/');
 }
 
 void parseStacks(SystemHistory& system_history, std::unordered_map<base::Tid, std::vector<std::string>>& completedFunctions)
