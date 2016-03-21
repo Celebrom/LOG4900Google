@@ -24,7 +24,7 @@ std::string FileIOCreateState::returnJson(std::vector<std::string>& FileIoEvent,
 		formatFileName(FileIoEvent[12]);
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[12];
-		return "{ \"name\": \"[" + FileIoEvent[0] + "]" + FileIoEvent[12] + "\"," +
+		return "{ \"name\": \"[" + FileIoEvent[0] + "] " + FileIoEvent[12] + "\"," +
 				commonJson(FileIoEvent, OpEnd) + "}}";
 }
 
