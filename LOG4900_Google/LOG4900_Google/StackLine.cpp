@@ -22,5 +22,6 @@ std::string StackLine::ToJson()
 std::string StackLine::formatFileName(std::string& FileName)
 {
 		FileName.erase(std::remove(FileName.begin(), FileName.end(), '"'), FileName.end());
+		std::replace(FileName.begin(), FileName.end(), '\\', '/');
 		return FileName;
 }
