@@ -31,7 +31,9 @@ IoStateManager stateIO;
 std::string convertIOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
 std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent);
 std::string convertEventToJSON(std::vector<std::string>& lines);
+std::string convertCSwitchToJson(std::vector<std::string>& CSwitchEvent, std::string type, unsigned int id);
 void formatFileName(std::string &FileName);
+std::string extractPidFromString(std::string& word);
 std::vector<std::string> removeSpaces(std::vector<std::string> tokens);
 const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header);
 void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines);
@@ -140,17 +142,18 @@ const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<
 void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines)
 {
 		std::string tempLine = "";
+		unsigned int AsyncId = 0;
 		//types de I/O
+		std::unordered_set<std::string> typesDisk{ "DiskRead", "DiskWrite", "DiskFlush" };
 		std::unordered_set<std::string> typesIO{"FileIoCreate", "FileIoCleanup", "FileIoClose", 
 												 "FileIoFlush", "FileIoRead","FileIoWrite",
 												 "FileIoSetInfo", "FileIoQueryInfo", "FileIoFSCTL",
 												 "FileIoDelete", "FileIoRename", "FileIoDirEnum",
 												 "FileIoDirNotify", "FileIoOpEnd"};
 
-		std::unordered_set<std::string> typesDisk{"DiskRead", "DiskWrite", "DiskFlush"};
-		
 		std::unordered_map<std::string, std::vector<std::vector<std::string>>> tidCompletePhaseStacks;
 		std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> tidFileIoStacks;
+		std::unordered_map<std::string, unsigned int> CSwitchStacks;
 
 		while(pos && pos != end)
 		{
@@ -223,8 +226,29 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 				{
 						chromeEventLines.push_back(convertDiskLineToJSON(tokens));
 				}
+				else if (tokens[0] == "CSwitch")
+				{   // New Process
+						if (tokens[2].find("chrome.exe") != std::string::npos)
+						{
+								CSwitchStacks[extractPidFromString(tokens[3])] = AsyncId++;
+								chromeEventLines.push_back(convertCSwitchToJson(tokens, "New Process", AsyncId-1));
+						}
+						// Old Process
+						if (tokens[8].find("chrome.exe") != std::string::npos)
+						{
+								chromeEventLines.push_back(convertCSwitchToJson(tokens, "Old Process", CSwitchStacks[extractPidFromString(tokens[3])]));
+						}
+				}
 				pos = ++newPos;
 		}
+}
+
+/// TODO duplicate de abstractstate
+std::string extractPidFromString(std::string& word)
+{
+		unsigned first = word.find("(");
+		unsigned last = word.find(")");
+		return word.substr(first + 1, last - first - 1);
 }
 
 void writeJSON(std::wstring path, std::vector<std::string>& chromeEventLines, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines)
@@ -259,13 +283,6 @@ void writeJSON(std::wstring path, std::vector<std::string>& chromeEventLines, st
 		outputFile << "}}";
 
 		outputFile.close();
-}
-
-std::string extractPidFromString(std::string &word)
-{
-	unsigned first = word.find("(");
-	unsigned last = word.find(")");
-	return word.substr(first + 1, last - first -1);
 }
 
 std::string getPhase(std::string &word)
@@ -448,6 +465,23 @@ std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent)
 		return jsonLine;
 }
 
+std::string convertCSwitchToJson(std::vector<std::string>& CSwitchEvent, std::string type, unsigned int id)
+{
+		std::string JsonLine = "{ \"name\" : \"On_CPU\", \"pid\" : \"" + extractPidFromString(CSwitchEvent[2]) + "\"," +
+				" \"tid\" : \"" + CSwitchEvent[3] + "\"," +
+				" \"ts\" : \"" + CSwitchEvent[1] + "\"," +
+				" \"cat\" : \"CSwitch\", " +
+				" \"id\" : \"0x" + std::to_string(id) + "\",";
+
+		if (type == "New Process")
+				JsonLine += " \"ph\" : \"b\", \"args\" : {}}";
+		else if (type == "Old Process")
+				JsonLine += " \"ph\" : \"e\", \"args\" : {}}";
+
+		return JsonLine;
+}
+
+/// TODO duplicate of somewhere
 void formatFileName(std::string &FileName)
 {
 		FileName.erase(std::remove(FileName.begin(), FileName.end(), '"'), FileName.end());
