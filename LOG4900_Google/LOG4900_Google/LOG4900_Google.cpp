@@ -238,14 +238,16 @@ void writeJSON(std::wstring path, std::vector<std::string>& chromeEventLines, st
 			else if (i == chromeEventLines.size() - 1)
 				outputFile << chromeEventLines[i] << "\n";
 		}
-		outputFile << "],\n\"stacks\":[";
+		outputFile << "],\n\"stacks\":{";
 		for (auto& it = stackEventLines.begin(); it != stackEventLines.end(); ++it)
 		{
 			outputFile << "\"" << (*it).first << "\":[";
 			for (int i = 0; i < (*it).second.size(); ++i)
 			{
-				if (i != (*it).second.size() - 1)
+				if (i < (*it).second.size() - 1)
 					outputFile << (*it).second[i] << ",\n";
+				else if (i == (*it).second.size() - 1)
+					outputFile << (*it).second[i] << "\n";
 			}
 			
 			if (it != --stackEventLines.end())
@@ -253,7 +255,7 @@ void writeJSON(std::wstring path, std::vector<std::string>& chromeEventLines, st
 			else
 				outputFile << "]";
 		}
-		outputFile << "]}";
+		outputFile << "}}";
 
 		outputFile.close();
 }
