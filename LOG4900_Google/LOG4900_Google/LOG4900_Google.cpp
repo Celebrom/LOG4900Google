@@ -356,14 +356,16 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 		case 13:
 		case 15:
 			line[i].erase(std::remove(line[i].begin(), line[i].end(), '"'), line[i].end());
+			if (line[1] == "3672358")
+				int banane = 0;
 			if (line[i][0] == ' ')
 					line[i].erase(std::remove(line[i].begin(), line[i].begin() + 1, ' '), line[i].begin() + 1);
-			if (line[i] != "" && line[i + 1] != "\"\"")
+			if (line[i] != "" && line[i + 1] != "\"\"" && line[i + 1] != "\"\"\"\"")
 		  		args += "\"" + line[i] + "\":";
-			if (line[i] != "" && line[i + 1] == "\"\"")
+			if (line[i] != "" && args != "\"args\":{" && line[i + 1] == "\"\"" )
 			{
-				args.erase(args.end() - 2, args.end());
-				args += "," + line[i] + "\"";
+				args.erase(args.end() - 1, args.end());
+				//args += "," + line[i] + "\"";
 			}
 			break;
 		case 12:
