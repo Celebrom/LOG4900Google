@@ -196,7 +196,7 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 							chromeEventLines.push_back(eventJSON);
 						 }
 				}
-				//if the first token is a  FileIO the third is "chrome.exe"
+				//Handling of FileIOEvent
 				else if ((typesIO.find(tokens[0]) != typesIO.end()) && (tokens[2].find("chrome.exe") != std::string::npos))
 				{
 						if (*(typesIO.find(tokens[0])) == "FileIoOpEnd")
@@ -218,6 +218,7 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 								tidFileIoStacks[tokens[3]][tokens[8]] = tokens;
 						}
 				}
+				// Handling of DiskEvent
 				else if ((typesDisk.find(tokens[0]) != typesDisk.end()) && (tokens[2].find("chrome.exe") != std::string::npos))
 				{
 						chromeEventLines.push_back(convertDiskLineToJSON(tokens));
