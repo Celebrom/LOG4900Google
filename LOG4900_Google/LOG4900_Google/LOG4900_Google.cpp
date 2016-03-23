@@ -230,13 +230,13 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 				{   // New Process
 						if (tokens[2].find("chrome.exe") != std::string::npos)
 						{
-								CSwitchStacks[extractPidFromString(tokens[3])] = AsyncId++;
+								CSwitchStacks[tokens[3]] = AsyncId++;
 								chromeEventLines.push_back(convertCSwitchToJson(tokens, "New Process", AsyncId-1));
 						}
 						// Old Process
 						if (tokens[8].find("chrome.exe") != std::string::npos)
 						{
-								chromeEventLines.push_back(convertCSwitchToJson(tokens, "Old Process", CSwitchStacks[extractPidFromString(tokens[3])]));
+								chromeEventLines.push_back(convertCSwitchToJson(tokens, "Old Process", CSwitchStacks[tokens[9]]));
 						}
 				}
 				pos = ++newPos;
@@ -467,16 +467,27 @@ std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent)
 
 std::string convertCSwitchToJson(std::vector<std::string>& CSwitchEvent, std::string type, unsigned int id)
 {
-		std::string JsonLine = "{ \"name\" : \"On_CPU\", \"pid\" : \"" + extractPidFromString(CSwitchEvent[2]) + "\"," +
-				" \"tid\" : \"" + CSwitchEvent[3] + "\"," +
-				" \"ts\" : \"" + CSwitchEvent[1] + "\"," +
-				" \"cat\" : \"CSwitch\", " +
-				" \"id\" : \"0x" + std::to_string(id) + "\",";
+		std::string JsonLine = "";
 
 		if (type == "New Process")
-				JsonLine += " \"ph\" : \"b\", \"args\" : {}}";
+		{
+				JsonLine = "{ \"name\" : \"On_CPU\", \"pid\" : " + extractPidFromString(CSwitchEvent[2]) + "," +
+						" \"tid\" : " + CSwitchEvent[3] + "," +
+						" \"ts\" : " + CSwitchEvent[1] + "," +
+						" \"cat\" : \"CSwitch\", " +
+						" \"id\" : \"0x" + std::to_string(id) + "\","
+						" \"ph\" : \"b\", \"args\" : {}}";
+		}
+				
 		else if (type == "Old Process")
-				JsonLine += " \"ph\" : \"e\", \"args\" : {}}";
+		{
+				JsonLine = "{ \"name\" : \"On_CPU\", \"pid\" : " + extractPidFromString(CSwitchEvent[8]) + "," +
+						" \"tid\" : " + CSwitchEvent[9] + "," +
+						" \"ts\" : " + CSwitchEvent[1] + "," +
+						" \"cat\" : \"CSwitch\", " +
+						" \"id\" : \"0x" + std::to_string(id) + "\","
+						" \"ph\" : \"e\", \"args\" : {}}";
+		}
 
 		return JsonLine;
 }
