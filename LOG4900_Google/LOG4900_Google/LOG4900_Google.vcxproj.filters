@@ -39,6 +39,9 @@
     <ClCompile Include="stateIO\IoStateManager.cpp">
       <Filter>Source Files\stateIO</Filter>
     </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StackLine.h">
@@ -95,11 +98,14 @@
     <ClInclude Include="stateIO\FileIOWriteState.h">
       <Filter>Header Files\stateIO</Filter>
     </ClInclude>
-    <ClInclude Include="typeIO.h">
-      <Filter>Header Files\stateIO</Filter>
-    </ClInclude>
     <ClInclude Include="stateIO\IoStateManager.h">
       <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="stateIO\typeIO.h">
+      <Filter>Header Files\stateIO</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

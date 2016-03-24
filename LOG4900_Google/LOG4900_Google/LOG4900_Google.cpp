@@ -1,3 +1,20 @@
+/*
+Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+#pragma once
 #include "LiveStack.h"
 #include "../base/command_line.h"
 #include "../base/file.h"
@@ -12,17 +29,14 @@
 #include <vector>
 #include <algorithm>
 #include <cstdio>
-#include <ctime>
 #include <functional> 
-#include <cctype>
 #include <locale>
 #include <codecvt>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
 #include "stateIO\IoStateManager.h"
 #include "stateIO\typeIO.h"
-
-using namespace etw_insights;
+#include "Utils.h"
 
 std::clock_t start;
 IoStateManager stateIO;
@@ -32,9 +46,7 @@ std::string convertIOLineToJSON(std::vector<std::string>& FileIoEvent, std::vect
 std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent);
 std::string convertEventToJSON(std::vector<std::string>& lines);
 std::string convertCSwitchToJson(std::vector<std::string>& CSwitchEvent, std::string type, unsigned int id);
-void formatFileName(std::string &FileName);
 std::string extractPidFromString(std::string& word);
-std::vector<std::string> removeSpaces(std::vector<std::string> tokens);
 const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header);
 void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines);
 void writeJSON(std::wstring path, std::vector<std::string>& chromeEventLines, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines);
@@ -43,74 +55,13 @@ boost::iostreams::mapped_file mapFileToMem(char* path);
 void convertETLToJSON(std::wstring path, std::wstring type);
 void convertETLToCSV(std::wstring path);
 void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path);
-void showElapsedTime(std::string text);
 int main(int argc, char** argv);
 static inline std::string &ltrim(std::string &s);
 static inline std::string &rtrim(std::string &s);
 static inline std::string &trim(std::string &s);
+void showElapsedTime(std::string text);
 
 
-//http://stackoverflow.com/questions/236129/split-a-string-in-c
-template < class ContainerT >
-void tokenize(const std::string& str, ContainerT& tokens,
-		const std::string& delimiters = " ", bool trimEmpty = false)
-{
-		std::string::size_type pos, lastPos = 0;
-
-		using value_type = typename ContainerT::value_type;
-		using size_type = typename ContainerT::size_type;
-
-		while (true)
-		{
-				pos = str.find_first_of(delimiters, lastPos);
-				if (pos == std::string::npos)
-				{
-						pos = str.length();
-
-						if (pos != lastPos || !trimEmpty)
-								tokens.push_back(value_type(str.data() + lastPos,
-								(size_type)pos - lastPos));
-
-						break;
-				}
-				else
-				{
-						if (pos != lastPos || !trimEmpty)
-								tokens.push_back(value_type(str.data() + lastPos,
-								(size_type)pos - lastPos));
-				}
-
-				lastPos = pos + 1;
-		}
-}
-
-std::vector<std::string> removeSpaces(std::vector<std::string> tokens)
-{
-		std::vector<std::string> updatedTokens;
-
-		for each(std::string token in tokens)
-		{
-				updatedTokens.push_back(trim(token));
-		}
-		return updatedTokens;
-}
-
-// trim from start
-static inline std::string &ltrim(std::string &s) {
-		s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-		return s;
-}
-
-// trim from end
-static inline std::string &rtrim(std::string &s) {
-		s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-		return s;
-}
-
-// trim from both ends
-static inline std::string &trim(std::string &s) {
-		return ltrim(rtrim(s));
-}
 
 const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header)
 {
@@ -124,9 +75,9 @@ const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<
 				line.assign(pos, newPos - pos);
 
 				tokens.clear();
-				tokenize(line, tokens, ",");
+				Utils::tokenize(line, tokens, ",");
 
-				tokens = removeSpaces(tokens);
+				tokens = Utils::removeSpaces(tokens);
 
 				eventType = tokens[0];
 
@@ -161,8 +112,8 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 				tempLine.assign(pos, newPos - pos);
 
 				std::vector<std::string> tokens;
-				tokenize(tempLine, tokens, ",");
-				tokens = removeSpaces(tokens);
+				Utils::tokenize(tempLine, tokens, ",");
+				tokens = Utils::removeSpaces(tokens);
 
 				if (tokens[0] == "Chrome//win:Info")
 				{
@@ -427,7 +378,7 @@ std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent)
 
 		if (diskEndEvent[0] == "DiskRead" || diskEndEvent[0] == "DiskWrite")
 		{
-				formatFileName(diskEndEvent[15]);
+				Utils::formatFileName(diskEndEvent[15]);
 
 				jsonLine = "{\"name\":\"[" + diskEndEvent[0] + "]" + diskEndEvent[15] + "\"," +
 						"\"cat\":\"Disk\",\"ph\":\"X\",\"ts\":" + diskEndEvent[1] + "," +
@@ -492,12 +443,6 @@ std::string convertCSwitchToJson(std::vector<std::string>& CSwitchEvent, std::st
 		return JsonLine;
 }
 
-/// TODO duplicate of somewhere
-void formatFileName(std::string &FileName)
-{
-		FileName.erase(std::remove(FileName.begin(), FileName.end(), '"'), FileName.end());
-		std::replace(FileName.begin(), FileName.end(), '\\', '/');
-}
 
 void parseStacks(SystemHistory& system_history, std::unordered_map<base::Tid, std::vector<std::string>>& completedFunctions)
 {
