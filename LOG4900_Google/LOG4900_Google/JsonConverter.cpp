@@ -14,20 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
-#include <vector>
-#include <algorithm>
-#include "../Utils.h"
+#include "JsonConverter.h"
 
-class AbstractState
+std::string JsonConverter::convertIOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd)
 {
-public:
-	AbstractState();
-	AbstractState(std::vector<std::string>& lines);
-	~AbstractState();
-
-	std::string ifNotEmpty(std::string tag, std::string value);
-	virtual std::string returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
-	std::string commonJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
-};
-
+		stateIO.changeStateTo(stateIO.fromStringToIntIO(FileIoEvent[0]));
+		return stateIO.getCurrentState()->returnJson(FileIoEvent, OpEnd);
+}

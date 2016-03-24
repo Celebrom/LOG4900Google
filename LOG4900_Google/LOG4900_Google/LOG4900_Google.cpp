@@ -37,16 +37,16 @@ limitations under the License.
 #include "stateIO\IoStateManager.h"
 #include "stateIO\typeIO.h"
 #include "Utils.h"
+#include "JsonConverter.h"
 
 std::clock_t start;
-IoStateManager stateIO;
+JsonConverter jsonConverter;
+
 
 // Functions declarations
-std::string convertIOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
 std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent);
 std::string convertEventToJSON(std::vector<std::string>& lines);
 std::string convertCSwitchToJson(std::vector<std::string>& CSwitchEvent, std::string type, unsigned int id);
-std::string extractPidFromString(std::string& word);
 const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header);
 void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines);
 void writeJSON(std::wstring path, std::vector<std::string>& chromeEventLines, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines);
@@ -56,9 +56,6 @@ void convertETLToJSON(std::wstring path, std::wstring type);
 void convertETLToCSV(std::wstring path);
 void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path);
 int main(int argc, char** argv);
-static inline std::string &ltrim(std::string &s);
-static inline std::string &rtrim(std::string &s);
-static inline std::string &trim(std::string &s);
 void showElapsedTime(std::string text);
 
 
@@ -162,7 +159,7 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 								 				                 //IrpPtr compare          //FileObject compare              //Type compare         
 										if (FileIoEvent != FileIoStackIter->second.end() && FileIoEvent->second[7] == tokens[7] && FileIoEvent->second[8] == tokens[8] && FileIoEvent->second[0] == tokens[12])
 										{
-												chromeEventLines.push_back(convertIOLineToJSON(FileIoEvent->second, tokens));
+												chromeEventLines.push_back(jsonConverter.convertIOLineToJSON(FileIoEvent->second, tokens));
 												FileIoStackIter->second.erase(tokens[8]);
 										}
 								}
@@ -192,14 +189,6 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 				}
 				pos = ++newPos;
 		}
-}
-
-/// TODO duplicate de abstractstate
-std::string extractPidFromString(std::string& word)
-{
-		unsigned first = word.find("(");
-		unsigned last = word.find(")");
-		return word.substr(first + 1, last - first - 1);
 }
 
 void writeJSON(std::wstring path, std::vector<std::string>& chromeEventLines, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines)
@@ -309,7 +298,7 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 			ts += "\"ts\":" + line[i] + ",";
 			break;
 		case 2:
-			pid += "\"pid\":" + extractPidFromString(line[i]) + ",";
+			pid += "\"pid\":" + Utils::extractPidFromString(line[i]) + ",";
 			break;
 		case 3:
 			tid += "\"tid\":" + line[i] + ",";
@@ -366,12 +355,6 @@ std::string convertEventToJSON(std::vector<std::string>& line)
 	return "{" + pid + tid + ts + phase + cat + name + args + dur + "}";
 }
 
-std::string convertIOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd)
-{
-		stateIO.changeStateTo(stateIO.fromStringToIntIO(FileIoEvent[0]));
-		return stateIO.getCurrentState()->returnJson(FileIoEvent, OpEnd);
-}
-
 std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent)
 {
 		std::string jsonLine = "";
@@ -383,7 +366,7 @@ std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent)
 				jsonLine = "{\"name\":\"[" + diskEndEvent[0] + "]" + diskEndEvent[15] + "\"," +
 						"\"cat\":\"Disk\",\"ph\":\"X\",\"ts\":" + diskEndEvent[1] + "," +
 						"\"dur\":" + diskEndEvent[8] + "," +
-						"\"pid\":" + extractPidFromString(diskEndEvent[2]) + "," +
+						"\"pid\":" + Utils::extractPidFromString(diskEndEvent[2]) + "," +
 						"\"tid\":" + diskEndEvent[3] + "," +
 						"\"args\":{";
 
@@ -403,7 +386,7 @@ std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent)
 				jsonLine = "{\"name\":\"[" + diskEndEvent[0] + "]\"," +
 						"\"cat\":\"Disk\",\"ph\":\"X\",\"ts\":" + diskEndEvent[1] + "," +
 						"\"dur\":" + diskEndEvent[6] + "," +
-						"\"pid\":" + extractPidFromString(diskEndEvent[2]) + "," +
+						"\"pid\":" + Utils::extractPidFromString(diskEndEvent[2]) + "," +
 						"\"tid\":" + diskEndEvent[3] + "," +
 						"\"args\":{";
 
@@ -422,7 +405,7 @@ std::string convertCSwitchToJson(std::vector<std::string>& CSwitchEvent, std::st
 
 		if (type == "New Process")
 		{
-				JsonLine = "{\"name\":\"On_CPU\",\"pid\":" + extractPidFromString(CSwitchEvent[2]) + "," +
+				JsonLine = "{\"name\":\"On_CPU\",\"pid\":" + Utils::extractPidFromString(CSwitchEvent[2]) + "," +
 						"\"tid\":" + CSwitchEvent[3] + "," +
 						"\"ts\":" + CSwitchEvent[1] + "," +
 						"\"cat\":\"CSwitch\"," +
@@ -432,7 +415,7 @@ std::string convertCSwitchToJson(std::vector<std::string>& CSwitchEvent, std::st
 				
 		else if (type == "Old Process")
 		{
-				JsonLine = "{\"name\":\"On_CPU\",\"pid\":" + extractPidFromString(CSwitchEvent[8]) + "," +
+				JsonLine = "{\"name\":\"On_CPU\",\"pid\":" + Utils::extractPidFromString(CSwitchEvent[8]) + "," +
 						"\"tid\":" + CSwitchEvent[9] + "," +
 						"\"ts\":" + CSwitchEvent[1] + "," +
 						"\"cat\":\"CSwitch\"," +
