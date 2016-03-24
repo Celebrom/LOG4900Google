@@ -187,6 +187,7 @@ xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\system\boost_sys
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="JsonConverter.cpp" />
     <ClCompile Include="LOG4900_Google.cpp" />
     <ClCompile Include="LiveStack.cpp" />
     <ClCompile Include="StackLine.cpp" />
@@ -197,6 +198,7 @@ xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\system\boost_sys
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HeaderDefinition.h" />
+    <ClInclude Include="JsonConverter.h" />
     <ClInclude Include="LiveStack.h" />
     <ClInclude Include="StackLine.h" />
     <ClInclude Include="stateIO\AbstractState.h" />

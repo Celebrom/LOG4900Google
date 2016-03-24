@@ -64,5 +64,7 @@ public:
 		static inline std::string& trim(std::string &s);
 
 		static void formatFileName(std::string &FileName);
+
+		static std::string extractPidFromString(std::string& word);
 		
 };
