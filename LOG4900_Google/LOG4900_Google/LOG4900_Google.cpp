@@ -429,12 +429,12 @@ std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent)
 		{
 				formatFileName(diskEndEvent[15]);
 
-				jsonLine = "{ \"name\": \"[" + diskEndEvent[0] + "] " + diskEndEvent[15] + "\"," +
-						" \"cat\" : \"Disk\", \"ph\" : \"X\", \"ts\" : " + diskEndEvent[1] + "," +
-						" \"dur\" : " + diskEndEvent[8] + "," +
-						" \"pid\" : " + extractPidFromString(diskEndEvent[2]) + "," +
-						" \"tid\" : " + diskEndEvent[3] + "," +
-						" \"args\" : {";
+				jsonLine = "{\"name\":\"[" + diskEndEvent[0] + "]" + diskEndEvent[15] + "\"," +
+						"\"cat\":\"Disk\",\"ph\":\"X\",\"ts\":" + diskEndEvent[1] + "," +
+						"\"dur\":" + diskEndEvent[8] + "," +
+						"\"pid\":" + extractPidFromString(diskEndEvent[2]) + "," +
+						"\"tid\":" + diskEndEvent[3] + "," +
+						"\"args\":{";
 
 				if (diskEndEvent[12] != "")
 						jsonLine += "\"I/O Pri\":\"" + diskEndEvent[12] + "\",";
@@ -449,12 +449,12 @@ std::string convertDiskLineToJSON(std::vector<std::string>& diskEndEvent)
 		}
 		else if (diskEndEvent[0] == "DiskFlush")
 		{
-				jsonLine = "{ \"name\": \"[" + diskEndEvent[0] + "]\"," +
-						" \"cat\" : \"Disk\", \"ph\" : \"X\", \"ts\" : " + diskEndEvent[1] + "," +
-						" \"dur\" : " + diskEndEvent[6] + "," +
-						" \"pid\" : " + extractPidFromString(diskEndEvent[2]) + "," +
-						" \"tid\" : " + diskEndEvent[3] + "," +
-						" \"args\" : {";
+				jsonLine = "{\"name\":\"[" + diskEndEvent[0] + "]\"," +
+						"\"cat\":\"Disk\",\"ph\":\"X\",\"ts\":" + diskEndEvent[1] + "," +
+						"\"dur\":" + diskEndEvent[6] + "," +
+						"\"pid\":" + extractPidFromString(diskEndEvent[2]) + "," +
+						"\"tid\":" + diskEndEvent[3] + "," +
+						"\"args\":{";
 
 				if (diskEndEvent[10] != "")
 						jsonLine += "\"I/O Pri\":\"" + diskEndEvent[10] + "\"";
@@ -471,22 +471,22 @@ std::string convertCSwitchToJson(std::vector<std::string>& CSwitchEvent, std::st
 
 		if (type == "New Process")
 		{
-				JsonLine = "{ \"name\" : \"On_CPU\", \"pid\" : " + extractPidFromString(CSwitchEvent[2]) + "," +
-						" \"tid\" : " + CSwitchEvent[3] + "," +
-						" \"ts\" : " + CSwitchEvent[1] + "," +
-						" \"cat\" : \"CSwitch\", " +
-						" \"id\" : \"0x" + std::to_string(id) + "\","
-						" \"ph\" : \"b\", \"args\" : {}}";
+				JsonLine = "{\"name\":\"On_CPU\",\"pid\":" + extractPidFromString(CSwitchEvent[2]) + "," +
+						"\"tid\":" + CSwitchEvent[3] + "," +
+						"\"ts\":" + CSwitchEvent[1] + "," +
+						"\"cat\":\"CSwitch\"," +
+						"\"id\":\"0x" + std::to_string(id) + "\","
+						"\"ph\":\"b\",\"args\":{}}";
 		}
 				
 		else if (type == "Old Process")
 		{
-				JsonLine = "{ \"name\" : \"On_CPU\", \"pid\" : " + extractPidFromString(CSwitchEvent[8]) + "," +
-						" \"tid\" : " + CSwitchEvent[9] + "," +
-						" \"ts\" : " + CSwitchEvent[1] + "," +
-						" \"cat\" : \"CSwitch\", " +
-						" \"id\" : \"0x" + std::to_string(id) + "\","
-						" \"ph\" : \"e\", \"args\" : {}}";
+				JsonLine = "{\"name\":\"On_CPU\",\"pid\":" + extractPidFromString(CSwitchEvent[8]) + "," +
+						"\"tid\":" + CSwitchEvent[9] + "," +
+						"\"ts\":" + CSwitchEvent[1] + "," +
+						"\"cat\":\"CSwitch\"," +
+						"\"id\":\"0x" + std::to_string(id) + "\","
+						"\"ph\":\"e\",\"args\":{}}";
 		}
 
 		return JsonLine;
