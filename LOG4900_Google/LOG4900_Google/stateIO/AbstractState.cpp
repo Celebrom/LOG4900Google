@@ -1,15 +1,8 @@
 #include "AbstractState.h"
-#include <algorithm>
 
+AbstractState::AbstractState(){}
 
-AbstractState::AbstractState()
-{
-}
-
-
-AbstractState::~AbstractState()
-{
-}
+AbstractState::~AbstractState(){}
 
 std::string AbstractState::returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd){
 	return "";
@@ -38,8 +31,3 @@ std::string AbstractState::commonJson(std::vector<std::string>& FileIoEvent, std
 				"\"args\":{";
 }
 
-void AbstractState::formatFileName(std::string &FileName)
-{	
-	FileName.erase(std::remove(FileName.begin(), FileName.end(), '"'), FileName.end());
-	std::replace(FileName.begin(), FileName.end(), '\\', '/'); 
-}

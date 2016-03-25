@@ -8,6 +8,7 @@ found in the LICENSE file.
 <link rel="import" href="/tracing/base/extension_registry.html">
 <link rel="import" href="/tracing/model/timed_event.html">
 <link rel="import" href="/tracing/value/unit.html">
+<link rel="import" href="/tracing/base/color_scheme.html">
 
 <script>
 'use strict';
@@ -27,13 +28,17 @@ tr.exportTo('tr.model', function() {
                       opt_isTopLevel, opt_cpuStart, opt_cpuDuration,
                       opt_argsStripped) {
     tr.model.TimedEvent.call(this, start);
+	var ColorScheme = tr.b.ColorScheme;
 
     this.category = category || '';
     // We keep the original title from the trace file in originalTitle since
     // some sub-classes, e.g. NetAsyncSlice, change the title field.
     this.originalTitle = title;
     this.title = title;
-    this.colorId = colorId;
+    if(title == 'On_CPU')
+		this.colorId = ColorScheme.getColorIdForReservedName('cpu_on');
+	else
+		this.colorId = colorId;
     this.args = args;
     this.startStackFrame = undefined;
     this.endStackFrame = undefined;
