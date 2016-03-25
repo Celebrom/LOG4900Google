@@ -14,10 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "JsonConverter.h"
+#pragma once
+#include <string>
+#include <vector>
+#include "stateIO\IoStateManager.h"
+#include "stateIO\typeIO.h"
 
-std::string JsonConverter::convertIOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd)
+class Converter
 {
-		stateIO.changeStateTo(stateIO.fromStringToIntIO(FileIoEvent[0]));
-		return stateIO.getCurrentState()->returnJson(FileIoEvent, OpEnd);
-}
+public:
+		Converter(){};
+		std::string IOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
+
+private:
+		IoStateManager stateIO;
+};
