@@ -42,7 +42,7 @@
     <ClCompile Include="Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="JsonConverter.cpp">
+    <ClCompile Include="Converter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -110,7 +110,7 @@
     <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="JsonConverter.h">
+    <ClInclude Include="Converter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -37,10 +37,10 @@ limitations under the License.
 #include "stateIO\IoStateManager.h"
 #include "stateIO\typeIO.h"
 #include "Utils.h"
-#include "JsonConverter.h"
+#include "Converter.h"
 
 std::clock_t start;
-JsonConverter jsonConverter;
+Converter converter;
 
 
 // Functions declarations
@@ -159,7 +159,7 @@ void parseLines(const char*& pos, const char*& end, std::vector<std::string>& ch
 								 				                 //IrpPtr compare          //FileObject compare              //Type compare         
 										if (FileIoEvent != FileIoStackIter->second.end() && FileIoEvent->second[7] == tokens[7] && FileIoEvent->second[8] == tokens[8] && FileIoEvent->second[0] == tokens[12])
 										{
-												chromeEventLines.push_back(jsonConverter.convertIOLineToJSON(FileIoEvent->second, tokens));
+												chromeEventLines.push_back(converter.IOLineToJSON(FileIoEvent->second, tokens));
 												FileIoStackIter->second.erase(tokens[8]);
 										}
 								}
