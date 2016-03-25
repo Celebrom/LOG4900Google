@@ -174,7 +174,8 @@ using custom elements specialized for different event types.
           // Store the eventTypeName for future tab restoration.
           subView._eventTypeName = eventTypeName;
           this.tabView_.appendChild(subView);
-
+          
+          subView.brushingStateController = this.brushingStateController_;
           subView.selection = subSelection;
         }
 

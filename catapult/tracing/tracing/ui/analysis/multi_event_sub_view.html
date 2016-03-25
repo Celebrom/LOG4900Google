@@ -56,9 +56,11 @@ found in the LICENSE file.
   </template>
   <script>
   'use strict';
-
+  var globalBrushingStateController = undefined;
+  
   Polymer({
     created: function() {
+      this.brushingStateController_ = undefined;
       this.currentSelection_ = undefined;
       this.eventsHaveDuration_ = true;
       this.eventsHaveSubRows_ = true;
@@ -96,6 +98,16 @@ found in the LICENSE file.
       this.eventsHaveSubRows_ = eventsHaveSubRows;
       this.updateContents_();
     },
+    
+    get brushingStateController() {
+      return this.brushingStateController_;
+    },
+    
+    set brushingStateController(brushingStateController) {
+      this.brushingStateController_ = brushingStateController;
+      globalBrushingStateController = brushingStateController;
+      this.updateContents_();
+    },
 
     updateContents_: function() {
       var selection = this.currentSelection_;
@@ -113,8 +125,9 @@ found in the LICENSE file.
       flameGraphDisplayButton.appendChild(buttonText);
       flameGraphDisplayButton.setAttribute("id", "flame-graph-button");
       flameGraphDisplayButton.onclick = function() {
-        localStorage.setItem("msg", JSON.stringify({bana:"BOOM"}));
-        var w = window.open('tab_bob.html'); 
+        //localStorage.setItem("msg", JSON.stringify({bana:"BOOM"}));
+        //var w = window.open('tab_bob.html');
+        console.log(globalBrushingStateController.model.metadata);
       };
       this.$.content.appendChild(flameGraphDisplayButton);
       
