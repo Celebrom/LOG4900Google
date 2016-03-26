@@ -16,21 +16,16 @@ limitations under the License.
 
 #pragma once
 #include <string>
-#include "AbstractState.h"
+#include <boost/filesystem.hpp>
+#include <boost/iostreams/device/mapped_file.hpp>
 
-class IoStateManager
+
+class MemoryMapper
 {
 public:
-	IoStateManager();
-	~IoStateManager();
-	int getStateId();
-	AbstractState* getCurrentState();
-	void changeStateTo(unsigned int state);
-	int fromStringToIntIO(std::string value);
+		MemoryMapper(){};
+		static boost::iostreams::mapped_file mapFileToMem(std::wstring path);
 
 private:
-	AbstractState* currentState_;
-	int	   idState_;
-	std::vector<AbstractState *> stateVector;
-};
 
+};

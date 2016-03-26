@@ -15,26 +15,19 @@ limitations under the License.
 */
 
 #pragma once
+#include <vector>
+#include <fstream>
 #include <unordered_map>
-#include "stateIO\IoStateManager.h"
-#include "stateIO\typeIO.h"
-#include "../etw_reader/etw_reader.h"
-#include "../base/file.h"
-#include "MemoryMapper.h"
+#include "../base/types.h"
 
 
-
-
-class Converter
+class JsonWriter
 {
 public:
-		Converter(){};
-		std::string IOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
-		std::string DiskLineToJSON(std::vector<std::string>& diskEndEvent);
-		std::string EventToJSON(std::vector<std::string>& line);
-		std::string CSwitchToJson(std::vector<std::string>& CSwitchEvent, std::string type, unsigned int id);
+		JsonWriter(){};
+
+		static void write(std::wstring path, std::vector<std::string>& chromeEventLines, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines);
 
 private:
-		std::string getPhase(std::string &word);
-		IoStateManager stateIO;
+
 };

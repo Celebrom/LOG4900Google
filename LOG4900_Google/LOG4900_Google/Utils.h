@@ -24,6 +24,7 @@ limitations under the License.
 class Utils
 {
 public:
+		Utils(){};
 
 		template < class ContainerT >
 		static void tokenize(const std::string& str, ContainerT& tokens, const std::string& delimiters = " ", bool trimEmpty = false)
@@ -66,5 +67,7 @@ public:
 		static void formatFileName(std::string &FileName);
 
 		static std::string extractPidFromString(std::string& word);
+
+private:
 		
 };
