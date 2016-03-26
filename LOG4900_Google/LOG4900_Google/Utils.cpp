@@ -49,3 +49,10 @@ void Utils::formatFileName(std::string &FileName)
 		FileName.erase(std::remove(FileName.begin(), FileName.end(), '"'), FileName.end());
 		std::replace(FileName.begin(), FileName.end(), '\\', '/');
 }
+
+std::string Utils::extractPidFromString(std::string& word)
+{
+		unsigned first = word.find("(");
+		unsigned last = word.find(")");
+		return word.substr(first + 1, last - first - 1);
+}

@@ -14,20 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
-#include <vector>
-#include <algorithm>
-#include "../Utils.h"
+#include "MemoryMapper.h"
 
-class AbstractState
+boost::iostreams::mapped_file MemoryMapper::mapFileToMem(std::wstring path)
 {
-public:
-	AbstractState();
-	AbstractState(std::vector<std::string>& lines);
-	~AbstractState();
-
-	std::string ifNotEmpty(std::string tag, std::string value);
-	virtual std::string returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
-	std::string commonJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
-};
-
+		boost::filesystem::path p(path);
+		boost::iostreams::mapped_file mmap(p, boost::iostreams::mapped_file::readonly);
+		return mmap;
+}

@@ -8,13 +8,6 @@ std::string AbstractState::returnJson(std::vector<std::string>& FileIoEvent, std
 	return "";
 }
 
-std::string AbstractState::extractPidFromString(std::string& word)
-{
-	unsigned first = word.find("(");
-	unsigned last = word.find(")");
-	return word.substr(first + 1, last - first - 1);
-}
-
 std::string AbstractState::ifNotEmpty(std::string tag, std::string value)
 {
 		if (value != "")
@@ -26,7 +19,7 @@ std::string AbstractState::commonJson(std::vector<std::string>& FileIoEvent, std
 {
 		return "\"cat\":\"IO\",\"ph\":\"X\",\"ts\":" + FileIoEvent[1] + "," +
 				"\"dur\":" + OpEnd[9] + "," +
-				"\"pid\":" + extractPidFromString(FileIoEvent[2]) + "," +
+				"\"pid\":" + Utils::extractPidFromString(FileIoEvent[2]) + "," +
 				"\"tid\":" + FileIoEvent[3] + "," +
 				"\"args\":{";
 }

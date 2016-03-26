@@ -16,18 +16,18 @@ limitations under the License.
 
 #pragma once
 #include <vector>
-#include <algorithm>
-#include "../Utils.h"
+#include <fstream>
+#include <unordered_map>
+#include "../base/types.h"
 
-class AbstractState
+
+class JsonWriter
 {
 public:
-	AbstractState();
-	AbstractState(std::vector<std::string>& lines);
-	~AbstractState();
+		JsonWriter(){};
 
-	std::string ifNotEmpty(std::string tag, std::string value);
-	virtual std::string returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
-	std::string commonJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
+		static void write(std::wstring path, std::vector<std::string>& chromeEventLines, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines);
+
+private:
+
 };
-
