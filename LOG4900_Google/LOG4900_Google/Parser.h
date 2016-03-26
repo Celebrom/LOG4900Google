@@ -15,26 +15,25 @@ limitations under the License.
 */
 
 #pragma once
+#include <iostream>
 #include <unordered_map>
-#include "stateIO\IoStateManager.h"
-#include "stateIO\typeIO.h"
-#include "../etw_reader/etw_reader.h"
-#include "../base/file.h"
-#include "MemoryMapper.h"
+#include <unordered_set>
+#include "Utils.h"
+#include "Converter.h"
+#include "LiveStack.h"
+#include "../etw_reader/system_history.h"
+#include "../etw_reader/generate_history_from_trace.h"
 
 
 
-
-class Converter
+class Parser
 {
 public:
-		Converter(){};
-		std::string IOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
-		std::string DiskLineToJSON(std::vector<std::string>& diskEndEvent);
-		std::string EventToJSON(std::vector<std::string>& line);
-		std::string CSwitchToJson(std::vector<std::string>& CSwitchEvent, std::string type, unsigned int id);
+		Parser(){};
+		const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header);
+		void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines);
+		void parseStacks(SystemHistory& system_history, std::unordered_map<base::Tid, std::vector<std::string>>& completedFunctions);
 
 private:
-		std::string getPhase(std::string &word);
-		IoStateManager stateIO;
+		Converter converter;
 };

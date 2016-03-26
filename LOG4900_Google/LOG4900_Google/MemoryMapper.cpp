@@ -14,23 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
-#include <string>
-#include "AbstractState.h"
+#include "MemoryMapper.h"
 
-class IoStateManager
+boost::iostreams::mapped_file MemoryMapper::mapFileToMem(std::wstring path)
 {
-public:
-	IoStateManager();
-	~IoStateManager();
-	int getStateId();
-	AbstractState* getCurrentState();
-	void changeStateTo(unsigned int state);
-	int fromStringToIntIO(std::string value);
-
-private:
-	AbstractState* currentState_;
-	int	   idState_;
-	std::vector<AbstractState *> stateVector;
-};
-
+		boost::filesystem::path p(path);
+		boost::iostreams::mapped_file mmap(p, boost::iostreams::mapped_file::readonly);
+		return mmap;
+}
