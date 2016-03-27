@@ -14,17 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
-#include <vector>
-#include <fstream>
-#include <unordered_map>
-#include "../base/types.h"
+#include "Timer.h"
 
-
-class JsonWriter
+void Timer::start()
 {
-public:
-		JsonWriter(){};
+		startTime = clock_t();
+}
 
-		static void write(std::wstring path, std::vector<std::string>& chromeEventLines, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines);
-};
+void Timer::showElapsedTime(std::string text)
+{
+		std::cout << "\n\n" << text << ": " << (std::clock() - startTime) / (double)CLOCKS_PER_SEC << "\n";
+}
+

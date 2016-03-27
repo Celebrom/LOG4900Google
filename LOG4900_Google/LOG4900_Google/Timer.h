@@ -15,21 +15,17 @@ limitations under the License.
 */
 
 #pragma once
-#include <unordered_map>
-#include "stateIO\IoStateManager.h"
+#include <locale>
+#include <iostream>
 
-class Converter
+class Timer
 {
 public:
-		Converter(){ stateIO = new IoStateManager(); };
-		~Converter(){ delete stateIO; };
+		Timer(){ startTime = clock_t(); };
 
-		std::string IOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
-		std::string DiskLineToJSON(std::vector<std::string>& diskEndEvent);
-		std::string EventToJSON(std::vector<std::string>& line);
-		std::string CSwitchToJson(std::vector<std::string>& CSwitchEvent, std::string type, unsigned int id);
+		void start();
+		void showElapsedTime(std::string text);
 
 private:
-		std::string getPhase(std::string &word);
-		IoStateManager* stateIO;
+		std::clock_t startTime;
 };

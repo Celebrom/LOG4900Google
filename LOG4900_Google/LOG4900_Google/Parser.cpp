@@ -87,7 +87,7 @@ void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::str
 										std::string duration = std::to_string(completeEndTS - completeTS);
 										complete.push_back(duration);
 
-										std::string eventJSON = converter.EventToJSON(complete);
+										std::string eventJSON = converter->EventToJSON(complete);
 										chromeEventLines.push_back(eventJSON);
 
 										tidCompletePhaseStacks[tokens[3]].pop_back();
@@ -99,7 +99,7 @@ void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::str
 						}
 						else
 						{
-								std::string eventJSON = converter.EventToJSON(tokens);
+								std::string eventJSON = converter->EventToJSON(tokens);
 								chromeEventLines.push_back(eventJSON);
 						}
 				}
@@ -115,7 +115,7 @@ void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::str
 										//IrpPtr compare          //FileObject compare              //Type compare         
 										if (FileIoEvent != FileIoStackIter->second.end() && FileIoEvent->second[7] == tokens[7] && FileIoEvent->second[8] == tokens[8] && FileIoEvent->second[0] == tokens[12])
 										{
-												chromeEventLines.push_back(converter.IOLineToJSON(FileIoEvent->second, tokens));
+												chromeEventLines.push_back(converter->IOLineToJSON(FileIoEvent->second, tokens));
 												FileIoStackIter->second.erase(tokens[8]);
 										}
 								}
@@ -128,19 +128,19 @@ void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::str
 				// Handling of DiskEvent
 				else if ((typesDisk.find(tokens[0]) != typesDisk.end()) && (tokens[2].find("chrome.exe") != std::string::npos))
 				{
-						chromeEventLines.push_back(converter.DiskLineToJSON(tokens));
+						chromeEventLines.push_back(converter->DiskLineToJSON(tokens));
 				}
 				else if (tokens[0] == "CSwitch")
 				{   // New Process
 						if (tokens[2].find("chrome.exe") != std::string::npos)
 						{
 								CSwitchStacks[tokens[3]] = AsyncId++;
-								chromeEventLines.push_back(converter.CSwitchToJson(tokens, "New Process", AsyncId - 1));
+								chromeEventLines.push_back(converter->CSwitchToJson(tokens, "New Process", AsyncId - 1));
 						}
 						// Old Process
 						if (tokens[8].find("chrome.exe") != std::string::npos)
 						{
-								chromeEventLines.push_back(converter.CSwitchToJson(tokens, "Old Process", CSwitchStacks[tokens[9]]));
+								chromeEventLines.push_back(converter->CSwitchToJson(tokens, "Old Process", CSwitchStacks[tokens[9]]));
 						}
 				}
 				pos = ++newPos;
