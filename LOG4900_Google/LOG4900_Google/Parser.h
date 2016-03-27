@@ -22,18 +22,17 @@ limitations under the License.
 #include "Converter.h"
 #include "LiveStack.h"
 #include "../etw_reader/system_history.h"
-#include "../etw_reader/generate_history_from_trace.h"
-
-
 
 class Parser
 {
 public:
-		Parser(){};
+		Parser(){ converter = new Converter(); };
+		~Parser(){ delete converter; };
+
 		const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header);
 		void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines);
 		void parseStacks(SystemHistory& system_history, std::unordered_map<base::Tid, std::vector<std::string>>& completedFunctions);
 
 private:
-		Converter converter;
+		Converter* converter;
 };

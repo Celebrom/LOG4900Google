@@ -17,30 +17,21 @@ limitations under the License.
 #pragma once
 #include <cstdio>
 #include <locale>
-#include <fstream>
-#include <codecvt>
 #include <iostream>
 #include <unordered_map>
-#include <unordered_set>
-#include "Utils.h"
+#include "Timer.h"
 #include "Parser.h"
 #include "LiveStack.h"
 #include "JsonWriter.h"
-#include "../base/file.h"
+#include "../base/file.h"		
 #include "MemoryMapper.h"
-#include "stateIO\typeIO.h"
 #include "../base/command_line.h"
-#include "stateIO\IoStateManager.h"
 #include "../etw_reader/etw_reader.h"
 #include <boost/iostreams/device/mapped_file.hpp>
+#include <etw_reader/generate_history_from_trace.h>
 
-std::clock_t start;
+Timer timer;
 Parser parser;
-
-void showElapsedTime(std::string text)
-{
-		std::cout << "\n\n" << text << ": " << (std::clock() - start) / (double)CLOCKS_PER_SEC << "\n";
-}
 
 void ShowUsage() {
 		std::cout
@@ -64,11 +55,11 @@ void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path)
 
 		std::unordered_map<std::string, std::vector<std::string>> header;
 		const char*& posBeginLines = parser.parseHeader(pos, end, header);
-		showElapsedTime("Temps de fin de parsing du header");
+		timer.showElapsedTime("Temps de fin de parsing du header");
 
 		std::vector<std::string> chromeEventLines;
 		parser.parseLines(posBeginLines, end, chromeEventLines);
-		showElapsedTime("Temps de fin de parsing des lignes du fichier");
+		timer.showElapsedTime("Temps de fin de parsing des lignes du fichier");
 		
 		SystemHistory system_history;
 		if (!GenerateHistoryFromTrace(etl_path, &system_history)) {
@@ -80,7 +71,7 @@ void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path)
 
 		std::wstring json_path = csv_path + L".json";
 		JsonWriter::write(json_path, chromeEventLines, completedFunctions);
-		showElapsedTime("Temps de fin d'ecriture du JSON");
+		timer.showElapsedTime("Temps de fin d'ecriture du JSON");
 
 		//munmap pas necessaire parce que map desallouer a la fin du process
 		//boost::iostreams::mapped_file munmap(mmap, mmap.size());
@@ -97,8 +88,6 @@ void convertETLToJSON(std::wstring etl_path)
 
 int wmain(int argc, wchar_t* argv[], wchar_t* /*envp */[])
 {
-	start = std::clock();
-
 	base::CommandLine command_line(argc, argv);
 
 	if (command_line.GetNumSwitches() == 0) 
@@ -125,7 +114,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* /*envp */[])
 
 	convertETLToJSON(trace_path);
 			
-	showElapsedTime("\n\n\nDuree totale de l'application:  ");
+	timer.showElapsedTime("\n\n\nDuree totale de l'application:  ");
 	system("PAUSE");
 
 	return 1;

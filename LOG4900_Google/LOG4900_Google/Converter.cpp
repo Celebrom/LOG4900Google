@@ -18,8 +18,8 @@ limitations under the License.
 
 std::string Converter::IOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd)
 {
-		stateIO.changeStateTo(stateIO.fromStringToIntIO(FileIoEvent[0]));
-		return stateIO.getCurrentState()->returnJson(FileIoEvent, OpEnd);
+		stateIO->changeStateTo(stateIO->fromStringToIntIO(FileIoEvent[0]));
+		return stateIO->getCurrentState()->returnJson(FileIoEvent, OpEnd);
 }
 
 std::string Converter::DiskLineToJSON(std::vector<std::string>& diskEndEvent)
