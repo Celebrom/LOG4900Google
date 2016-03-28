@@ -23,6 +23,6 @@ limitations under the License.
 class MemoryMapper
 {
 public:
-		MemoryMapper(){};
-		static boost::iostreams::mapped_file mapFileToMem(std::wstring path);
+	MemoryMapper(){};
+	static boost::iostreams::mapped_file mapFileToMem(std::wstring path);
 };

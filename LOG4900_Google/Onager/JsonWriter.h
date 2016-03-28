@@ -24,7 +24,7 @@ limitations under the License.
 class JsonWriter
 {
 public:
-		JsonWriter(){};
+	JsonWriter(){};
 
-		static void write(std::wstring path, std::vector<std::string>& chromeEventLines, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines);
+	static void write(std::wstring path, std::vector<std::string>& chromeEventLines, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines);
 };

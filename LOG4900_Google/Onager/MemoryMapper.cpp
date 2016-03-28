@@ -18,7 +18,7 @@ limitations under the License.
 
 boost::iostreams::mapped_file MemoryMapper::mapFileToMem(std::wstring path)
 {
-		boost::filesystem::path p(path);
-		boost::iostreams::mapped_file mmap(p, boost::iostreams::mapped_file::readonly);
-		return mmap;
+	boost::filesystem::path p(path);
+	boost::iostreams::mapped_file mmap(p, boost::iostreams::mapped_file::readonly);
+	return mmap;
 }

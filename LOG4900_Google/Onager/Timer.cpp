@@ -18,11 +18,11 @@ limitations under the License.
 
 void Timer::start()
 {
-		startTime = clock_t();
+	startTime = clock_t();
 }
 
 void Timer::showElapsedTime(std::string text)
 {
-		std::cout << "\n\n" << text << ": " << (std::clock() - startTime) / (double)CLOCKS_PER_SEC << "\n";
+	std::cout << "\n\n" << text << ": " << (std::clock() - startTime) / (double)CLOCKS_PER_SEC << "\n";
 }
 

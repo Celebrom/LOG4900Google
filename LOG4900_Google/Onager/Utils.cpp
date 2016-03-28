@@ -18,41 +18,41 @@ limitations under the License.
 
 std::vector<std::string> Utils::removeSpaces(std::vector<std::string> tokens)
 {
-		std::vector<std::string> updatedTokens;
+	std::vector<std::string> updatedTokens;
 
-		for each(std::string token in tokens)
-		{
-				updatedTokens.push_back(trim(token));
-		}
-		return updatedTokens;
+	for each(std::string token in tokens)
+	{
+		updatedTokens.push_back(trim(token));
+	}
+	return updatedTokens;
 }
 
 // trim from start
 std::string& Utils::ltrim(std::string &s) {
-		s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-		return s;
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+	return s;
 }
 
 // trim from end
 std::string& Utils::rtrim(std::string &s) {
-		s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-		return s;
+	s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+	return s;
 }
 
 // trim from both ends
 std::string& Utils::trim(std::string &s) {
-		return ltrim(rtrim(s));
+	return ltrim(rtrim(s));
 }
 
 void Utils::formatFileName(std::string &FileName)
 {
-		FileName.erase(std::remove(FileName.begin(), FileName.end(), '"'), FileName.end());
-		std::replace(FileName.begin(), FileName.end(), '\\', '/');
+	FileName.erase(std::remove(FileName.begin(), FileName.end(), '"'), FileName.end());
+	std::replace(FileName.begin(), FileName.end(), '\\', '/');
 }
 
 std::string Utils::extractPidFromString(std::string& word)
 {
-		unsigned first = word.find("(");
-		unsigned last = word.find(")");
-		return word.substr(first + 1, last - first - 1);
+	unsigned first = word.find("(");
+	unsigned last = word.find(")");
+	return word.substr(first + 1, last - first - 1);
 }

@@ -21,15 +21,15 @@ limitations under the License.
 class Converter
 {
 public:
-		Converter(){ stateIO = new IoStateManager(); };
-		~Converter(){ delete stateIO; };
+	Converter(){ stateIO = new IoStateManager(); };
+	~Converter(){ delete stateIO; };
 
-		std::string IOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
-		std::string DiskLineToJSON(std::vector<std::string>& diskEndEvent);
-		std::string EventToJSON(std::vector<std::string>& line);
-		std::string CSwitchToJson(std::vector<std::string>& CSwitchEvent, std::string type, unsigned int id);
+	std::string IOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
+	std::string DiskLineToJSON(std::vector<std::string>& diskEndEvent);
+	std::string EventToJSON(std::vector<std::string>& line);
+	std::string CSwitchToJson(std::vector<std::string>& CSwitchEvent, std::string type, unsigned int id);
 
 private:
-		std::string getPhase(std::string &word);
-		IoStateManager* stateIO;
+	std::string getPhase(std::string &word);
+	IoStateManager* stateIO;
 };
