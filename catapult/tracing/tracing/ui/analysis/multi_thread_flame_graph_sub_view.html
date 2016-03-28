@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!--
+Copyright (c) 2013 The Chromium Authors. All rights reserved.
+Use of this source code is governed by a BSD-style license that can be
+found in the LICENSE file.
+-->
+
+<link rel="import" href="/tracing/ui/analysis/analysis_sub_view.html">
+<link rel="import" href="/tracing/ui/analysis/multi_event_sub_view.html">
+<link rel="import" href="/tracing/ui/analysis/related_events.html">
+<link rel="import" href="/tracing/ui/base/tracecompare.html">
+
+<polymer-element name="tr-ui-a-multi-thread-flame-graph-sub-view">
+  <template>
+    <style>
+    :host {
+      display: flex;
+    }
+    #content {
+      display: flex;
+      flex: 1 1 auto;
+    }
+    #content > #right > tr-ui-a-related-events {
+      margin-left: 8px;
+      flex: 0 1 200px;
+    }
+    #flame-graph-button {
+      background-color: orange;
+      border-color: orange;
+      color: #4d0000;
+      margin: 0 auto;
+      text-align: center;
+      width: 75%;
+    }
+    #flamegraph_wrapper {
+      background-color: orange;
+      display: flex;
+      flex: 1 1 auto;
+    }
+    #flamegraph {
+      display: flex;
+      flex: 1 1 auto;
+    }
+    </style>
+    <div id="flamegraph_wrapper">
+        <svg id="flamegraph"></svg>
+    </div>
+  </template>
+
+  <script>
+  'use strict';
+
+  Polymer({
+    created: function() {
+      this.brushingStateController_ = undefined;
+      this.selection_ = undefined;
+    },
+    
+    get brushingStateController() {
+      return this.brushingStateController_;
+    },
+    
+    set brushingStateController(brushingStateController) {
+      this.brushingStateController_ = brushingStateController;
+    },
+
+    get selection() {
+      return this.selection_;
+    },
+
+    set selection(selection) {
+      this.selection_ = selection;
+
+      //this.$.content.textContent = '';
+      //var flamegraph = document.createElement('svg');
+      //flamegraph.setAttribute('id', 'flamegraph');
+      //flamegraph.textContent = '';
+      //this.$.content.appendChild(flamegraph);
+      
+      tracecompare(
+     {
+	   "executions":[{"a":18055,"b":1424810701430206,"e":17997,"f":22,"g":26,"h":9,"samples":{"541":18055,"543": 12707, "548": 4289, "549": 4289, "550": 4289, "551": 4076}}],
+	   "stacks":{"541":{"b":0,"f":"[thread]"},"543":{"b":541,"f":"sys:read"},"548":{"b":541,"f":"__libc_start_main"},"549":{"b":548,"f":"main"},"550":{"b":549,"f":"DoSomeDonkeys(RandomStringGenerator&, mongo::DBClientConnection&)"},"551":{"b":550,"f":"GenerateSomeData(RandomStringGenerator&, mongo::BSONObjBuilder&)"}}
+     },
+     d3.select(this.$.flamegraph_wrapper).selectAll('#flamegraph')
+     );
+    },
+  });
+  </script>
+</polymer-element>
