@@ -15,21 +15,21 @@ limitations under the License.
 */
 
 #pragma once
-#include <string>
-#include "AbstractState.h"/
-class IoStateManager
+#include <unordered_map>
+#include "stateIO\IoStateManager.h"
+
+class Converter
 {
 public:
-	IoStateManager();
-	~IoStateManager();
-	int getStateId();
-	AbstractState* getCurrentState();
-	void changeStateTo(unsigned int state);
-	int fromStringToIntIO(std::string value);
+		Converter(){ stateIO = new IoStateManager(); };
+		~Converter(){ delete stateIO; };
+
+		std::string IOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
+		std::string DiskLineToJSON(std::vector<std::string>& diskEndEvent);
+		std::string EventToJSON(std::vector<std::string>& line);
+		std::string CSwitchToJson(std::vector<std::string>& CSwitchEvent, std::string type, unsigned int id);
 
 private:
-	AbstractState* currentState_;
-	int	   idState_;
-	std::vector<AbstractState *> stateVector;
+		std::string getPhase(std::string &word);
+		IoStateManager* stateIO;
 };
-

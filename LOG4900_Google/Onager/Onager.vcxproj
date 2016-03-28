@@ -22,6 +22,7 @@
     <ProjectGuid>{DDEDFCC2-3588-4741-A782-642716D876B1}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>LOG4900_Google</RootNamespace>
+    <ProjectName>Onager</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -187,17 +188,26 @@ xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\system\boost_sys
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="LOG4900_Google.cpp" />
+    <ClCompile Include="Converter.cpp" />
+    <ClCompile Include="JsonWriter.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MemoryMapper.cpp" />
     <ClCompile Include="LiveStack.cpp" />
+    <ClCompile Include="Parser.cpp" />
     <ClCompile Include="StackLine.cpp" />
     <ClCompile Include="stateIO\AbstractState.cpp" />
     <ClCompile Include="stateIO\FileIO.cpp" />
     <ClCompile Include="stateIO\IoStateManager.cpp" />
+    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="JsonWriter.h" />
+    <ClInclude Include="MemoryMapper.h" />
     <ClInclude Include="HeaderDefinition.h" />
+    <ClInclude Include="Converter.h" />
     <ClInclude Include="LiveStack.h" />
+    <ClInclude Include="Parser.h" />
     <ClInclude Include="StackLine.h" />
     <ClInclude Include="stateIO\AbstractState.h" />
     <ClInclude Include="stateIO\FileIOCleanUpState.h" />
@@ -216,6 +226,7 @@ xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\system\boost_sys
     <ClInclude Include="stateIO\FileIOWriteState.h" />
     <ClInclude Include="stateIO\IoStateManager.h" />
     <ClInclude Include="stateIO\typeIO.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

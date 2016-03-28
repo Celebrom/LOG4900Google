@@ -15,20 +15,17 @@ limitations under the License.
 */
 
 #pragma once
-#include <vector>
-#include <algorithm>
-#include "../Utils.h"
+#include <locale>
+#include <iostream>
 
-class AbstractState
+class Timer
 {
 public:
-	AbstractState();
-	AbstractState(std::vector<std::string>& lines);
-	~AbstractState();
+		Timer(){ startTime = clock_t(); };
 
-	std::string extractPidFromString(std::string& word);
-	std::string ifNotEmpty(std::string tag, std::string value);
-	virtual std::string returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
-	std::string commonJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
+		void start();
+		void showElapsedTime(std::string text);
+
+private:
+		std::clock_t startTime;
 };
-
