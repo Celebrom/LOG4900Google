@@ -74,6 +74,8 @@ class TracingProject(object):
       tracing_third_party_path, 'gl-matrix', 'dist')
 
   ui_path = os.path.join(tracing_src_path, 'ui')
+  crossfilter_path = os.path.join(tracing_third_party_path, 'crossfilter')
+  tracecompare_path = os.path.join(tracing_third_party_path, 'tracecompare')
   d3_path = os.path.join(tracing_third_party_path, 'd3')
   chai_path = os.path.join(tracing_third_party_path, 'chai')
   mocha_path = os.path.join(tracing_third_party_path, 'mocha')
@@ -98,6 +100,8 @@ class TracingProject(object):
     self.source_paths.append(self.mre_path)
     self.source_paths.append(self.jszip_path)
     self.source_paths.append(self.glmatrix_path)
+    self.source_paths.append(self.crossfilter_path)
+    self.source_paths.append(self.tracecompare_path)
     self.source_paths.append(self.d3_path)
     self.source_paths.append(self.chai_path)
     self.source_paths.append(self.mocha_path)

@@ -46,6 +46,16 @@ handlers:
   static_files: tracing/third_party/d3/d3.min.js
   upload: tracing/third_party/d3/d3.min.js
   secure: always
+  
+- url: /crossfilter.v1.min.js
+  static_files: tracing/third_party/crossfilter/crossfilter.v1.min.js
+  upload: tracing/third_party/crossfilter/crossfilter.v1.min.js
+  secure: always
+  
+- url: /tracecompare.js
+  static_files: tracing/third_party/tracecompare/tracecompare.js
+  upload: tracing/third_party/tracecompare/tracecompare.js
+  secure: always
 
 - url: /.*
   static_files: tracing/tracing/ui/extras/drive/index.html
