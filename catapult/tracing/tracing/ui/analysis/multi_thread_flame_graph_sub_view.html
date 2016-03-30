@@ -76,7 +76,6 @@ found in the LICENSE file.
     },
     
     getSelectionStacks: function(selection) {
-      console.log(selection);
       var metadata     = selection[0].model.metadata;
       var timeShift    = Math.abs(selection[0].model.timestampShiftToZeroAmount_);
       var timestampMin = Math.floor((selection.bounds.min + timeShift) * 1000);
