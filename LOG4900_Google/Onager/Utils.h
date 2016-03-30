@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
+#ifndef LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_UTILS_H
+#define LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_UTILS_H
+
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -42,16 +44,16 @@ public:
 					pos = str.length();
 
 					if (pos != lastPos || !trimEmpty)
-							tokens.push_back(value_type(str.data() + lastPos,
-							(size_type)pos - lastPos));
+						tokens.push_back(value_type(str.data() + lastPos,
+						(size_type)pos - lastPos));
 
 					break;
 				}
 				else
 				{
 					if (pos != lastPos || !trimEmpty)
-							tokens.push_back(value_type(str.data() + lastPos,
-							(size_type)pos - lastPos));
+						tokens.push_back(value_type(str.data() + lastPos,
+						(size_type)pos - lastPos));
 				}
 
 				lastPos = pos + 1;
@@ -64,10 +66,12 @@ public:
 		static inline std::string& rtrim(std::string &s);
 		static inline std::string& trim(std::string &s);
 
-		static void formatFileName(std::string &FileName);
+		static void formatFileName(std::string *FileName);
 
 		static std::string extractPidFromString(std::string& word);
 
 private:
 		
 };
+
+#endif // LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_UTILS_H

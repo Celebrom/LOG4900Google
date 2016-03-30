@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
+#ifndef LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_STACKLINE_H
+#define LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_STACKLINE_H
+
 #include <string>
 #include <algorithm>
 
@@ -41,3 +43,5 @@ private:
 	int beginTimestamp;
 	int endTimestamp;
 };
+
+#endif // LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_STACKLINE_H

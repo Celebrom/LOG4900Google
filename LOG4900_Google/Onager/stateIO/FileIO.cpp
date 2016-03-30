@@ -31,12 +31,14 @@ limitations under the License.
 #include "AbstractState.h" 
 #include <algorithm>
 
+// For all possible types of a given FileIO, returnJson returns a line that starts with:
+// {"name":"[FileIoEvent]Filename\", ... 
 
 /*1- FileIOCreateState*/
 FileIOCreateState::FileIOCreateState(){}
 FileIOCreateState::~FileIOCreateState(){}
 std::string FileIOCreateState::returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd){
-		Utils::formatFileName(FileIoEvent[12]);
+		Utils::formatFileName(&FileIoEvent[12]);
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[12];
 		return "{\"name\":\"[" + FileIoEvent[0] + "]" + FileIoEvent[12] + "\"," +
@@ -47,7 +49,7 @@ std::string FileIOCreateState::returnJson(std::vector<std::string>& FileIoEvent,
 FileIOCleanUpState::FileIOCleanUpState(){}
 FileIOCleanUpState::~FileIOCleanUpState(){}
 std::string FileIOCleanUpState::returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd){
-		Utils::formatFileName(FileIoEvent[9]);
+		Utils::formatFileName(&FileIoEvent[9]);
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[9];
 		return "{\"name\":\"[" + FileIoEvent[0] + "]" + FileIoEvent[9] + "\"," +
@@ -58,7 +60,7 @@ std::string FileIOCleanUpState::returnJson(std::vector<std::string>& FileIoEvent
 FileIOCloseState::FileIOCloseState(){}
 FileIOCloseState::~FileIOCloseState(){}
 std::string FileIOCloseState::returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd){
-		Utils::formatFileName(FileIoEvent[9]);
+		Utils::formatFileName(&FileIoEvent[9]);
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[9];
 		return "{\"name\":\"[" + FileIoEvent[0] + "]" + FileIoEvent[9] + "\"," +
@@ -69,7 +71,7 @@ std::string FileIOCloseState::returnJson(std::vector<std::string>& FileIoEvent, 
 FileIODeleteState::FileIODeleteState(){}
 FileIODeleteState::~FileIODeleteState(){}
 std::string FileIODeleteState::returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd){
-		Utils::formatFileName(FileIoEvent[11]);
+		Utils::formatFileName(&FileIoEvent[11]);
 
 	//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11];
 	return "{\"name\":\"[" + FileIoEvent[0] + "]" + FileIoEvent[11] + "\"," +
@@ -80,7 +82,7 @@ std::string FileIODeleteState::returnJson(std::vector<std::string>& FileIoEvent,
 FileIODirEnumState::FileIODirEnumState(){}
 FileIODirEnumState::~FileIODirEnumState(){}
 std::string FileIODirEnumState::returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd){
-		Utils::formatFileName(FileIoEvent[12]);
+		Utils::formatFileName(&FileIoEvent[12]);
 
 	//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[12];
 	return "{\"name\":\"[" + FileIoEvent[0] + "]" + FileIoEvent[12] + "\"," +
@@ -92,7 +94,7 @@ std::string FileIODirEnumState::returnJson(std::vector<std::string>& FileIoEvent
 FileIODirNotifyState::FileIODirNotifyState(){}
 FileIODirNotifyState::~FileIODirNotifyState(){}
 std::string FileIODirNotifyState::returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd){
-		Utils::formatFileName(FileIoEvent[12]);
+		Utils::formatFileName(&FileIoEvent[12]);
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[12];
 	return "{\"name\":\"[" + FileIoEvent[0] + "]" + FileIoEvent[12] + "\"," +
@@ -104,7 +106,7 @@ std::string FileIODirNotifyState::returnJson(std::vector<std::string>& FileIoEve
 FileIOFlushState::FileIOFlushState(){}
 FileIOFlushState::~FileIOFlushState(){}
 std::string FileIOFlushState::returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd){
-		Utils::formatFileName(FileIoEvent[9]);
+		Utils::formatFileName(&FileIoEvent[9]);
 	
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[9];
@@ -116,7 +118,7 @@ std::string FileIOFlushState::returnJson(std::vector<std::string>& FileIoEvent, 
 FileIOFSCTLState::FileIOFSCTLState(){}
 FileIOFSCTLState::~FileIOFSCTLState(){}
 std::string FileIOFSCTLState::returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd){
-		Utils::formatFileName(FileIoEvent[11]);
+		Utils::formatFileName(&FileIoEvent[11]);
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11];
 	return "{\"name\":\"[" + FileIoEvent[0] + "]" + FileIoEvent[11] + "\"," +
@@ -127,7 +129,7 @@ std::string FileIOFSCTLState::returnJson(std::vector<std::string>& FileIoEvent, 
 FileIOOpEndState::FileIOOpEndState(){}
 FileIOOpEndState::~FileIOOpEndState(){}
 std::string FileIOOpEndState::returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd){
-		Utils::formatFileName(FileIoEvent[13]);
+		Utils::formatFileName(&FileIoEvent[13]);
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[13];
 	return "{\"name\":\"[" + FileIoEvent[0] + "]" + FileIoEvent[13] + "\"," +
@@ -138,7 +140,7 @@ std::string FileIOOpEndState::returnJson(std::vector<std::string>& FileIoEvent, 
 FileIOQueryInfoState::FileIOQueryInfoState(){}
 FileIOQueryInfoState::~FileIOQueryInfoState(){}
 std::string FileIOQueryInfoState::returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd){
-		Utils::formatFileName(FileIoEvent[11]);
+		Utils::formatFileName(&FileIoEvent[11]);
 
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11];
@@ -150,7 +152,7 @@ std::string FileIOQueryInfoState::returnJson(std::vector<std::string>& FileIoEve
 FileIOReadState::FileIOReadState(){}
 FileIOReadState::~FileIOReadState(){}
 std::string FileIOReadState::returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd){
-		Utils::formatFileName(FileIoEvent[14]);
+		Utils::formatFileName(&FileIoEvent[14]);
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[14];
 	return "{\"name\":\"[" + FileIoEvent[0] + "]" + FileIoEvent[14] + "\"," +
@@ -163,7 +165,7 @@ std::string FileIOReadState::returnJson(std::vector<std::string>& FileIoEvent, s
 FileIORenameState::FileIORenameState(){}
 FileIORenameState::~FileIORenameState(){}
 std::string FileIORenameState::returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd){
-		Utils::formatFileName(FileIoEvent[11]);
+		Utils::formatFileName(&FileIoEvent[11]);
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11];
 	return "{\"name\":\"[" + FileIoEvent[0] + "]" + FileIoEvent[11] + "\"," +
@@ -174,7 +176,7 @@ std::string FileIORenameState::returnJson(std::vector<std::string>& FileIoEvent,
 FileIOSetInfoState::FileIOSetInfoState(){}
 FileIOSetInfoState::~FileIOSetInfoState(){}
 std::string FileIOSetInfoState::returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd){
-		Utils::formatFileName(FileIoEvent[11]);
+		Utils::formatFileName(&FileIoEvent[11]);
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11];
 	return "{\"name\":\"[" + FileIoEvent[0] + "]" + FileIoEvent[11] + "\"," +
@@ -185,7 +187,7 @@ std::string FileIOSetInfoState::returnJson(std::vector<std::string>& FileIoEvent
 FileIOWriteState::FileIOWriteState(){}
 FileIOWriteState::~FileIOWriteState(){}
 std::string FileIOWriteState::returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd){
-		Utils::formatFileName(FileIoEvent[14]);
+		Utils::formatFileName(&FileIoEvent[14]);
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[14];
 	return "{\"name\":\"[" + FileIoEvent[0] + "]" + FileIoEvent[14] + "\"," +

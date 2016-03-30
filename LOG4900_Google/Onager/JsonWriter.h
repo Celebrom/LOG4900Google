@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
+#ifndef LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_JSONWRITER_H
+#define LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_JSONWRITER_H
+
 #include <vector>
 #include <fstream>
 #include <unordered_map>
@@ -28,3 +30,5 @@ public:
 
 	static void write(std::wstring path, std::vector<std::string>& chromeEventLines, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines);
 };
+
+#endif //LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_JSONWRITER_H

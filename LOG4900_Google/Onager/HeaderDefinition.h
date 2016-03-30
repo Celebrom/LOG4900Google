@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+#ifndef LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_HEADERDEFINITION_H
+#define LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_HEADERDEFINITION_H
 
 enum class StackDefinition
 {
@@ -23,3 +25,5 @@ enum class StackDefinition
 	Address,
 	ImageFunction
 };
+
+#endif // LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_HEADERDEFINITION_H

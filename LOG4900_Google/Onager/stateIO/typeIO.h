@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
+#ifndef LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_STATEIO_ITYPEIO_H
+#define LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_STATEIO_ITYPEIO_H
+
 enum typeIO{
 		NEUTRAL,
 		FILEIOCREATE,
@@ -32,3 +34,5 @@ enum typeIO{
 		FILEIODIRNOTIFY,
 		FILEIOOPEND
 };
+
+#endif // LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_STATEIO_ITYPEIO_H

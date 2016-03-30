@@ -13,8 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+#ifndef LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_CONVERTER_H
+#define LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_CONVERTER_H
 
-#pragma once
 #include <unordered_map>
 #include "stateIO\IoStateManager.h"
 
@@ -33,3 +34,5 @@ private:
 	std::string getPhase(std::string &word);
 	IoStateManager* stateIO;
 };
+
+#endif  // LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_CONVERTER_H

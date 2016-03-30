@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
+#ifndef LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_PARSER_H
+#define LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_PARSER_H
+
 #include <iostream>
 #include <unordered_map>
 #include <unordered_set>
@@ -36,3 +38,5 @@ public:
 private:
 	Converter* converter;
 };
+
+#endif // LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_PARSER_H

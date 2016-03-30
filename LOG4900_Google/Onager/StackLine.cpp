@@ -20,7 +20,7 @@ limitations under the License.
 
 StackLine::StackLine(int id, std::string name, int parent, int beginTimestamp)
 {
-    Utils::formatFileName(name);
+    Utils::formatFileName(&name);
 	this->id = id;
 	this->name = name;
 	this->parent = parent;

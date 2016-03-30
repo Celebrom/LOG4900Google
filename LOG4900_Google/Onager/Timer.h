@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
+#ifndef LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_TIMER_H
+#define LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_TIMER_H
+
 #include <locale>
 #include <iostream>
 
@@ -29,3 +31,5 @@ public:
 private:
 		std::clock_t startTime;
 };
+
+#endif // LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_TIMER_H

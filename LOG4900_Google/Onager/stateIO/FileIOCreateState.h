@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
+#ifndef LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_STATEIO_FILEIOCREATESTATE_H
+#define LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_STATEIO_FILEIOCREATESTATE_H
+
 #include "AbstractState.h"
 
 class FileIOCreateState : public AbstractState{
@@ -23,5 +25,7 @@ public:
 	~FileIOCreateState();
 	virtual std::string returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
 };
+
+#endif // LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_STATEIO_FILEIOCREATESTATE_H
 
 

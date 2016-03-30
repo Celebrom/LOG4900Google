@@ -28,7 +28,7 @@ std::string Converter::DiskLineToJSON(std::vector<std::string>& diskEndEvent)
 
 	if (diskEndEvent[0] == "DiskRead" || diskEndEvent[0] == "DiskWrite")
 	{
-		Utils::formatFileName(diskEndEvent[15]);
+		Utils::formatFileName(&diskEndEvent[15]);
 
 		jsonLine = "{\"name\":\"[" + diskEndEvent[0] + "]" + diskEndEvent[15] + "\"," +
 				"\"cat\":\"Disk\",\"ph\":\"X\",\"ts\":" + diskEndEvent[1] + "," +

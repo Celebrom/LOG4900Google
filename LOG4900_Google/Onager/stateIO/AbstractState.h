@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
+#ifndef LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_STATEIO_ABSTRACTSTATE_H
+#define LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_STATEIO_ABSTRACTSTATE_H
+
 #include <vector>
 #include <algorithm>
 #include "../Utils.h"
@@ -31,3 +33,4 @@ public:
 	std::string commonJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
 };
 
+#endif // LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_STATEIO_ABSTRACTSTATE_H

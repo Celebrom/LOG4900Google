@@ -44,10 +44,10 @@ std::string& Utils::trim(std::string &s) {
 	return ltrim(rtrim(s));
 }
 
-void Utils::formatFileName(std::string &FileName)
+void Utils::formatFileName(std::string *FileName)
 {
-	FileName.erase(std::remove(FileName.begin(), FileName.end(), '"'), FileName.end());
-	std::replace(FileName.begin(), FileName.end(), '\\', '/');
+	FileName->erase(std::remove(FileName->begin(), FileName->end(), '"'), FileName->end());
+	std::replace(FileName->begin(), FileName->end(), '\\', '/');
 }
 
 std::string Utils::extractPidFromString(std::string& word)

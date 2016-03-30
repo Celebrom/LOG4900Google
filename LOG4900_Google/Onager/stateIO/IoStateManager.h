@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
+#ifndef LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_STATEIO_IOSTATEMANAGER_H
+#define LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_STATEIO_IOSTATEMANAGER_H
+
 #include <string>
 #include "AbstractState.h"
 
@@ -33,4 +35,6 @@ private:
 	int	   idState_;
 	std::vector<AbstractState *> stateVector;
 };
+
+#endif // LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_STATEIO_IOSTATEMANAGER_H
 

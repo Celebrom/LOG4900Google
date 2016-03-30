@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
+#ifndef LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_MEMORYMAPPER_H
+#define LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_MEMORYMAPPER_H
+
 #include <string>
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
@@ -26,3 +28,5 @@ public:
 	MemoryMapper(){};
 	static boost::iostreams::mapped_file mapFileToMem(std::wstring path);
 };
+
+#endif // LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_MEMORYMAPPER_H
