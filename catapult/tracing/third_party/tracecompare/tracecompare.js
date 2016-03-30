@@ -194,10 +194,6 @@ function FlameGraph(stacks, leftDimension, clickStackCallback, container)
   var bottomStacks = new Array();
   var bottomStacksBackup;
 
-  // Flame graph container.
-  //var container = d3.selectAll('#flamegraph');
-  console.log(container);
-
   // Indicates whether a view refresh has been scheduled.
   var refreshScheduled = false;
 
