@@ -67,23 +67,77 @@ found in the LICENSE file.
     get selection() {
       return this.selection_;
     },
-
+    
     set selection(selection) {
       this.selection_ = selection;
-
-      //this.$.content.textContent = '';
-      //var flamegraph = document.createElement('svg');
-      //flamegraph.setAttribute('id', 'flamegraph');
-      //flamegraph.textContent = '';
-      //this.$.content.appendChild(flamegraph);
       
-      tracecompare(
-     {
-	   "executions":[{"a":18055,"b":1424810701430206,"e":17997,"f":22,"g":26,"h":9,"samples":{"541":18055,"543": 12707, "548": 4289, "549": 4289, "550": 4289, "551": 4076}}],
-	   "stacks":{"541":{"b":0,"f":"[thread]"},"543":{"b":541,"f":"sys:read"},"548":{"b":541,"f":"__libc_start_main"},"549":{"b":548,"f":"main"},"550":{"b":549,"f":"DoSomeDonkeys(RandomStringGenerator&, mongo::DBClientConnection&)"},"551":{"b":550,"f":"GenerateSomeData(RandomStringGenerator&, mongo::BSONObjBuilder&)"}}
-     },
-     d3.select(this.$.flamegraph_wrapper).selectAll('#flamegraph')
-     );
+      var fgContainer = d3.select(this.$.flamegraph_wrapper).selectAll('#flamegraph');
+      tracecompare(this.getSelectionStacks(selection), fgContainer);
+    },
+    
+    getSelectionStacks: function(selection) {
+      var metadata     = selection[0].model.metadata;
+      var timeShift    = Math.abs(selection[0].model.timestampShiftToZeroAmount_);
+      var timestampMin = Math.floor((selection.bounds.min + timeShift) * 1000);
+      var timestampMax = Math.floor((selection.bounds.max + timeShift) * 1000);
+      var unfilteredStacks = undefined;
+      
+      // Find stacks in the metadata
+      for (var i = 0; i < metadata.length; ++i) {
+        if (metadata[i].name === 'stacks') {
+          unfilteredStacks = metadata[i].value;
+        }
+      }
+      if (unfilteredStacks == undefined) return;
+      
+      // Gather selected tids
+      var tidList = {};
+      for (var i = 0; i < selection.length; ++i) {
+        var tid = selection[i].parentContainer.tid;
+        if (!tidList.hasOwnProperty(tid))
+          tidList[tid] = true;
+      }
+      
+      // Keep only the stacks from the selected tids
+      var tidFilteredStacks = [];
+      for (var tid in tidList) {
+        tidFilteredStacks = tidFilteredStacks.concat(unfilteredStacks[tid]);
+      }
+      
+      var fullyFilteredStacks = [];
+      for (var i = 0; i < tidFilteredStacks.length; ++i) {
+        var actualStack = tidFilteredStacks[i];
+        if (actualStack.begin + actualStack.duration < timestampMin) continue;
+        if (actualStack.begin > timestampMax) continue;
+        
+        fullyFilteredStacks.push(actualStack);
+      }
+      
+      var executions = [];
+      var samples    = {};
+      var stacks     = {};
+      
+      var beginTimestamp = Number.MAX_VALUE;
+      var fullDuration   = 0;
+      for (var i = 0; i < fullyFilteredStacks.length; ++i) {
+        var stackLine = fullyFilteredStacks[i];
+        samples[stackLine.id] = stackLine.duration;
+        stacks[stackLine.id]  = {"b":stackLine.parent, "f":stackLine.name};
+        
+        if (stackLine.begin < beginTimestamp)
+          beginTimestamp = stackLine.begin;
+        
+        if (stackLine.parent == 0)
+          fullDuration += stackLine.duration;
+      }
+      
+      executions.push({"a":fullDuration, "b":beginTimestamp, "e":1, "f":1, "g":1, "h":1, "samples":samples});
+      
+      return {"executions":executions, "stacks":stacks};
+      //return {
+	  //  "executions":[{"a":18055,"b":1424810701430206,"e":17997,"f":22,"g":26,"h":9,"samples":{"541":18055,"543": 12707, "548": 4289, "549": 4289, "550": 4289, "551": 4076}}],
+	  //  "stacks":{"541":{"b":0,"f":"[thread]"},"543":{"b":541,"f":"sys:read"},"548":{"b":541,"f":"__libc_start_main"},"549":{"b":548,"f":"main"},"550":{"b":549,"f":"DoSomeDonkeys(RandomStringGenerator&, mongo::DBClientConnection&)"},"551":{"b":550,"f":"GenerateSomeData(RandomStringGenerator&, mongo::BSONObjBuilder&)"}}
+      //};
     },
   });
   </script>

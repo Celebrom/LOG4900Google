@@ -194,10 +194,6 @@ function FlameGraph(stacks, leftDimension, clickStackCallback, container)
   var bottomStacks = new Array();
   var bottomStacksBackup;
 
-  // Flame graph container.
-  //var container = d3.selectAll('#flamegraph');
-  console.log(container);
-
   // Indicates whether a view refresh has been scheduled.
   var refreshScheduled = false;
 
@@ -279,8 +275,9 @@ function FlameGraph(stacks, leftDimension, clickStackCallback, container)
       });
 
     // Compute the text length of each stack.
+    // TODO: Should be getComputedTextLength but right it always returns 0
     container.selectAll('text').each(function(stack) {
-      computedTextLength[stack.id] = this.getComputedTextLength();
+      computedTextLength[stack.id] = 100;
     });
 
     // Compute the depth of each stack.
@@ -364,6 +361,13 @@ function FlameGraph(stacks, leftDimension, clickStackCallback, container)
           color = kNeutralColor;
         return 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')';
       });
+      
+      //TODO: Shouldn't need that, the style display:none should be in place but is not right now
+      var invGroups = container.selectAll('g.inv');
+      invGroups.selectAll('text').transition()
+        .text(function(stack) {
+          return ''; 
+        });
 
     return true;
   }
