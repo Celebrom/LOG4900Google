@@ -16,6 +16,11 @@ found in the LICENSE file.
     :host {
       display: flex;
     }
+	
+	a {
+	  color: #ccc;
+	}
+
     #content {
       display: flex;
       flex: 1 1 auto;
@@ -33,7 +38,7 @@ found in the LICENSE file.
       width: 75%;
     }
     #flamegraph_wrapper {
-      background-color: orange;
+      background-color: cadetblue;
       display: block;
       flex: 1 1 auto;
     }
@@ -72,22 +77,29 @@ found in the LICENSE file.
 	#selected-function #selected-function-name
 	{
 	  display:block;
-	  margin-right:100px;
 	}
 
 	#selected-function #selected-function-links
 	{
-	  position:absolute;
-	  right: 20px;
+	  text-align: right;
+	  display: block;
 	}
     </style>
     <div id="flamegraph_wrapper">
         <svg id="flamegraph"></svg>
 		
-		<div id="selected-function">
-
+		<div id="selected-function">			
 			<span id="selected-function-name">&nbsp;</span>
+			<span id="selected-function-links">
+				<a id="unfocus" href="javascript:void(0)" style="display:none;">Unfocus</a>
+				<a id="selected-function-focus" href="javascript:void(0)">Focus</a>
+			</span>
 		</div>
+		
+		<div>
+			
+		</div>
+		
     </div>
 	
 	
