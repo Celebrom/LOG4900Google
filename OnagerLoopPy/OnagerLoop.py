@@ -3,15 +3,16 @@ import time
 import sys
 import getopt
 import os
-import subprocess
-import tempfile
+from subprocess import call
+from subprocess import STDOUT
+from tempfile import gettempdir
 import datetime
 
 nbIter = 1
 actualIter = 1
 actualdire = os.path.dirname(os.path.realpath(__file__))
-outputdire = actualdire + '\\Traces'
-outputFile = ""
+outputdire = actualdire + '\Traces'
+FNULL = open(os.devnull, 'w')
 
 def LaunchChrome():
     os.system('start chrome.exe')
@@ -20,17 +21,23 @@ def CloseChrome():
     os.system("taskkill /IM chrome.exe /f >nul 2>&1")
 
 def ChromeStartupProfiler():
-   while(True):
-      os.system('start chrome.exe --dump-browser-histograms=' + outputdire + '\\dump.json')
-      time.sleep(1)
-      with open(outputdire + '\\dump.json', 'r') as f:
-         for line in f:
-            index = line.find('NonEmptyPaint')
-      if index != -1:
-         return
+   global outputdire
+   try:
+      while(True):
+         os.system('start chrome.exe --dump-browser-histograms=' + outputdire + '\dump.json')
+         time.sleep(1)
+         with open(outputdire + '\dump.json', 'r') as f:
+            for line in f:
+               index = line.find('NonEmptyPaint')
+         if index != -1:
+            return
+   except:
+      print '\n No such directory!'
+      print 'Try a new path\n'
+      quit()
 
 def LaunchTrace():
-   subprocess.call(
+   call(
       'xperf.exe -start "NT Kernel Logger" ' +
       '-on Latency+POWER+DISPATCHER+DISK_IO_INIT+FILE_IO+FILE_IO_INIT+' +
          'VIRT_ALLOC+MEMINFO ' +
@@ -42,73 +49,69 @@ def LaunchTrace():
          '-Input+Multi-Worker+chrome:0xa000000000000200 ' +
       '-buffersize 1024 -minbuffers 200 -maxbuffers 200 ' +
       '-buffering ',
-      stdout=subprocess.PIPE
+      stdout=FNULL, stderr=STDOUT
    )
-   subprocess.call(
+   call(
       'xperf.exe -capturestate ChromeStartupETWSession ' +
       'Microsoft-Windows-Win32k:0xfdffffffefffffff+Multi-MAIN+Multi-FrameRate+' +
       'Multi-Input+Multi-Worker+chrome:0xa000000000000200',
-      stdout=subprocess.PIPE
+      stdout=FNULL, stderr=STDOUT
    )
 
 def SaveTrace():
    global outputFile
-   FNULL = open(os.devnull, 'w')
-   tmp_directory = tempfile.gettempdir()
+   tmp_directory = gettempdir()
    now = datetime.datetime.now()
+
    outputFile = outputdire + '"\\Chrome_Trace_"' + str(actualIter) + '_' + str(
       datetime.date.today()) + '-' + str(now.hour) + 'h-' + str(now.minute) + 'm' + '.etl '
 
    #Saving trace to disk...
-   subprocess.call(
+   call(
       'xperf.exe -flush "NT Kernel Logger" ' +
-      '-f ' + tmp_directory + '\\kernel.etl ' +
+      '-f ' + tmp_directory + '\kernel.etl ' +
       '-flush ChromeStartupETWSession ' +
-      '-f ' + tmp_directory + '\\user.etl ',
-      stdout=FNULL, stderr=subprocess.STDOUT
+      '-f ' + tmp_directory + '\user.etl ',
+      stdout=FNULL, stderr=STDOUT
    )
    #Merging trace...
-   subprocess.call(
+   call(
       'xperf.exe ' +
-      '-merge ' + tmp_directory + '\\kernel.etl ' +
-      tmp_directory + '"\\user.etl" ' +
+      '-merge ' + tmp_directory + '\kernel.etl ' +
+      tmp_directory + '\user.etl ' +
       outputFile +
       '-compress',
-      stdout=FNULL, stderr=subprocess.STDOUT
+      stdout=FNULL, stderr=STDOUT
    )
    #Stripping Chrome symbols
-   subprocess.call(
+   call(
       'python.exe -u ' +
       actualdire + '\Dependencies\StripChromeSymbols.py ' +
       outputFile,
-      #stdout=FNULL, stderr=subprocess.STDOUT
+      stdout=FNULL, stderr=STDOUT
    )
    #Pre-translating chrome symbols from stripped PDBs to avoid 10-15 minute translation times.
 
-   subprocess.call(
+   call(
       'xperf -i ' +
       outputFile +
       '-tle -tti -a symcache -dbgid',
-      stdout=FNULL, stderr=subprocess.STDOUT
+      stdout=FNULL, stderr=STDOUT
    )
    #Preprocessing trace to identify Chrome processes...
-   subprocess.call(
+   call(
       'python.exe -u ' +
       actualdire + '\Dependencies\IdentifyChromeProcesses.py ' +
       outputFile,
-      #stdout=FNULL, stderr=subprocess.STDOUT
+      stdout=FNULL, stderr=STDOUT
    )
    #Finished recording trace
 
 def StopTrace():
-   tmp_directory = tempfile.gettempdir()
-   subprocess.call('xperf.exe -stop ChromeStartupETWSession -stop "NT Kernel Logger"')
+   call('xperf.exe -stop ChromeStartupETWSession -stop "NT Kernel Logger"')
 
 def ConvertEtlToJson():
-   global outputFile
-   subprocess.call(
-      'Dependencies\Onager.exe --trace ' + outputFile
-   )
+   call('Dependencies\Onager.exe --trace ' + outputFile)
 
 def main(argv):
 
@@ -137,6 +140,11 @@ def main(argv):
       elif opt in ('-o', '--outputDir'):
          global outputdire
          outputdire = arg
+         if outputdire.find('./') != -1:
+            outputdire = outputdire.replace('./', actualdire + '\\')
+         if outputdire.find('.\\') != -1:
+            outputdire = outputdire.replace('.\\', actualdire + '\\')
+
 
 if __name__ == "__main__":
    main(sys.argv[1:])
@@ -153,10 +161,11 @@ if __name__ == "__main__":
       LaunchTrace()
       LaunchChrome()
       ChromeStartupProfiler()
+      print 'Creation of trace #' + str(actualIter)
       SaveTrace()
       StopTrace()
       CloseChrome()
-      ConvertEtlToJson()
+      #ConvertEtlToJson()
       actualIter += 1
 
 
