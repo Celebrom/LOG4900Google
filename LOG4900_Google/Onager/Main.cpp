@@ -115,7 +115,6 @@ int wmain(int argc, wchar_t* argv[], wchar_t* /*envp */[])
 	convertETLToJSON(trace_path);
 			
 	timer.showElapsedTime("\n\n\nDuree totale de l'application:  ");
-	system("PAUSE");
 
 	return 1;
 }

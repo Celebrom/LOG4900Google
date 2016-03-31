@@ -275,9 +275,8 @@ function FlameGraph(stacks, leftDimension, clickStackCallback, container)
       });
 
     // Compute the text length of each stack.
-    // TODO: Should be getComputedTextLength but right it always returns 0
     container.selectAll('text').each(function(stack) {
-      computedTextLength[stack.id] = 100;
+      computedTextLength[stack.id] = this.getComputedTextLength();
     });
 
     // Compute the depth of each stack.
@@ -560,6 +559,15 @@ function FlameGraph(stacks, leftDimension, clickStackCallback, container)
     bottomStacks = bottomStacksBackup;
     FocusInternal(0);
   }
+  
+  //TODO: Ugly hack to make sure the text are rendered before getting their lengths
+  setTimeout(function() {
+      container.selectAll('text').each(function(stack) {
+         computedTextLength[stack.id] = this.getComputedTextLength(); 
+      });
+      
+      UpdateCounts(rightCountsBackup, true);
+    }, 2000);
 
   return FlameGraph;
 }
