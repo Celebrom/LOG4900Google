@@ -154,9 +154,9 @@ xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\system\boost_sys
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\filesystem\boost_filesystem-vc120-mt-1_60.dll" "$(OutputPath)"
-xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\iostreams\boost_iostreams-vc120-mt-1_60.dll" "$(OutputPath)"
-xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\system\boost_system-vc120-mt-1_60.dll" "$(OutputPath)"</Command>
+      <Command>copy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\filesystem\boost_filesystem-vc120-mt-1_60.dll" "$(OutputPath)"
+copy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\iostreams\boost_iostreams-vc120-mt-1_60.dll" "$(OutputPath)"
+copy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\system\boost_system-vc120-mt-1_60.dll" "$(OutputPath)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

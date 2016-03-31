@@ -61,7 +61,7 @@ public:
 		}
 
 		static std::vector<std::string> removeSpaces(std::vector<std::string> tokens);
-
+		/*TODO: optimize constant references*/
 		static inline std::string& ltrim(std::string &s);
 		static inline std::string& rtrim(std::string &s);
 		static inline std::string& trim(std::string &s);

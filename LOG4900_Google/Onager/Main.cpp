@@ -53,7 +53,7 @@ void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path)
 	auto pos = mmap.const_data();
 	auto end = pos + mmap.size();
 
-	std::unordered_map<std::string, std::vector<std::string>> header;
+	std::unordered_map<std::string, std::vector<std::string>> *header = new std::unordered_map<std::string, std::vector<std::string>>();
 	const char*& posBeginLines = parser.parseHeader(pos, end, header);
 	timer.showElapsedTime("Temps de fin de parsing du header");
 
@@ -66,17 +66,21 @@ void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path)
 	LOG(ERROR) << "Error while generating history from trace.";
 	return;
 	}
-	std::unordered_map<base::Tid, std::vector<std::string>> completedFunctions;
+	std::unordered_map<base::Tid, std::vector<std::string>> *completedFunctions = new std::unordered_map<base::Tid, std::vector<std::string>>();
 	parser.parseStacks(system_history, completedFunctions);
 
 	std::wstring json_path = csv_path + L".json";
-	JsonWriter::write(json_path, *chromeEventLines, completedFunctions);
+	JsonWriter::write(json_path, *chromeEventLines, *completedFunctions);
 	timer.showElapsedTime("Temps de fin d'ecriture du JSON");
 
 	/* munmap is necessary because map is desallocated at the end of the process
 	   boost::iostreams::mapped_file munmap(mmap, mmap.size()); */
 	delete chromeEventLines;
 	chromeEventLines = 0;
+	delete completedFunctions;
+	completedFunctions = 0;
+	delete header;
+	header = 0;
 }
 
 void convertETLToJSON(std::wstring etl_path)

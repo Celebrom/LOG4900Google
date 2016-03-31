@@ -16,7 +16,7 @@ limitations under the License.
 
 #include "Parser.h"
 
-const char*& Parser::parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header)
+const char*& Parser::parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>* header)
 {
 	std::vector<std::string> tokens;
 	std::string eventType;
@@ -36,7 +36,7 @@ const char*& Parser::parseHeader(const char*& pos, const char*& end, std::unorde
 
 		tokens.erase(tokens.begin());
 
-		header[eventType] = tokens;
+		(*header)[eventType] = tokens;
 
 		pos = ++newPos;
 	}
@@ -44,8 +44,8 @@ const char*& Parser::parseHeader(const char*& pos, const char*& end, std::unorde
 }
 
 /* Reads a line of the .csv file and parses only the chrome event ones, each according to its type.
-   pos : describes the starting position of the parsing operation
-   end : describes the ending position of the parsing operation
+   pos : defines the starting position of the parsing operation
+   end : defines the ending position of the parsing operation
    chromeEventLines: is the data structure where each parsed line is put                            */
 void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::string>* chromeEventLines)
 {
@@ -151,7 +151,7 @@ void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::str
 	}
 }
 
-void Parser::parseStacks(SystemHistory& system_history, std::unordered_map<base::Tid, std::vector<std::string>>& completedFunctions)
+void Parser::parseStacks(const SystemHistory& system_history, std::unordered_map<base::Tid, std::vector<std::string>>* completedFunctions)
 {
 	/* Traverse all threads. */
 	for (auto threads_it = system_history.threads_begin(); threads_it != system_history.threads_end(); ++threads_it)
@@ -173,6 +173,6 @@ void Parser::parseStacks(SystemHistory& system_history, std::unordered_map<base:
 		std::vector<std::string> finalCompletedFunctions = liveStack.GetFinalLines();
 		threadCompletedFunctions.insert(std::end(threadCompletedFunctions), std::begin(finalCompletedFunctions), std::end(finalCompletedFunctions));
 
-		completedFunctions[(*threads_it).first] = threadCompletedFunctions;
+		(*completedFunctions)[(*threads_it).first] = threadCompletedFunctions;
 	}
 }
