@@ -34,22 +34,64 @@ found in the LICENSE file.
     }
     #flamegraph_wrapper {
       background-color: orange;
-      display: flex;
+      display: block;
       flex: 1 1 auto;
     }
+	
+	/* Flame graph */
+	svg#flamegraph {
+		margin-top:15px;
+		width: 100%;
+		font-size: 0.9em;
+	}
+
+	svg#flamegraph g.inv {
+	  display:none;
+	}
+	
     #flamegraph {
       display: flex;
       flex: 1 1 auto;
     }
 	
 	svg#flamegraph rect {
-    fill: #EEEEEE;
-    stroke: #D6D6D6;
-}
+		fill: #EEEEEE;
+		stroke: #D6D6D6;
+	}
+	
+	/* Selected function */
+	#selected-function
+	{
+	  border: 1px solid #D6D6D6;
+	  border-radius: 2px;
+	  padding: 0.5em;
+	  margin-top: 0.5em;
+	  margin-bottom: 0.5em;
+	}
+
+	#selected-function #selected-function-name
+	{
+	  display:block;
+	  margin-right:100px;
+	}
+
+	#selected-function #selected-function-links
+	{
+	  position:absolute;
+	  right: 20px;
+	}
     </style>
     <div id="flamegraph_wrapper">
         <svg id="flamegraph"></svg>
+		
+		<div id="selected-function">
+
+			<span id="selected-function-name">&nbsp;</span>
+		</div>
     </div>
+	
+	
+
   </template>
 
   <script>
@@ -77,7 +119,8 @@ found in the LICENSE file.
       this.selection_ = selection;
       
       var fgContainer = d3.select(this.$.flamegraph_wrapper).selectAll('#flamegraph');
-      tracecompare(this.getSelectionStacks(selection), fgContainer);
+	  var selected_fct_ctr = d3.select(this.$.flamegraph_wrapper).selectAll('#selected-function');
+      tracecompare(this.getSelectionStacks(selection), fgContainer, selected_fct_ctr);
     },
     
     getSelectionStacks: function(selection) {

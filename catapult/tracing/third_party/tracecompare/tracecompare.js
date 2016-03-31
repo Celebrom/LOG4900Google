@@ -363,11 +363,11 @@ function FlameGraph(stacks, leftDimension, clickStackCallback, container)
       });
       
       //TODO: Shouldn't need that, the style display:none should be in place but is not right now
-      var invGroups = container.selectAll('g.inv');
+      /*var invGroups = container.selectAll('g.inv');
       invGroups.selectAll('text').transition()
         .text(function(stack) {
           return ''; 
-        });
+        });*/
 
     return true;
   }
@@ -595,10 +595,10 @@ function Table(tbody, dimension)
 }
 exports.tracecompare = tracecompare;
 
-function tracecompare(data, container) {
+function tracecompare(data, container, selected_fct_container) {
   var tracecompare = {
   };
-
+  
   // Formatters.
   var formatNumber = d3.format(',d');
 
@@ -1053,16 +1053,17 @@ function tracecompare(data, container) {
   // @param duration The duration of this callstack.
   function ClickStackCallback(stackId, duration)
   {
-    d3.selectAll('#selected-function').style('display', null);
-    d3.selectAll('#selected-function-name').text(
+    selected_fct_container.style('display', null);
+    selected_fct_container.selectAll('#selected-function-name').text(
       stacks[stackId].f + ' - ' + duration + ' μs');
-    d3.selectAll('#selected-function-filter').on('click', function() {
+    selected_fct_container.selectAll('#selected-function-filter').on('click', function() {
       CreateStackDimension(stackId, 'linear');
     });
-    d3.selectAll('#selected-function-focus').on('click', function() {
+    selected_fct_container.selectAll('#selected-function-focus').on('click', function() {
       flameGraph.FocusOnStack(stackId);
-      d3.selectAll('#unfocus').style('display', null);
+      selected_fct_container.selectAll('#unfocus').style('display', null);
     });
+	
   }
 
   // Renders the specified chart.
