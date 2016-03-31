@@ -16,7 +16,7 @@ limitations under the License.
 
 #include "JsonWriter.h"
 
-void JsonWriter::write(std::wstring path, std::vector<std::string>& chromeEventLines, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines)
+void JsonWriter::write(std::wstring path, const std::vector<std::string>& chromeEventLines, const std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines)
 {
 	std::ofstream outputFile(path);
 

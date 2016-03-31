@@ -68,7 +68,7 @@ public:
 
 		static void formatFileName(std::string *FileName);
 
-		static std::string extractPidFromString(std::string& word);
+		static std::string extractPidFromString(const std::string& word);
 
 private:
 		

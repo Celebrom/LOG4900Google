@@ -23,7 +23,7 @@ class FileIOFSCTLState : public AbstractState{
 public:
 	FileIOFSCTLState();
 	~FileIOFSCTLState();
-	virtual std::string returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
+	virtual std::string returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd);
 };
 
 #endif // LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_STATEIO_FILEIOFSCTLSTATE_H

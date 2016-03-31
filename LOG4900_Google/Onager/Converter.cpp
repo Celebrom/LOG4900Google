@@ -16,9 +16,9 @@ limitations under the License.
 
 #include "Converter.h"
 
-std::string Converter::IOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd)
+std::string Converter::IOLineToJSON(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd)
 {
-	stateIO->changeStateTo(stateIO->fromStringToIntIO(FileIoEvent[0]));
+	stateIO->changeStateTo(stateIO->fromStringToIntIO((*FileIoEvent)[0]));
 	return stateIO->getCurrentState()->returnJson(FileIoEvent, OpEnd);
 }
 

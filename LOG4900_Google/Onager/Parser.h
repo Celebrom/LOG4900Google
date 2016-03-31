@@ -32,11 +32,11 @@ public:
 	~Parser(){ delete converter; };
 
 	const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header);
-	void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines);
+	void parseLines(const char*& pos, const char*& end, std::vector<std::string>* chromeEventLines);
 	void parseStacks(SystemHistory& system_history, std::unordered_map<base::Tid, std::vector<std::string>>& completedFunctions);
 
 private:
 	Converter* converter;
 };
 
-#endif // LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_PARSER_H
+#endif // LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_PARSER_H

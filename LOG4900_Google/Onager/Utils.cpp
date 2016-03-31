@@ -50,7 +50,7 @@ void Utils::formatFileName(std::string *FileName)
 	std::replace(FileName->begin(), FileName->end(), '\\', '/');
 }
 
-std::string Utils::extractPidFromString(std::string& word)
+std::string Utils::extractPidFromString(const std::string& word)
 {
 	unsigned first = word.find("(");
 	unsigned last = word.find(")");

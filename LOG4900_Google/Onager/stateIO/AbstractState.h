@@ -28,9 +28,9 @@ public:
 	AbstractState(std::vector<std::string>& lines);
 	~AbstractState();
 
-	std::string ifNotEmpty(std::string tag, std::string value);
-	virtual std::string returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
-	std::string commonJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
+	std::string ifNotEmpty(const std::string tag, const std::string value);
+	virtual std::string returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd);
+	std::string commonJson(const std::vector<std::string>& FileIoEvent, const std::vector<std::string>& OpEnd);
 };
 
-#endif // LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_STATEIO_ABSTRACTSTATE_H
+#endif // LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_STATEIO_ABSTRACTSTATE_H

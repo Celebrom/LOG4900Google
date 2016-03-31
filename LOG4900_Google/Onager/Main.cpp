@@ -46,7 +46,7 @@ void convertETLToCSV(std::wstring path)
 	etwReader.Open(path);
 }
 
-// TODO: We should only need one of the path by using the same method for the Chrome Event and Flame graph
+/* TODO: We should only need one of the path by using the same method for the Chrome Event and Flame graph */
 void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path)
 {
 	boost::iostreams::mapped_file mmap = MemoryMapper::mapFileToMem(csv_path);
@@ -57,7 +57,7 @@ void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path)
 	const char*& posBeginLines = parser.parseHeader(pos, end, header);
 	timer.showElapsedTime("Temps de fin de parsing du header");
 
-	std::vector<std::string> chromeEventLines;
+	std::vector<std::string>* chromeEventLines = new std::vector<std::string>();
 	parser.parseLines(posBeginLines, end, chromeEventLines);
 	timer.showElapsedTime("Temps de fin de parsing des lignes du fichier");
 		
@@ -70,11 +70,13 @@ void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path)
 	parser.parseStacks(system_history, completedFunctions);
 
 	std::wstring json_path = csv_path + L".json";
-	JsonWriter::write(json_path, chromeEventLines, completedFunctions);
+	JsonWriter::write(json_path, *chromeEventLines, completedFunctions);
 	timer.showElapsedTime("Temps de fin d'ecriture du JSON");
 
-	//munmap is necessary because map is desallocated at the end of the process
-	//boost::iostreams::mapped_file munmap(mmap, mmap.size());
+	/* munmap is necessary because map is desallocated at the end of the process
+	   boost::iostreams::mapped_file munmap(mmap, mmap.size()); */
+	delete chromeEventLines;
+	chromeEventLines = 0;
 }
 
 void convertETLToJSON(std::wstring etl_path)
