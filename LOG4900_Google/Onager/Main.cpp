@@ -32,10 +32,13 @@ limitations under the License.
 
 Timer timer;
 Parser parser;
+bool verbose = false;
 
 void ShowUsage() {
 		std::cout
-				<< "Usage: .exe --trace <trace_file_path>"
+				<< "Usage: .exe --trace <trace_file_path> -v"
+				<< std::endl
+				<< "-v : Verbose"
 				<< std::endl
 				<< std::endl;
 }
@@ -55,11 +58,13 @@ void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path)
 
 		std::unordered_map<std::string, std::vector<std::string>> header;
 		const char*& posBeginLines = parser.parseHeader(pos, end, header);
-		timer.showElapsedTime("Temps de fin de parsing du header");
+		if (verbose) 
+			timer.showElapsedTime("Temps de fin de parsing du header");
 
 		std::vector<std::string> chromeEventLines;
 		parser.parseLines(posBeginLines, end, chromeEventLines);
-		timer.showElapsedTime("Temps de fin de parsing des lignes du fichier");
+		if (verbose)
+			timer.showElapsedTime("Temps de fin de parsing des lignes du fichier");
 		
 		SystemHistory system_history;
 		if (!GenerateHistoryFromTrace(etl_path, &system_history)) {
@@ -71,7 +76,8 @@ void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path)
 
 		std::wstring json_path = csv_path + L".json";
 		JsonWriter::write(json_path, chromeEventLines, completedFunctions);
-		timer.showElapsedTime("Temps de fin d'ecriture du JSON");
+		if (verbose)
+			timer.showElapsedTime("Temps de fin d'ecriture du JSON");
 
 		//munmap pas necessaire parce que map desallouer a la fin du process
 		//boost::iostreams::mapped_file munmap(mmap, mmap.size());
@@ -103,6 +109,8 @@ int wmain(int argc, wchar_t* argv[], wchar_t* /*envp */[])
 		ShowUsage();
 		return 1;
 	}
+
+	verbose = command_line.HasSwitch(L"v");
 	
 	std::wstring file_type = trace_path.substr(trace_path.length() - 3, 3);
 	if (file_type.empty() || file_type != L"etl")
@@ -114,7 +122,8 @@ int wmain(int argc, wchar_t* argv[], wchar_t* /*envp */[])
 
 	convertETLToJSON(trace_path);
 			
-	timer.showElapsedTime("\n\n\nDuree totale de l'application:  ");
+	if (verbose)
+		timer.showElapsedTime("\n\n\nDuree totale de l'application:  ");
 
 	return 1;
 }
