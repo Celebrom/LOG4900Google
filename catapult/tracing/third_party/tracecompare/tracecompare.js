@@ -810,7 +810,6 @@ function tracecompare(data, container, selected_fct_container) {
   selected_fct_container.selectAll('#unfocus').on('click', function() {
     flameGraph.Unfocus();
     selected_fct_container.selectAll('#unfocus').style('display', 'none');
-	selected_fct_container.selectAll('#selected-function-focus').style('display', 'block');
   });
 
   // Resize flame graph when window is resized.
@@ -1070,7 +1069,6 @@ function tracecompare(data, container, selected_fct_container) {
     });
     selected_fct_container.selectAll('#selected-function-focus').on('click', function() {
       flameGraph.FocusOnStack(stackId);
-	  selected_fct_container.selectAll('#selected-function-focus').style('display', 'none');
       selected_fct_container.selectAll('#unfocus').style('display', null);
     });
 	
