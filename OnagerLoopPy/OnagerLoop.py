@@ -1,18 +1,24 @@
 #!/usr/bin/python
-import time
-import sys
-import getopt
-import os
+from time import sleep
+from sys import argv
+from sys import exit
+from getopt import getopt
+from getopt import GetoptError
+from os import path
+from os import devnull
+from os import system
+from os import makedirs
 from subprocess import call
 from subprocess import STDOUT
 from tempfile import gettempdir
-import datetime
+from datetime import datetime
+from datetime import date
 
 nbIter = 1
 actualIter = 1
-actualdire = os.path.dirname(os.path.realpath(__file__))
-outputdire = actualdire + '\Traces'
-FNULL = open(os.devnull, 'w')
+actualdire = path.dirname(path.realpath(__file__))
+outputdire = actualdire + '\\Traces'
+FNULL = open(devnull, 'w')
 
 def LaunchChrome():
     os.system('start chrome.exe')
@@ -22,10 +28,11 @@ def CloseChrome():
 
 def ChromeStartupProfiler():
    global outputdire
+   print outputdire + ' 2'
    try:
       while(True):
-         os.system('start chrome.exe --dump-browser-histograms=' + outputdire + '\dump.json')
-         time.sleep(1)
+         system('start chrome.exe --dump-browser-histograms=' + outputdire + '\dump.json')
+         sleep(1)
          with open(outputdire + '\dump.json', 'r') as f:
             for line in f:
                index = line.find('NonEmptyPaint')
@@ -61,10 +68,10 @@ def LaunchTrace():
 def SaveTrace():
    global outputFile
    tmp_directory = gettempdir()
-   now = datetime.datetime.now()
+   now = datetime.now()
 
    outputFile = outputdire + '"\\Chrome_Trace_"' + str(actualIter) + '_' + str(
-      datetime.date.today()) + '-' + str(now.hour) + 'h-' + str(now.minute) + 'm' + '.etl '
+      date.today()) + '-' + str(now.hour) + 'h-' + str(now.minute) + 'm' + '.etl '
 
    #Saving trace to disk...
    call(
@@ -116,15 +123,15 @@ def ConvertEtlToJson():
 def main(argv):
 
    try:
-      opts, args = getopt.getopt(argv,'hn:c:o:',['nb_iter=','outputDir='])
-   except getopt.GetoptError:
+      opts, args = getopt(argv,'hn:c:o:',['nb_iter=','outputDir='])
+   except GetoptError:
       print '\n Example:'
       print 'OnagerLoop.py -n <number of iteration> -o <output Directory>\n'
       print '-n --nb_iter <number of iteration> '
       print '     default = 1'
       print '-o --outputDir'
       print '     default = Launched directory'
-      sys.exit(2)
+      exit(2)
    for opt, arg in opts:
       if opt in ('-h', '--help'):
          print '\n Example:'
@@ -133,7 +140,7 @@ def main(argv):
          print '     default = 1'
          print '-o --outputDir'
          print '     default = Launched directory'
-         sys.exit()
+         exit()
       elif opt in ('-n', '--nb_iter'):
          global nbIter
          nbIter = arg
@@ -142,15 +149,18 @@ def main(argv):
          outputdire = arg
          if outputdire.find('./') != -1:
             outputdire = outputdire.replace('./', actualdire + '\\')
-         if outputdire.find('.\\') != -1:
+         elif outputdire.find('.\\') != -1:
             outputdire = outputdire.replace('.\\', actualdire + '\\')
+         elif outputdire:
+            outputdire = actualdire + '\\' + arg
+         print outputdire + ' 1'
 
 
 if __name__ == "__main__":
-   main(sys.argv[1:])
+   main(argv[1:])
 
-   if not os.path.exists(outputdire):
-      os.makedirs(outputdire)
+   if not path.exists(outputdire):
+      makedirs(outputdire)
 
    #Warmup Chrome
    CloseChrome()
@@ -165,7 +175,7 @@ if __name__ == "__main__":
       SaveTrace()
       StopTrace()
       CloseChrome()
-      #ConvertEtlToJson()
+      ConvertEtlToJson()
       actualIter += 1
 
 
