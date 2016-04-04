@@ -132,7 +132,14 @@ found in the LICENSE file.
       
       var fgContainer = d3.select(this.$.flamegraph_wrapper).selectAll('#flamegraph');
 	  var selected_fct_ctr = d3.select(this.$.flamegraph_wrapper).selectAll('#selected-function');
-      tracecompare(this.getSelectionStacks(selection), fgContainer, selected_fct_ctr);
+      
+      var selectionStacks = this.getSelectionStacks(selection);
+      if (selectionStacks !== undefined) {
+        tracecompare(this.getSelectionStacks(selection), fgContainer, selected_fct_ctr);
+      }
+      else {
+        d3.select(this.$.flamegraph_wrapper).style('display', 'none');
+      }
     },
     
     getSelectionStacks: function(selection) {
@@ -148,7 +155,8 @@ found in the LICENSE file.
           unfilteredStacks = metadata[i].value;
         }
       }
-      if (unfilteredStacks == undefined) return;
+      if (unfilteredStacks === undefined) return undefined;
+      if (unfilteredStacks.length <= 0) return undefined;
       
       // Gather selected tids
       var tidList = {};
@@ -161,8 +169,11 @@ found in the LICENSE file.
       // Keep only the stacks from the selected tids
       var tidFilteredStacks = [];
       for (var tid in tidList) {
-        tidFilteredStacks = tidFilteredStacks.concat(unfilteredStacks[tid]);
+        var tidStacks = unfilteredStacks[tid];
+        if (tidStacks !== undefined)
+          tidFilteredStacks = tidFilteredStacks.concat(tidStacks);
       }
+      if (tidFilteredStacks.length <= 0) return undefined;
       
       var fullyFilteredStacks = [];
       for (var i = 0; i < tidFilteredStacks.length; ++i) {
@@ -194,10 +205,6 @@ found in the LICENSE file.
       executions.push({"a":fullDuration, "b":beginTimestamp, "e":1, "f":1, "g":1, "h":1, "samples":samples});
       
       return {"executions":executions, "stacks":stacks};
-      //return {
-	  //  "executions":[{"a":18055,"b":1424810701430206,"e":17997,"f":22,"g":26,"h":9,"samples":{"541":18055,"543": 12707, "548": 4289, "549": 4289, "550": 4289, "551": 4076}}],
-	  //  "stacks":{"541":{"b":0,"f":"[thread]"},"543":{"b":541,"f":"sys:read"},"548":{"b":541,"f":"__libc_start_main"},"549":{"b":548,"f":"main"},"550":{"b":549,"f":"DoSomeDonkeys(RandomStringGenerator&, mongo::DBClientConnection&)"},"551":{"b":550,"f":"GenerateSomeData(RandomStringGenerator&, mongo::BSONObjBuilder&)"}}
-      //};
     },
   });
   </script>
