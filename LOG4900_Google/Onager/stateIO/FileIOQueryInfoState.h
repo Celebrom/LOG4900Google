@@ -26,4 +26,4 @@ public:
 	virtual std::string returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd);
 };
 
-#endif // LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_STATEIO_FILEIOQUERYINFOSTATE_H
+#endif /* LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_STATEIO_FILEIOQUERYINFOSTATE_H */

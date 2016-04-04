@@ -31,4 +31,4 @@ public:
 	static void write(std::wstring path, const std::vector<std::string>& chromeEventLines, const std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines);
 };
 
-#endif //LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_JSONWRITER_H
+#endif /* LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_JSONWRITER_H */

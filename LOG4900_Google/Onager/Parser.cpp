@@ -15,7 +15,9 @@ limitations under the License.
 */
 
 #include "Parser.h"
-
+/*
+  Reads the header of the .csv and tells from where parsing of the events' lines should start
+*/
 const char*& Parser::parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>* header)
 {
 	std::vector<std::string> tokens;
@@ -43,10 +45,12 @@ const char*& Parser::parseHeader(const char*& pos, const char*& end, std::unorde
 	return pos;
 }
 
-/* Reads a line of the .csv file and parses only the chrome event ones, each according to its type.
+/* 
+   Reads a line of the .csv file and parses only the chrome event ones, each according to its type.
    pos : defines the starting position of the parsing operation
    end : defines the ending position of the parsing operation
-   chromeEventLines: is the data structure where each parsed line is put                            */
+   chromeEventLines: parsed chrome event lines                         
+*/
 void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::string>* chromeEventLines)
 {
 	std::string tempLine = "";
@@ -151,6 +155,11 @@ void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::str
 	}
 }
 
+/* 
+   Reads a line of the .csv file and parses only the stacks.
+   system_history : defines the starting position of the parsing operation
+   completedFunctions: Contains the history of a system for the duration of traces         
+*/
 void Parser::parseStacks(const SystemHistory& system_history, std::unordered_map<base::Tid, std::vector<std::string>>* completedFunctions)
 {
 	/* Traverse all threads. */

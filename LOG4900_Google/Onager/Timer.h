@@ -32,4 +32,4 @@ private:
 		std::clock_t startTime;
 };
 
-#endif // LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_TIMER_H
+#endif /* LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_TIMER_H */

@@ -29,4 +29,4 @@ public:
 	static boost::iostreams::mapped_file mapFileToMem(std::wstring path);
 };
 
-#endif // LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_MEMORYMAPPER_H
+#endif /* LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_MEMORYMAPPER_H */

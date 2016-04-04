@@ -33,4 +33,4 @@ public:
 	std::string commonJson(const std::vector<std::string>& FileIoEvent, const std::vector<std::string>& OpEnd);
 };
 
-#endif // LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_STATEIO_ABSTRACTSTATE_H
+#endif /* LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_STATEIO_ABSTRACTSTATE_H */
