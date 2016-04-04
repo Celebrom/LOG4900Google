@@ -16,6 +16,11 @@ limitations under the License.
 
 #include "JsonWriter.h"
 
+/* 
+  Puts the chrome event lines and the stack event ones, resulting from the parsing
+  in the same final JSON file. 
+  path: describes the name and the path of the destination file 
+*/
 void JsonWriter::write(std::wstring path, const std::vector<std::string>& chromeEventLines, const std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines)
 {
 	std::ofstream outputFile(path);

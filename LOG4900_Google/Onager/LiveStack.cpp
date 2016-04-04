@@ -7,6 +7,12 @@ std::vector<std::string> LiveStack::GetFinalLines()
 	return std::vector<std::string>();
 }
 
+/*
+  Compares a stack to another and stores the completed functions.
+  A function is completed when it appears in a stack and doesn't appears in the next stack
+  nextStack: as its name defines it
+  return: returns a vector of completed functions
+*/
 std::vector<std::string> LiveStack::Update(base::History<Stack>::Element nextStack)
 {
 	lastTimestamp = nextStack.start_ts;
