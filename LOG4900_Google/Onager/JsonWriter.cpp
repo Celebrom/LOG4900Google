@@ -16,36 +16,42 @@ limitations under the License.
 
 #include "JsonWriter.h"
 
-void JsonWriter::write(std::wstring path, std::vector<std::string>& chromeEventLines, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines)
+void JsonWriter::writeChromeEvents(std::wstring path, std::vector<std::string>& chromeEventLines)
 {
-		std::ofstream outputFile(path);
+	std::ofstream outputFile(path);
 
-		outputFile << "{\"traceEvents\":[";
-		for (unsigned int i = 0; i < chromeEventLines.size(); ++i)
+	outputFile << "{\"traceEvents\":[";
+	for (unsigned int i = 0; i < chromeEventLines.size(); ++i)
+	{
+		if (i < chromeEventLines.size() - 1)
+			outputFile << chromeEventLines[i] << ",\n";
+		else if (i == chromeEventLines.size() - 1)
+			outputFile << chromeEventLines[i] << "\n";
+	}
+	outputFile.close();
+}
+
+void JsonWriter::writeStacks(std::wstring path, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines)
+{
+	std::ofstream outputFile(path, std::ios_base::app);
+
+	outputFile << "],\n\"stacks\":{";
+	for (auto& it = stackEventLines.begin(); it != stackEventLines.end(); ++it)
+	{
+		outputFile << "\"" << (*it).first << "\":[";
+		for (unsigned int i = 0; i < (*it).second.size(); ++i)
 		{
-				if (i < chromeEventLines.size() - 1)
-						outputFile << chromeEventLines[i] << ",\n";
-				else if (i == chromeEventLines.size() - 1)
-						outputFile << chromeEventLines[i] << "\n";
+			if (i < (*it).second.size() - 1)
+				outputFile << (*it).second[i] << ",\n";
+			else if (i == (*it).second.size() - 1)
+				outputFile << (*it).second[i] << "\n";
 		}
-		outputFile << "],\n\"stacks\":{";
-		for (auto& it = stackEventLines.begin(); it != stackEventLines.end(); ++it)
-		{
-				outputFile << "\"" << (*it).first << "\":[";
-				for (unsigned int i = 0; i < (*it).second.size(); ++i)
-				{
-						if (i < (*it).second.size() - 1)
-								outputFile << (*it).second[i] << ",\n";
-						else if (i == (*it).second.size() - 1)
-								outputFile << (*it).second[i] << "\n";
-				}
 
-				if (it != --stackEventLines.end())
-						outputFile << "],\n";
-				else
-						outputFile << "]";
-		}
-		outputFile << "}}";
-
-		outputFile.close();
+		if (it != --stackEventLines.end())
+			outputFile << "],\n";
+		else
+			outputFile << "]";
+	}
+	outputFile << "}}";
+	outputFile.close();
 }
