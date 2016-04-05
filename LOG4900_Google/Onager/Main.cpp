@@ -79,10 +79,8 @@ void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path)
 	LOG(ERROR) << "Error while generating history from trace.";
 	return;
 	}
-	std::unordered_map<base::Tid, std::vector<std::string>> completedFunctions;
-	parser.parseStacks(system_history, completedFunctions);
 
-	JsonWriter::writeStacks(json_path, completedFunctions);
+	parser.parseStacks(system_history, json_path);
 	if (verbose)
 		timer.showElapsedTime("Temps de fin d'ecriture des Stacks");
 

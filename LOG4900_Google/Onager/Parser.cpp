@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #include "Parser.h"
+#include "JsonWriter.h"
 
 const char*& Parser::parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header)
 {
@@ -147,28 +148,38 @@ void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::str
 		}
 }
 
-void Parser::parseStacks(SystemHistory& system_history, std::unordered_map<base::Tid, std::vector<std::string>>& completedFunctions)
+void Parser::parseStacks(SystemHistory& system_history, std::wstring path)
 {
-		// Traverse all threads.
-		for (auto threads_it = system_history.threads_begin(); threads_it != system_history.threads_end(); ++threads_it)
+	// Traverse all threads.
+	for (auto threads_it = system_history.threads_begin(); threads_it != system_history.threads_end(); ++threads_it)
+	{
+		std::string process_name = system_history.GetProcessName(threads_it->second.parent_process_id());
+		if (process_name != "chrome.exe") continue;
+
+		auto& threadStacks = threads_it->second.Stacks();
+		auto  stacksEnd = threadStacks.IteratorEnd();
+
+		// In bracket to safely remove threadCompletedFunctions from memory
 		{
-				std::string process_name = system_history.GetProcessName(threads_it->second.parent_process_id());
-				if (process_name != "chrome.exe") continue;
+			LiveStack liveStack;
+			std::vector<std::string> threadCompletedFunctions;
+			std::unordered_map<base::Tid, std::vector<std::string>> completedFunctions;
 
-				auto& threadStacks = threads_it->second.Stacks();
-				auto  stacksEnd = threadStacks.IteratorEnd();
+			// Traverse all stacks comparing first and second to see what functions ended
+			for (auto it = threadStacks.IteratorFromTimestamp(0); it != stacksEnd; ++it)
+			{
+				std::vector<std::string> actualCompletedFunctions = liveStack.Update((*it));
+				threadCompletedFunctions.insert(std::end(threadCompletedFunctions), std::begin(actualCompletedFunctions), std::end(actualCompletedFunctions));
+			}
+			std::vector<std::string> finalCompletedFunctions = liveStack.GetFinalLines();
+			threadCompletedFunctions.insert(std::end(threadCompletedFunctions), std::begin(finalCompletedFunctions), std::end(finalCompletedFunctions));
 
-				LiveStack liveStack;
-				std::vector<std::string> threadCompletedFunctions;
-				// Traverse all stacks comparing first and second to see what functions ended
-				for (auto it = threadStacks.IteratorFromTimestamp(0); it != stacksEnd; ++it)
-				{
-						std::vector<std::string> actualCompletedFunctions = liveStack.Update((*it));
-						threadCompletedFunctions.insert(std::end(threadCompletedFunctions), std::begin(actualCompletedFunctions), std::end(actualCompletedFunctions));
-				}
-				std::vector<std::string> finalCompletedFunctions = liveStack.GetFinalLines();
-				threadCompletedFunctions.insert(std::end(threadCompletedFunctions), std::begin(finalCompletedFunctions), std::end(finalCompletedFunctions));
+			completedFunctions[(*threads_it).first] = threadCompletedFunctions;
 
-				completedFunctions[(*threads_it).first] = threadCompletedFunctions;
+			if (threads_it != std::prev(system_history.threads_end(), 1))
+				JsonWriter::writeStacks(path, completedFunctions, false);
+			else
+				JsonWriter::writeStacks(path, completedFunctions, true);
 		}
+	}
 }

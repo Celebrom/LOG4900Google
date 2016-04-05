@@ -27,5 +27,8 @@ public:
 	JsonWriter(){};
 
 	static void writeChromeEvents(std::wstring path, std::vector<std::string>& chromeEventLines);
-	static void writeStacks(std::wstring path, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines);
+	static void writeStacks(std::wstring path, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines, bool lastStack);
+
+private:
+	static bool firstStack;
 };

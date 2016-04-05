@@ -31,11 +31,17 @@ void JsonWriter::writeChromeEvents(std::wstring path, std::vector<std::string>& 
 	outputFile.close();
 }
 
-void JsonWriter::writeStacks(std::wstring path, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines)
+bool JsonWriter::firstStack = true;
+void JsonWriter::writeStacks(std::wstring path, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines, bool lastStack)
 {
 	std::ofstream outputFile(path, std::ios_base::app);
 
-	outputFile << "],\n\"stacks\":{";
+	if (firstStack)
+	{
+		outputFile << "],\n\"stacks\":{";
+		firstStack = false;
+	}
+		
 	for (auto& it = stackEventLines.begin(); it != stackEventLines.end(); ++it)
 	{
 		outputFile << "\"" << (*it).first << "\":[";
@@ -47,11 +53,11 @@ void JsonWriter::writeStacks(std::wstring path, std::unordered_map<base::Tid, st
 				outputFile << (*it).second[i] << "\n";
 		}
 
-		if (it != --stackEventLines.end())
+		if (!lastStack)
 			outputFile << "],\n";
 		else
-			outputFile << "]";
+			outputFile << "]}}";
 	}
-	outputFile << "}}";
+	
 	outputFile.close();
 }
