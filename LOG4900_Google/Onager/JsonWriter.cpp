@@ -16,36 +16,56 @@ limitations under the License.
 
 #include "JsonWriter.h"
 
-void JsonWriter::write(std::wstring path, std::vector<std::string>& chromeEventLines, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines)
+bool JsonWriter::firstEvent = true;
+void JsonWriter::writeChromeEvents(std::wstring path, std::vector<std::string>& chromeEventLines)
 {
-		std::ofstream outputFile(path);
-
+	std::ofstream outputFile;
+	if (firstEvent)
+	{
+		outputFile.open(path);
+		firstEvent = false;
 		outputFile << "{\"traceEvents\":[";
-		for (unsigned int i = 0; i < chromeEventLines.size(); ++i)
-		{
-				if (i < chromeEventLines.size() - 1)
-						outputFile << chromeEventLines[i] << ",\n";
-				else if (i == chromeEventLines.size() - 1)
-						outputFile << chromeEventLines[i] << "\n";
-		}
+	}
+	else
+		outputFile.open(path, std::ios_base::app);
+
+	for (unsigned int i = 0; i < chromeEventLines.size(); ++i)
+	{
+		if (i < chromeEventLines.size() - 1)
+			outputFile << chromeEventLines[i] << ",\n";
+		else if (i == chromeEventLines.size() - 1)
+			outputFile << chromeEventLines[i] << "\n";
+	}
+	outputFile.close();
+}
+
+bool JsonWriter::firstStack = true;
+void JsonWriter::writeStacks(std::wstring path, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines, bool lastStack)
+{
+	std::ofstream outputFile(path, std::ios_base::app);
+
+	if (firstStack)
+	{
 		outputFile << "],\n\"stacks\":{";
-		for (auto& it = stackEventLines.begin(); it != stackEventLines.end(); ++it)
+		firstStack = false;
+	}
+		
+	for (auto& it = stackEventLines.begin(); it != stackEventLines.end(); ++it)
+	{
+		outputFile << "\"" << (*it).first << "\":[";
+		for (unsigned int i = 0; i < (*it).second.size(); ++i)
 		{
-				outputFile << "\"" << (*it).first << "\":[";
-				for (unsigned int i = 0; i < (*it).second.size(); ++i)
-				{
-						if (i < (*it).second.size() - 1)
-								outputFile << (*it).second[i] << ",\n";
-						else if (i == (*it).second.size() - 1)
-								outputFile << (*it).second[i] << "\n";
-				}
-
-				if (it != --stackEventLines.end())
-						outputFile << "],\n";
-				else
-						outputFile << "]";
+			if (i < (*it).second.size() - 1)
+				outputFile << (*it).second[i] << ",\n";
+			else if (i == (*it).second.size() - 1)
+				outputFile << (*it).second[i] << "\n";
 		}
-		outputFile << "}}";
 
-		outputFile.close();
+		if (!lastStack)
+			outputFile << "],\n";
+		else
+			outputFile << "]}}";
+	}
+	
+	outputFile.close();
 }

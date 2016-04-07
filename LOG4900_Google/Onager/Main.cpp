@@ -35,61 +35,55 @@ Parser parser;
 bool verbose = false;
 
 void ShowUsage() {
-		std::cout
-				<< "Usage: .exe --trace <trace_file_path> -v"
-				<< std::endl
-				<< "-v : Verbose"
-				<< std::endl
-				<< std::endl;
+	std::cout
+			<< "Usage: .exe --trace <trace_file_path> -v"
+			<< std::endl
+			<< "-v : Verbose"
+			<< std::endl
+			<< std::endl;
 }
 
 void convertETLToCSV(std::wstring path)
 {
-		etw_insights::ETWReader etwReader;
-		etwReader.Open(path);
+	etw_insights::ETWReader etwReader;
+	etwReader.Open(path);
 }
 
 // TODO: We should only need one of the path by using the same method for the Chrome Event and Flame graph
 void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path)
 {
-		boost::iostreams::mapped_file mmap = MemoryMapper::mapFileToMem(csv_path);
-		auto pos = mmap.const_data();
-		auto end = pos + mmap.size();
+	std::wstring json_path = csv_path + L".json";
+	boost::iostreams::mapped_file mmap = MemoryMapper::mapFileToMem(csv_path);
+	auto pos = mmap.const_data();
+	auto end = pos + mmap.size();
 
-		std::unordered_map<std::string, std::vector<std::string>> header;
-		const char*& posBeginLines = parser.parseHeader(pos, end, header);
-		if (verbose) 
-			timer.showElapsedTime("Temps de fin de parsing du header");
+	std::unordered_map<std::string, std::vector<std::string>> header;
+	const char*& posBeginLines = parser.parseHeader(pos, end, header);
+	if (verbose) 
+		timer.showElapsedTime("Temps de fin de parsing du header");
 
-		std::vector<std::string> chromeEventLines;
-		parser.parseLines(posBeginLines, end, chromeEventLines);
-		if (verbose)
-			timer.showElapsedTime("Temps de fin de parsing des lignes du fichier");
+	parser.parseLines(posBeginLines, end, json_path);
+	if (verbose)
+		timer.showElapsedTime("Temps de fin d'ecriture des ChromeEvents");
 		
-		SystemHistory system_history;
-		if (!GenerateHistoryFromTrace(etl_path, &system_history)) {
-		LOG(ERROR) << "Error while generating history from trace.";
-		return;
-		}
-		std::unordered_map<base::Tid, std::vector<std::string>> completedFunctions;
-		parser.parseStacks(system_history, completedFunctions);
+	SystemHistory system_history;
+	if (!GenerateHistoryFromTrace(etl_path, &system_history)) {
+	LOG(ERROR) << "Error while generating history from trace.";
+	return;
+	}
 
-		std::wstring json_path = csv_path + L".json";
-		JsonWriter::write(json_path, chromeEventLines, completedFunctions);
-		if (verbose)
-			timer.showElapsedTime("Temps de fin d'ecriture du JSON");
-
-		//munmap pas necessaire parce que map desallouer a la fin du process
-		//boost::iostreams::mapped_file munmap(mmap, mmap.size());
+	parser.parseStacks(system_history, json_path);
+	if (verbose)
+		timer.showElapsedTime("Temps de fin d'ecriture des Stacks");
 }
 
 void convertETLToJSON(std::wstring etl_path)
 {
-		std::wstring csv_path = etl_path + L".csv";
-		if (!base::FilePathExists(csv_path))
-				convertETLToCSV(etl_path);
+	std::wstring csv_path = etl_path + L".csv";
+	if (!base::FilePathExists(csv_path))
+			convertETLToCSV(etl_path);
 
-		convertCSVToJSON(etl_path, csv_path);
+	convertCSVToJSON(etl_path, csv_path);
 }
 
 int wmain(int argc, wchar_t* argv[], wchar_t* /*envp */[])

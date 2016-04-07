@@ -21,14 +21,13 @@ outputdire = actualdire + '\\Traces'
 FNULL = open(devnull, 'w')
 
 def LaunchChrome():
-    os.system('start chrome.exe')
+    system('start chrome.exe')
 
 def CloseChrome():
-    os.system("taskkill /IM chrome.exe /f >nul 2>&1")
+    system("taskkill /IM chrome.exe /f >nul 2>&1")
 
 def ChromeStartupProfiler():
    global outputdire
-   print outputdire + ' 2'
    try:
       while(True):
          system('start chrome.exe --dump-browser-histograms=' + outputdire + '\dump.json')
@@ -155,12 +154,12 @@ def main(argv):
             outputdire = actualdire + '\\' + arg
          print outputdire + ' 1'
 
-
 if __name__ == "__main__":
    main(argv[1:])
 
    if not path.exists(outputdire):
       makedirs(outputdire)
+      sleep(1)
 
    #Warmup Chrome
    CloseChrome()
