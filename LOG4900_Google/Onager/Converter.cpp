@@ -16,12 +16,21 @@ limitations under the License.
 
 #include "Converter.h"
 
-std::string Converter::IOLineToJSON(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd)
+/*
+  Each FileIO event is parsed with his OpEnd's duration. Passing OpEnd as a parameter
+  allows us to gets it's duration
+  OpEnd: The line of the FileIOOpEnd
+  FileIOEvent: The line to be parsed
+*/
+std::string Converter::IOLineToJSON(const std::vector<std::string>& OpEnd, std::vector<std::string>* FileIoEvent)
 {
 	stateIO->changeStateTo(stateIO->fromStringToIntIO((*FileIoEvent)[0]));
 	return stateIO->getCurrentState()->returnJson(FileIoEvent, OpEnd);
 }
 
+/*
+  This method parses the operations on the disk
+*/
 std::string Converter::DiskLineToJSON(std::vector<std::string>& diskEndEvent)
 {
 	std::string jsonLine = "";
@@ -66,9 +75,11 @@ std::string Converter::DiskLineToJSON(std::vector<std::string>& diskEndEvent)
 	return jsonLine;
 }
 
+/*
+  This method parses simple and common chromeEvents
+*/
 std::string Converter::EventToJSON(std::vector<std::string>& line)
 {
-	//dirty code
 	std::string name = "";
 	std::string cat = "";
 	std::string phase = "";
@@ -117,7 +128,7 @@ std::string Converter::EventToJSON(std::vector<std::string>& line)
 				if (line[i] != "" && args != "\"args\":{" && line[i + 1] == "\"\"")
 				{
 						args.erase(args.end() - 1, args.end());
-						//args += "," + line[i] + "\"";
+						/* args += "," + line[i] + "\""; */
 				}
 				break;
 		case 12:
@@ -147,6 +158,9 @@ std::string Converter::EventToJSON(std::vector<std::string>& line)
 	return "{" + pid + tid + ts + phase + cat + name + args + dur + "}";
 }
 
+/*
+  This method parses CSwitch events
+*/
 std::string Converter::CSwitchToJson(std::vector<std::string>& CSwitchEvent, std::string type, unsigned int id)
 {
 	std::string JsonLine = "";
@@ -174,6 +188,10 @@ std::string Converter::CSwitchToJson(std::vector<std::string>& CSwitchEvent, std
 	return JsonLine;
 }
 
+/*
+  For more information about the types used here, check Page 4 at
+  https://docs.google.com/document/d/1CvAClvFfyA5R-PhYUmn5OOQtYMH4h6I0nSsKchNAySU/preview#
+*/
 std::string Converter::getPhase(std::string &word)
 {
 		//Event type
@@ -198,16 +216,14 @@ std::string Converter::getPhase(std::string &word)
 				return "B";
 		else if (word == "\"End\"")
 				return "E";
-		else if (word == "\"Instant\"")
-				return "i";
+		else if (word == "\"Instant\"")     /* return "i"; //new version */
+				return "I";                 /* deprecated version */
 		else if (word == "\"Counter\"")
 				return "C";
-		else if (word == "\"Async End\"")
-				//return "e"; //new version
-				return "F";  //deprecated version
-		else if (word == "\"Async Begin\"")
-				//return "b"; //new version
-				return "S";	  //deprecated version
+		else if (word == "\"Async End\"")   /* return "e"; //new version */
+				return "F";                 /* deprecated version */
+		else if (word == "\"Async Begin\"") /* return "b"; //new version */
+				return "S";	                /* deprecated version */
 		else if (word == "\"Async Step Into\"")
 				return "T";
 		else if (word == "\"Sample\"")
@@ -216,8 +232,6 @@ std::string Converter::getPhase(std::string &word)
 				return "M";
 		else if (word == "\"Mark\"")
 				return "R";
-		else if (word == "")
-				return "";
 		else
 				return "error";
 }

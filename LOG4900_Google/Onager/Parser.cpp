@@ -16,7 +16,7 @@ limitations under the License.
 
 #include "Parser.h"
 /*
-  Reads the header of the .csv and tells from where parsing of the events' lines should start
+  Reads the header of the .csv and tells from where the parsing of the events' lines should start
 */
 const char*& Parser::parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>* header)
 {
@@ -123,7 +123,7 @@ void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::str
 					/*IrpPtr compare          FileObject compare              Type compare    */     
 					if (FileIoEvent != FileIoStackIter->second.end() && FileIoEvent->second[7] == tokens[7] && FileIoEvent->second[8] == tokens[8] && FileIoEvent->second[0] == tokens[12])
 					{						
-						chromeEventLines->push_back(converter->IOLineToJSON(&FileIoEvent->second, tokens));
+						chromeEventLines->push_back(converter->IOLineToJSON(tokens, &FileIoEvent->second));
 						FileIoStackIter->second.erase(tokens[8]);
 					}
 				}

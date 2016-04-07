@@ -31,18 +31,18 @@ limitations under the License.
 #include "AbstractState.h" 
 #include <algorithm>
 
-// For all possible types of a given FileIO, returnJson returns a line that starts with:
-// {"name":"[FileIoEvent]Filename\", ... 
+/* For all possible types of a given FileIO, returnJson returns a line that starts with:
+   {"name":"[FileIoEvent]Filename\", ... */
 
-/*1- FileIOCreateState*/
+/* 1- FileIOCreateState*/
 FileIOCreateState::FileIOCreateState(){}
 FileIOCreateState::~FileIOCreateState(){}
 std::string FileIOCreateState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd){
 		Utils::formatFileName(&(*FileIoEvent)[12]);
 
-		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[12];
-		return "{\"name\":\"[" + (*FileIoEvent)[0] + "]" + (*FileIoEvent)[12] + "\"," +
-				commonJson(*FileIoEvent, OpEnd) + "}}";
+	/* FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[12]; */
+	return "{\"name\":\"[" + (*FileIoEvent)[0] + "]" + (*FileIoEvent)[12] + "\"," +
+			commonJson(*FileIoEvent, OpEnd) + "}}";
 }
 
 /*2- FileIOCleanUpState*/
@@ -51,40 +51,40 @@ FileIOCleanUpState::~FileIOCleanUpState(){}
 std::string FileIOCleanUpState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd){
 	Utils::formatFileName(&(*FileIoEvent)[9]);
 
-		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[9];
+	/* FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[9]; */
 	return "{\"name\":\"[" + (*FileIoEvent)[0] + "]" + (*FileIoEvent)[9] + "\"," +
 		commonJson(*FileIoEvent, OpEnd) + "}}";
 }
 
-/*3- FileIOCloseState*/
+/* 3- FileIOCloseState */
 FileIOCloseState::FileIOCloseState(){}
 FileIOCloseState::~FileIOCloseState(){}
 std::string FileIOCloseState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd){
 	Utils::formatFileName(&(*FileIoEvent)[9]);
 
-		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[9];
+	/* FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[9]; */
 	return "{\"name\":\"[" + (*FileIoEvent)[0] + "]" + (*FileIoEvent)[9] + "\"," +
 		commonJson(*FileIoEvent, OpEnd) + "}}";
 }
 
-/*4- FileIODeleteState*/
+/* 4- FileIODeleteState */
 FileIODeleteState::FileIODeleteState(){}
 FileIODeleteState::~FileIODeleteState(){}
 std::string FileIODeleteState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd){
 	Utils::formatFileName(&(*FileIoEvent)[11]);
 
-	//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11];
+	/* FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11]; */ 
 	return "{\"name\":\"[" + (*FileIoEvent)[0] + "]" + (*FileIoEvent)[11] + "\"," +
 			commonJson(*FileIoEvent, OpEnd) + "}}";
 }
 
-/*5- FileIODirEnumState*/
+/* 5- FileIODirEnumState */
 FileIODirEnumState::FileIODirEnumState(){}
 FileIODirEnumState::~FileIODirEnumState(){}
 std::string FileIODirEnumState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd){
 	Utils::formatFileName(&(*FileIoEvent)[12]);
 
-	//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[12];
+	/* FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[12]; */
 	return "{\"name\":\"[" + (*FileIoEvent)[0] + "]" + (*FileIoEvent)[12] + "\"," +
 			commonJson(*FileIoEvent, OpEnd) + 
 			ifNotEmpty("Size", (*FileIoEvent)[10]) + "}}";
@@ -96,25 +96,25 @@ FileIODirNotifyState::~FileIODirNotifyState(){}
 std::string FileIODirNotifyState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd) {
 	Utils::formatFileName(&(*FileIoEvent)[12]);
 
-		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[12];
+	/* FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[12]; */
 	return "{\"name\":\"[" + (*FileIoEvent)[0] + "]" + (*FileIoEvent)[12] + "\"," +
 				commonJson(*FileIoEvent, OpEnd) +
 				ifNotEmpty("Size", (*FileIoEvent)[10]) + "}}";
 }
 
-/*7- FileIOFlushState*/
+/* 7- FileIOFlushState */
 FileIOFlushState::FileIOFlushState(){}
 FileIOFlushState::~FileIOFlushState(){}
 std::string FileIOFlushState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd) {
 	Utils::formatFileName(&(*FileIoEvent)[9]);
 	
 
-		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[9];
+	/* FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[9]; */
 	return "{\"name\":\"[" + (*FileIoEvent)[0] + "]" + (*FileIoEvent)[9] + "\"," +
 				commonJson(*FileIoEvent, OpEnd) + "}}";
 }
 
-/*8- FileIOFSCTLState*/
+/* 8- FileIOFSCTLState */
 FileIOFSCTLState::FileIOFSCTLState(){}
 FileIOFSCTLState::~FileIOFSCTLState(){}
 std::string FileIOFSCTLState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd) {
@@ -125,71 +125,71 @@ std::string FileIOFSCTLState::returnJson(std::vector<std::string>* FileIoEvent, 
 				commonJson(*FileIoEvent, OpEnd) + "}}";
 }
 
-/*9- FileIOOpEndState*/
+/* 9- FileIOOpEndState */
 FileIOOpEndState::FileIOOpEndState(){}
 FileIOOpEndState::~FileIOOpEndState(){}
 std::string FileIOOpEndState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd) {
 	Utils::formatFileName(&(*FileIoEvent)[13]);
 
-		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[13];
+	/*FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[13]; */
 	return "{\"name\":\"[" + (*FileIoEvent)[0] + "]" + (*FileIoEvent)[13] + "\"," +
 				commonJson(*FileIoEvent, OpEnd) + "}}";
 }
 
-/*10- FileIOQueryInfoState*/
+/* 10- FileIOQueryInfoState */
 FileIOQueryInfoState::FileIOQueryInfoState(){}
 FileIOQueryInfoState::~FileIOQueryInfoState(){}
 std::string FileIOQueryInfoState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd) {
 	Utils::formatFileName(&(*FileIoEvent)[11]);
 
 
-		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11];
+	/* FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11]; */
 	return "{\"name\":\"[" + (*FileIoEvent)[0] + "]" + (*FileIoEvent)[11] + "\"," +
 				commonJson(*FileIoEvent, OpEnd) + "}}";
 }
 
-/*11- FileIOReadState*/
+/* 11- FileIOReadState */
 FileIOReadState::FileIOReadState(){}
 FileIOReadState::~FileIOReadState(){}
 std::string FileIOReadState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd) {
 	Utils::formatFileName(&(*FileIoEvent)[14]);
 
-		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[14];
+	/* FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[14]; */
 	return "{\"name\":\"[" + (*FileIoEvent)[0] + "]" + (*FileIoEvent)[14] + "\"," +
 				commonJson(*FileIoEvent, OpEnd) +
 				ifNotEmpty("Priority", (*FileIoEvent)[13]) + "," +
 				ifNotEmpty("Size", (*FileIoEvent)[10]) + "}}";
 }
 
-/*12- FileIORenameState*/
+/* 12- FileIORenameState */
 FileIORenameState::FileIORenameState(){}
 FileIORenameState::~FileIORenameState(){}
 std::string FileIORenameState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd) {
 	Utils::formatFileName(&(*FileIoEvent)[11]);
 
-		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11];
+	/* FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11]; */
 	return "{\"name\":\"[" + (*FileIoEvent)[0] + "]" + (*FileIoEvent)[11] + "\"," +
 				commonJson(*FileIoEvent, OpEnd) + "}}";
 }
 
-/*13- FileIOSetInfoState*/
+/* 13- FileIOSetInfoState */
 FileIOSetInfoState::FileIOSetInfoState(){}
 FileIOSetInfoState::~FileIOSetInfoState(){}
 std::string FileIOSetInfoState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd) {
 	Utils::formatFileName(&(*FileIoEvent)[11]);
 
-		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11];
+	/* FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11]; */
 	return "{\"name\":\"[" + (*FileIoEvent)[0] + "]" + (*FileIoEvent)[11] + "\"," +
 				commonJson(*FileIoEvent, OpEnd) + "}}";
 }
 
-/*14- FileIOWriteState*/
+/* 14- FileIOWriteState */
 FileIOWriteState::FileIOWriteState(){}
 FileIOWriteState::~FileIOWriteState(){}
 std::string FileIOWriteState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd) {
 	Utils::formatFileName(&(*FileIoEvent)[14]);
 
-		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[14];
+	/* FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[14]; */
 	return "{\"name\":\"[" + (*FileIoEvent)[0] + "]" + (*FileIoEvent)[14] + "\"," +
 				commonJson(*FileIoEvent, OpEnd) +
 				ifNotEmpty("Priority", (*FileIoEvent)[13]) + "," +
