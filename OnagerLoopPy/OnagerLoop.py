@@ -159,6 +159,7 @@ if __name__ == "__main__":
 
    if not path.exists(outputdire):
       makedirs(outputdire)
+      sleep(1)
 
    #Warmup Chrome
    CloseChrome()

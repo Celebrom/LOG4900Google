@@ -15,21 +15,18 @@ limitations under the License.
 */
 
 #pragma once
-#include <vector>
-#include <fstream>
-#include <unordered_map>
-#include "../base/types.h"
 
+#include <string>
 
-class JsonWriter
-{
-public:
-	JsonWriter(){};
+#include "etw_reader/system_history.h"
 
-	static void writeChromeEvents(std::wstring path, std::vector<std::string>& chromeEventLines);
-	static void writeStacks(std::wstring path, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines, bool lastStack);
+namespace etw_insights {
 
-private:
-	static bool firstEvent;
-	static bool firstStack;
-};
+	// Traverses the event of an ETW trace to fill a system history.
+	// @param trace_path Path to a .etl trace file.
+	// @param system_history The system history to fill.
+	// @returns true if the history was filled successfully, false otherwise.
+	bool GenerateHistoryFromTrace(const std::wstring& trace_path,
+		SystemHistory* system_history);
+
+}  // namespace etw_insights

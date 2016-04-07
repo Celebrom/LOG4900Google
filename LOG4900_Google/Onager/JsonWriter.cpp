@@ -16,11 +16,19 @@ limitations under the License.
 
 #include "JsonWriter.h"
 
+bool JsonWriter::firstEvent = true;
 void JsonWriter::writeChromeEvents(std::wstring path, std::vector<std::string>& chromeEventLines)
 {
-	std::ofstream outputFile(path);
+	std::ofstream outputFile;
+	if (firstEvent)
+	{
+		outputFile.open(path);
+		firstEvent = false;
+		outputFile << "{\"traceEvents\":[";
+	}
+	else
+		outputFile.open(path, std::ios_base::app);
 
-	outputFile << "{\"traceEvents\":[";
 	for (unsigned int i = 0; i < chromeEventLines.size(); ++i)
 	{
 		if (i < chromeEventLines.size() - 1)

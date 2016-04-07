@@ -62,17 +62,9 @@ void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path)
 	if (verbose) 
 		timer.showElapsedTime("Temps de fin de parsing du header");
 
-	// In bracket to safely remove chromeEventLines from memory
-	{
-		std::vector<std::string> chromeEventLines;
-		parser.parseLines(posBeginLines, end, chromeEventLines);
-		if (verbose)
-			timer.showElapsedTime("Temps de fin de parsing des lignes du fichier");
-
-		JsonWriter::writeChromeEvents(json_path, chromeEventLines);
-		if (verbose)
-			timer.showElapsedTime("Temps de fin d'ecriture des ChromeEvents");
-	}
+	parser.parseLines(posBeginLines, end, json_path);
+	if (verbose)
+		timer.showElapsedTime("Temps de fin d'ecriture des ChromeEvents");
 		
 	SystemHistory system_history;
 	if (!GenerateHistoryFromTrace(etl_path, &system_history)) {
@@ -83,9 +75,6 @@ void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path)
 	parser.parseStacks(system_history, json_path);
 	if (verbose)
 		timer.showElapsedTime("Temps de fin d'ecriture des Stacks");
-
-	//munmap pas necessaire parce que map desallouer a la fin du process
-	//boost::iostreams::mapped_file munmap(mmap, mmap.size());
 }
 
 void convertETLToJSON(std::wstring etl_path)

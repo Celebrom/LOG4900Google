@@ -30,7 +30,7 @@ public:
 		~Parser(){ delete converter; };
 
 		const char*& parseHeader(const char*& pos, const char*& end, std::unordered_map<std::string, std::vector<std::string>>& header);
-		void parseLines(const char*& pos, const char*& end, std::vector<std::string>& chromeEventLines);
+		void parseLines(const char*& pos, const char*& end, std::wstring path);
 		void parseStacks(SystemHistory& system_history, std::wstring path);
 
 private:
