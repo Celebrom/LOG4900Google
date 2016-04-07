@@ -178,6 +178,15 @@ using custom elements specialized for different event types.
           subView.brushingStateController = this.brushingStateController_;
           subView.selection = subSelection;
         }
+        
+        var selectedSlices = eventsByBaseTypeName['slice'];
+        if (selectedSlices !== undefined) {
+          var fg = document.createElement('tr-ui-a-multi-thread-flame-graph-sub-view');
+          fg.tabLabel = 'Flame Graph';
+          fg.brushingStateController = this.brushingStateController_;
+          fg.selection = selectedSlices;
+          this.tabView_.appendChild(fg);
+        }
 
         // Restore the tab type that was previously selected. First try by tag
         // name.
@@ -241,6 +250,7 @@ using custom elements specialized for different event types.
         var brushingStateController = this.brushingStateController_;
         if (this.tabView_.selectedTab) {
           var selectedTab = this.tabView_.selectedTab;
+          selectedTab.refresh();
           this.tallMode = selectedTab.requiresTallView;
           if (brushingStateController) {
             var rlth = selectedTab.relatedEventsToHighlight;

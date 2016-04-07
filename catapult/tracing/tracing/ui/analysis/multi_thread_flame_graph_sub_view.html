@@ -10,7 +10,8 @@ found in the LICENSE file.
 <link rel="import" href="/tracing/ui/analysis/related_events.html">
 <link rel="import" href="/tracing/ui/base/tracecompare.html">
 
-<polymer-element name="tr-ui-a-multi-thread-flame-graph-sub-view">
+<polymer-element name="tr-ui-a-multi-thread-flame-graph-sub-view"
+    extends="tr-ui-a-sub-view">
   <template>
     <style>
     :host {
@@ -47,9 +48,10 @@ found in the LICENSE file.
 	
 	/* Flame graph */
 	svg#flamegraph {
-		margin-top:15px;
-		width: 100%;
-		font-size: 0.9em;
+      background-color: cadetblue;
+	  margin-top:15px;
+	  width: 100%;
+	  font-size: 0.9em;
 	}
 
 	svg#flamegraph g.inv {
@@ -69,7 +71,8 @@ found in the LICENSE file.
 	/* Selected function */
 	#selected-function
 	{
-	  border: 1px solid #D6D6D6;
+      background-color: cadetblue;
+	  border: 1px solid black;
 	  border-radius: 2px;
 	  padding: 0.5em;
 	  margin-top: 0.5em;
@@ -104,9 +107,6 @@ found in the LICENSE file.
 		</div>
 		
     </div>
-	
-	
-
   </template>
 
   <script>
@@ -114,8 +114,10 @@ found in the LICENSE file.
 
   Polymer({
     created: function() {
+      this.alreadyRefreshed_ = false;
       this.brushingStateController_ = undefined;
       this.selection_ = undefined;
+      this.tracecompare_ = undefined;
     },
     
     get brushingStateController() {
@@ -139,7 +141,8 @@ found in the LICENSE file.
       var selectionStacks = this.getSelectionStacks(selection);
       if (selectionStacks !== undefined) {
 		var beginTC = new Date();
-        tracecompare(selectionStacks, fgContainer, selected_fct_ctr);
+        this.tracecompare_ = tracecompare(selectionStacks, fgContainer, selected_fct_ctr);
+        this.alreadyRefreshed_ = false;
 		var endTC = new Date();
 	    var diffTC = endTC - beginTC;
 		console.log(diffTC + " ms building Flamegraph");
@@ -221,6 +224,13 @@ found in the LICENSE file.
 	  
       return {"executions":executions, "stacks":stacks};
     },
+    
+    refresh: function() {
+      if (this.tracecompare_ !== undefined && !this.alreadyRefreshed_) {
+        this.tracecompare_.Refresh();
+        this.alreadyRefreshed_ = true;
+      }
+    }
   });
   </script>
 </polymer-element>

@@ -48,7 +48,6 @@ found in the LICENSE file.
   </template>
   <script>
   'use strict';
-  var globalBrushingStateController = undefined;
   
   Polymer({
     created: function() {
@@ -97,7 +96,6 @@ found in the LICENSE file.
     
     set brushingStateController(brushingStateController) {
       this.brushingStateController_ = brushingStateController;
-      globalBrushingStateController = brushingStateController;
       this.updateContents_();
     },
 

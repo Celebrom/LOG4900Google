@@ -76,30 +76,17 @@ found in the LICENSE file.
       }
 
       this.$.content.textContent = '';
-      
-      var left = document.createElement('div');
-      left.setAttribute('id', 'left')
-      this.$.content.appendChild(left);
-      
-      var right = document.createElement('div');
-      right.setAttribute('id', 'right');
-      this.$.content.appendChild(right);
 
       var mesv = document.createElement('tr-ui-a-multi-event-sub-view');
       mesv.brushingStateController = this.brushingStateController_;
       mesv.selection = selection;
-      left.appendChild(mesv);      
-            
-      var fg = document.createElement('tr-ui-a-multi-thread-flame-graph-sub-view');
-      fg.brushingStateController = this.brushingStateController_;
-      fg.selection = selection;
-      left.appendChild(fg);      
+      this.$.content.appendChild(mesv);    
 
       var relatedEvents = document.createElement('tr-ui-a-related-events');
       relatedEvents.setRelatedEvents(selection);
 
       if (relatedEvents.hasRelatedEvents()) {
-        right.appendChild(relatedEvents);
+        this.$.content.appendChild(relatedEvents);
       }
     },
 
