@@ -138,7 +138,11 @@ found in the LICENSE file.
       
       var selectionStacks = this.getSelectionStacks(selection);
       if (selectionStacks !== undefined) {
-        tracecompare(this.getSelectionStacks(selection), fgContainer, selected_fct_ctr);
+		var beginTC = new Date();
+        tracecompare(selectionStacks, fgContainer, selected_fct_ctr);
+		var endTC = new Date();
+	    var diffTC = endTC - beginTC;
+		console.log(diffTC + " ms building Flamegraph");
       }
       else {
         d3.select(this.$.flamegraph_wrapper).style('display', 'none');
@@ -146,6 +150,8 @@ found in the LICENSE file.
     },
     
     getSelectionStacks: function(selection) {
+	  var begin = new Date();
+		
       var metadata     = selection[0].model.metadata;
       var timeShift    = Math.abs(selection[0].model.timestampShiftToZeroAmount_);
       var timestampMin = Math.floor((selection.bounds.min + timeShift) * 1000);
@@ -177,7 +183,7 @@ found in the LICENSE file.
           tidFilteredStacks = tidFilteredStacks.concat(tidStacks);
       }
       if (tidFilteredStacks.length <= 0) return undefined;
-      
+	  	  
       var fullyFilteredStacks = [];
       for (var i = 0; i < tidFilteredStacks.length; ++i) {
         var actualStack = tidFilteredStacks[i];
@@ -186,6 +192,8 @@ found in the LICENSE file.
         
         fullyFilteredStacks.push(actualStack);
       }
+
+	  
       
       var executions = [];
       var samples    = {};
@@ -204,9 +212,13 @@ found in the LICENSE file.
         if (stackLine.parent == 0)
           fullDuration += stackLine.duration;
       }
-      
+
       executions.push({"a":fullDuration, "b":beginTimestamp, "e":1, "f":1, "g":1, "h":1, "samples":samples});
-      
+	    
+	  var end = new Date();
+	  var diff = end - begin;
+	  console.log(diff + " ms filtering");
+	  
       return {"executions":executions, "stacks":stacks};
     },
   });
