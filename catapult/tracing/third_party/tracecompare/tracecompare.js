@@ -360,13 +360,6 @@ function FlameGraph(stacks, leftDimension, clickStackCallback, container)
           color = kNeutralColor;
         return 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')';
       });
-      
-      //TODO: Shouldn't need that, the style display:none should be in place but is not right now
-      /*var invGroups = container.selectAll('g.inv');
-      invGroups.selectAll('text').transition()
-        .text(function(stack) {
-          return ''; 
-        });*/
 
     return true;
   }
@@ -604,7 +597,7 @@ exports.tracecompare = tracecompare;
 function tracecompare(data, container, selected_fct_container) {
   var tracecompare = {
   };
-  
+
   // Formatters.
   var formatNumber = d3.format(',d');
 
