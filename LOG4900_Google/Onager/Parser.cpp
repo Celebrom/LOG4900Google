@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #include "Parser.h"
+#include "JsonWriter.h"
 /*
   Reads the header of the .csv and tells from where the parsing of the events' lines should start
 */
@@ -46,13 +47,13 @@ const char*& Parser::parseHeader(const char*& pos, const char*& end, std::unorde
 }
 
 /* 
-   Reads a line of the .csv file and parses only the chrome event ones, each according to its type.
+   Reads a line of the .csv file and parses only the google chrome events, each according to its type.
+   It also handles  FileIO' events and  Disk' events.
    pos : defines the starting position of the parsing operation
    end : defines the ending position of the parsing operation
-   chromeEventLines: parsed chrome event lines                         
+   path: the path of the file                         
 */
-void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::string>* chromeEventLines)
-{
+void Parser::parseLines(const char*& pos, const char*& end, std::wstring path){
 	std::string tempLine = "";
 	unsigned int AsyncId = 0;
 	/* types de I/O */
@@ -66,6 +67,7 @@ void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::str
 	std::unordered_map<std::string, std::vector<std::vector<std::string>>> tidCompletePhaseStacks;
 	std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> tidFileIoStacks;
 	std::unordered_map<std::string, unsigned int> CSwitchStacks;
+	std::vector<std::string> chromeEventLines;
 
 	while (pos && pos != end)
 	{
@@ -76,6 +78,7 @@ void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::str
 		Utils::tokenize(tempLine, tokens, ",");
 		tokens = Utils::removeSpaces(tokens);
 
+					
 		if (tokens[0] == "Chrome//win:Info")
 		{
 			if (tokens[10] == "\"Complete\"")
@@ -96,7 +99,7 @@ void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::str
 					complete.push_back(duration);
 
 					std::string eventJSON = converter->EventToJSON(complete);
-					chromeEventLines->push_back(eventJSON);
+					chromeEventLines.push_back(eventJSON);
 
 					tidCompletePhaseStacks[tokens[3]].pop_back();
 				}
@@ -108,7 +111,7 @@ void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::str
 			else
 			{
 				std::string eventJSON = converter->EventToJSON(tokens);
-				chromeEventLines->push_back(eventJSON);
+				chromeEventLines.push_back(eventJSON);
 			}
 		}
 		/* Handling of FileIOEvent */
@@ -120,10 +123,10 @@ void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::str
 				if (FileIoStackIter != tidFileIoStacks.end())
 				{   /* We look for the same FileObject */
 					auto FileIoEvent = FileIoStackIter->second.find(tokens[8]);
-					/*IrpPtr compare          FileObject compare              Type compare    */     
+					/*IrpPtr compare            FileObject compare                Type compare         */
 					if (FileIoEvent != FileIoStackIter->second.end() && FileIoEvent->second[7] == tokens[7] && FileIoEvent->second[8] == tokens[8] && FileIoEvent->second[0] == tokens[12])
-					{						
-						chromeEventLines->push_back(converter->IOLineToJSON(tokens, &FileIoEvent->second));
+					{
+						chromeEventLines.push_back(converter->IOLineToJSON(tokens, &FileIoEvent->second));
 						FileIoStackIter->second.erase(tokens[8]);
 					}
 				}
@@ -136,31 +139,34 @@ void Parser::parseLines(const char*& pos, const char*& end, std::vector<std::str
 		/* Handling of DiskEvent */
 		else if ((typesDisk.find(tokens[0]) != typesDisk.end()) && (tokens[2].find("chrome.exe") != std::string::npos))
 		{
-			chromeEventLines->push_back(converter->DiskLineToJSON(tokens));
+			chromeEventLines.push_back(converter->DiskLineToJSON(tokens));
 		}
 		else if (tokens[0] == "CSwitch")
-		{   /* New Process */
+		{   // New Process
 			if (tokens[2].find("chrome.exe") != std::string::npos)
 			{
 				CSwitchStacks[tokens[3]] = AsyncId++;
-				chromeEventLines->push_back(converter->CSwitchToJson(tokens, "New Process", AsyncId - 1));
+				chromeEventLines.push_back(converter->CSwitchToJson(tokens, "New Process", AsyncId - 1));
 			}
-			/* Old Process */
+			// Old Process
 			if (tokens[8].find("chrome.exe") != std::string::npos)
 			{
-				chromeEventLines->push_back(converter->CSwitchToJson(tokens, "Old Process", CSwitchStacks[tokens[9]]));
+				chromeEventLines.push_back(converter->CSwitchToJson(tokens, "Old Process", CSwitchStacks[tokens[9]]));
 			}
 		}
+
 		pos = ++newPos;
+
+		/* Buffer of 100000 lines of chromeEvents OR end of file */
+		if (chromeEventLines.size() >= 100000 || pos == end)
+		{
+			JsonWriter::writeChromeEvents(path, chromeEventLines);
+			chromeEventLines.clear();
+		}
 	}
 }
 
-/* 
-   Reads a line of the .csv file and parses only the stacks.
-   system_history : defines the starting position of the parsing operation
-   completedFunctions: Contains the history of a system for the duration of traces         
-*/
-void Parser::parseStacks(const SystemHistory& system_history, std::unordered_map<base::Tid, std::vector<std::string>>* completedFunctions)
+void Parser::parseStacks(const SystemHistory& system_history, std::wstring path)
 {
 	/* Traverse all threads. */
 	for (auto threads_it = system_history.threads_begin(); threads_it != system_history.threads_end(); ++threads_it)
@@ -171,17 +177,28 @@ void Parser::parseStacks(const SystemHistory& system_history, std::unordered_map
 		auto& threadStacks = threads_it->second.Stacks();
 		auto  stacksEnd = threadStacks.IteratorEnd();
 
-		LiveStack liveStack;
-		std::vector<std::string> threadCompletedFunctions;
-		/* Traverse all stacks comparing first and second to see what functions ended */
-		for (auto it = threadStacks.IteratorFromTimestamp(0); it != stacksEnd; ++it)
+		/* In bracket to safely remove threadCompletedFunctions from memory */
 		{
+			LiveStack liveStack;
+			std::vector<std::string> threadCompletedFunctions;
+			std::unordered_map<base::Tid, std::vector<std::string>> completedFunctions;
+
+			/* Traverse all stacks comparing first and second to see what functions ended */
+			for (auto it = threadStacks.IteratorFromTimestamp(0); it != stacksEnd; ++it)
+			{
 				std::vector<std::string> actualCompletedFunctions = liveStack.Update((*it));
 				threadCompletedFunctions.insert(std::end(threadCompletedFunctions), std::begin(actualCompletedFunctions), std::end(actualCompletedFunctions));
-		}
-		std::vector<std::string> finalCompletedFunctions = liveStack.GetFinalLines();
-		threadCompletedFunctions.insert(std::end(threadCompletedFunctions), std::begin(finalCompletedFunctions), std::end(finalCompletedFunctions));
+			}
+			std::vector<std::string> finalCompletedFunctions = liveStack.GetFinalLines();
+			threadCompletedFunctions.insert(std::end(threadCompletedFunctions), std::begin(finalCompletedFunctions), std::end(finalCompletedFunctions));
 
-		(*completedFunctions)[(*threads_it).first] = threadCompletedFunctions;
+				/* Traverse all stacks comparing first and second to see what functions ended */
+			completedFunctions[(*threads_it).first] = threadCompletedFunctions;
+
+			if (threads_it != std::prev(system_history.threads_end(), 1))
+				JsonWriter::writeStacks(path, completedFunctions, false);
+			else
+				JsonWriter::writeStacks(path, completedFunctions, true);
+		}
 	}
 }

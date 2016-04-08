@@ -28,7 +28,7 @@ std::vector<std::string> Utils::removeSpaces(std::vector<std::string> tokens)
 }
 
 /* 
-  trim from start 
+  trims from start 
 */
 std::string& Utils::ltrim(std::string &s) {
 	s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
@@ -36,7 +36,7 @@ std::string& Utils::ltrim(std::string &s) {
 }
 
 /* 
-  trim from end 
+  trims from end 
 */
 std::string& Utils::rtrim(std::string &s) {
 	s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
@@ -44,14 +44,14 @@ std::string& Utils::rtrim(std::string &s) {
 }
 
 /* 
-  trim from both ends 
+  trims from both ends 
 */
 std::string& Utils::trim(std::string &s) {
 	return ltrim(rtrim(s));
 }
 
 /*
-   remove the surplus of "" and switch the double backslashes to slash
+   removes the surplus of "" and switch the double backslashes to slash
 */
 void Utils::formatFileName(std::string *FileName)
 {

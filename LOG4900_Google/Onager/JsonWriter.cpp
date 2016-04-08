@@ -16,16 +16,26 @@ limitations under the License.
 
 #include "JsonWriter.h"
 
-/* 
-  Puts the chrome event lines and the stack event ones, resulting from the parsing
-  in the same final JSON file. 
-  path: describes the name and the path of the destination file 
-*/
-void JsonWriter::write(std::wstring path, const std::vector<std::string>& chromeEventLines, const std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines)
-{
-	std::ofstream outputFile(path);
+bool JsonWriter::firstEvent = true;
 
-	outputFile << "{\"traceEvents\":[";
+/*
+  Puts the chrome event lines and the stack event ones, resulting from the parsing
+  in the same final JSON file.
+  path: describes the name and the path of the destination file
+  chromeEventLines: is the data structure from where the parsed lines are taken
+*/
+void JsonWriter::writeChromeEvents(std::wstring path, const std::vector<std::string>& chromeEventLines)
+{
+	std::ofstream outputFile;
+	if (firstEvent)
+	{
+		outputFile.open(path);
+		firstEvent = false;
+		outputFile << "{\"traceEvents\":[";
+	}
+	else
+		outputFile.open(path, std::ios_base::app);
+
 	for (unsigned int i = 0; i < chromeEventLines.size(); ++i)
 	{
 		if (i < chromeEventLines.size() - 1)
@@ -33,7 +43,20 @@ void JsonWriter::write(std::wstring path, const std::vector<std::string>& chrome
 		else if (i == chromeEventLines.size() - 1)
 			outputFile << chromeEventLines[i] << "\n";
 	}
-	outputFile << "],\n\"stacks\":{";
+	outputFile.close();
+}
+
+bool JsonWriter::firstStack = true;
+void JsonWriter::writeStacks(std::wstring path, const std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines, bool lastStack)
+{
+	std::ofstream outputFile(path, std::ios_base::app);
+
+	if (firstStack)
+	{
+		outputFile << "],\n\"stacks\":{";
+		firstStack = false;
+	}
+
 	for (auto& it = stackEventLines.begin(); it != stackEventLines.end(); ++it)
 	{
 		outputFile << "\"" << (*it).first << "\":[";
@@ -45,12 +68,11 @@ void JsonWriter::write(std::wstring path, const std::vector<std::string>& chrome
 				outputFile << (*it).second[i] << "\n";
 		}
 
-		if (it != --stackEventLines.end())
+		if (!lastStack)
 			outputFile << "],\n";
 		else
-			outputFile << "]";
+			outputFile << "]}}";
 	}
-	outputFile << "}}";
 
 	outputFile.close();
 }

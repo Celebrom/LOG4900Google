@@ -194,10 +194,6 @@ function FlameGraph(stacks, leftDimension, clickStackCallback, container)
   var bottomStacks = new Array();
   var bottomStacksBackup;
 
-  // Flame graph container.
-  //var container = d3.selectAll('#flamegraph');
-  console.log(container);
-
   // Indicates whether a view refresh has been scheduled.
   var refreshScheduled = false;
 
@@ -364,6 +360,13 @@ function FlameGraph(stacks, leftDimension, clickStackCallback, container)
           color = kNeutralColor;
         return 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')';
       });
+      
+      //TODO: Shouldn't need that, the style display:none should be in place but is not right now
+      /*var invGroups = container.selectAll('g.inv');
+      invGroups.selectAll('text').transition()
+        .text(function(stack) {
+          return ''; 
+        });*/
 
     return true;
   }
@@ -556,6 +559,15 @@ function FlameGraph(stacks, leftDimension, clickStackCallback, container)
     bottomStacks = bottomStacksBackup;
     FocusInternal(0);
   }
+  
+  //TODO: Ugly hack to make sure the text are rendered before getting their lengths
+  setTimeout(function() {
+      container.selectAll('text').each(function(stack) {
+         computedTextLength[stack.id] = this.getComputedTextLength(); 
+      });
+      
+      UpdateCounts(rightCountsBackup, true);
+    }, 2000);
 
   return FlameGraph;
 }
@@ -591,10 +603,10 @@ function Table(tbody, dimension)
 }
 exports.tracecompare = tracecompare;
 
-function tracecompare(data, container) {
+function tracecompare(data, container, selected_fct_container) {
   var tracecompare = {
   };
-
+  
   // Formatters.
   var formatNumber = d3.format(',d');
 
@@ -795,9 +807,9 @@ function tracecompare(data, container) {
   });
 
   // Create the unfocus button.
-  d3.selectAll('#unfocus').on('click', function() {
+  selected_fct_container.selectAll('#unfocus').on('click', function() {
     flameGraph.Unfocus();
-    d3.selectAll('#unfocus').style('display', 'none');
+    selected_fct_container.selectAll('#unfocus').style('display', 'none');
   });
 
   // Resize flame graph when window is resized.
@@ -1049,16 +1061,17 @@ function tracecompare(data, container) {
   // @param duration The duration of this callstack.
   function ClickStackCallback(stackId, duration)
   {
-    d3.selectAll('#selected-function').style('display', null);
-    d3.selectAll('#selected-function-name').text(
+    selected_fct_container.style('display', null);
+    selected_fct_container.selectAll('#selected-function-name').text(
       stacks[stackId].f + ' - ' + duration + ' μs');
-    d3.selectAll('#selected-function-filter').on('click', function() {
+    selected_fct_container.selectAll('#selected-function-filter').on('click', function() {
       CreateStackDimension(stackId, 'linear');
     });
-    d3.selectAll('#selected-function-focus').on('click', function() {
+    selected_fct_container.selectAll('#selected-function-focus').on('click', function() {
       flameGraph.FocusOnStack(stackId);
-      d3.selectAll('#unfocus').style('display', null);
+      selected_fct_container.selectAll('#unfocus').style('display', null);
     });
+	
   }
 
   // Renders the specified chart.

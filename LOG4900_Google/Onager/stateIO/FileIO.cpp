@@ -34,7 +34,7 @@ limitations under the License.
 /* For all possible types of a given FileIO, returnJson returns a line that starts with:
    {"name":"[FileIoEvent]Filename\", ... */
 
-/* 1- FileIOCreateState*/
+/* 1- FileIOCreateState */
 FileIOCreateState::FileIOCreateState(){}
 FileIOCreateState::~FileIOCreateState(){}
 std::string FileIOCreateState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd){
@@ -45,7 +45,7 @@ std::string FileIOCreateState::returnJson(std::vector<std::string>* FileIoEvent,
 			commonJson(*FileIoEvent, OpEnd) + "}}";
 }
 
-/*2- FileIOCleanUpState*/
+/* 2- FileIOCleanUpState */
 FileIOCleanUpState::FileIOCleanUpState(){}
 FileIOCleanUpState::~FileIOCleanUpState(){}
 std::string FileIOCleanUpState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd){
@@ -90,7 +90,7 @@ std::string FileIODirEnumState::returnJson(std::vector<std::string>* FileIoEvent
 			ifNotEmpty("Size", (*FileIoEvent)[10]) + "}}";
 }
 
-/*6- FileIODirNotifyState*/
+/* 6- FileIODirNotifyState */
 FileIODirNotifyState::FileIODirNotifyState(){}
 FileIODirNotifyState::~FileIODirNotifyState(){}
 std::string FileIODirNotifyState::returnJson(std::vector<std::string>* FileIoEvent, const std::vector<std::string>& OpEnd) {

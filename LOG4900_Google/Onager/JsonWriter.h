@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+
 #ifndef LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_JSONWRITER_H
 #define LOG4900GOOGLEJO_LOG4900GOOGLE_ONAGER_JSONWRITER_H
 
@@ -27,8 +28,11 @@ class JsonWriter
 {
 public:
 	JsonWriter(){};
+	static void writeChromeEvents(std::wstring path, const std::vector<std::string>& chromeEventLines);
+	static void writeStacks(std::wstring path,const std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines, bool lastStack);
 
-	static void write(std::wstring path, const std::vector<std::string>& chromeEventLines, const std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines);
+private:
+	static bool firstEvent;
+	static bool firstStack;
 };
-
 #endif /* LOG4900GOOGLEJO_LOG4900GOOLE_ONAGER_JSONWRITER_H */
