@@ -360,13 +360,6 @@ function FlameGraph(stacks, leftDimension, clickStackCallback, container)
           color = kNeutralColor;
         return 'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')';
       });
-      
-      //TODO: Shouldn't need that, the style display:none should be in place but is not right now
-      /*var invGroups = container.selectAll('g.inv');
-      invGroups.selectAll('text').transition()
-        .text(function(stack) {
-          return ''; 
-        });*/
 
     return true;
   }
@@ -401,7 +394,7 @@ function FlameGraph(stacks, leftDimension, clickStackCallback, container)
       var multiplier = scaleFactor / rightCounts.total;
       ForEachProperty(stacks, function(stackId) {
         widths[stackId] = Math.floor(
-            rightCounts.samples[stackId] * multiplier * 3.095/5);
+            rightCounts.samples[stackId] * multiplier);
       });
 
       // Compute the x of each stack.
@@ -560,14 +553,12 @@ function FlameGraph(stacks, leftDimension, clickStackCallback, container)
     FocusInternal(0);
   }
   
-  //TODO: Ugly hack to make sure the text are rendered before getting their lengths
-  setTimeout(function() {
+  FlameGraph.Refresh = function() {
       container.selectAll('text').each(function(stack) {
          computedTextLength[stack.id] = this.getComputedTextLength(); 
       });
-      
       UpdateCounts(rightCountsBackup, true);
-    }, 2000);
+  };
 
   return FlameGraph;
 }
@@ -606,7 +597,7 @@ exports.tracecompare = tracecompare;
 function tracecompare(data, container, selected_fct_container) {
   var tracecompare = {
   };
-  
+
   // Formatters.
   var formatNumber = d3.format(',d');
 
@@ -800,6 +791,8 @@ function tracecompare(data, container, selected_fct_container) {
   // Create the flame graph.
   flameGraph = FlameGraph(
       data.stacks, dummyDimensions[0], ClickStackCallback, container);
+      
+  tracecompare.Refresh = flameGraph.Refresh;
 
     // Create the flame graph zoom button.
   d3.selectAll('#zoom').on('click', function() {

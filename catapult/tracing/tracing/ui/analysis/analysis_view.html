@@ -21,6 +21,7 @@ found in the LICENSE file.
 <link rel="import" href="/tracing/ui/analysis/multi_object_sub_view.html">
 <link rel="import" href="/tracing/ui/analysis/multi_power_sample_sub_view.html">
 <link rel="import" href="/tracing/ui/analysis/multi_sample_sub_view.html">
+<link rel="import" href="/tracing/ui/analysis/multi_thread_flame_graph_sub_view.html">
 <link rel="import" href="/tracing/ui/analysis/multi_thread_slice_sub_view.html">
 <link rel="import"
       href="/tracing/ui/analysis/multi_thread_time_slice_sub_view.html">
@@ -174,9 +175,17 @@ using custom elements specialized for different event types.
           // Store the eventTypeName for future tab restoration.
           subView._eventTypeName = eventTypeName;
           this.tabView_.appendChild(subView);
-          
-          subView.brushingStateController = this.brushingStateController_;
+
           subView.selection = subSelection;
+        }
+        
+        var selectedSlices = eventsByBaseTypeName['slice'];
+        if (selectedSlices !== undefined) {
+          var fg = document.createElement('tr-ui-a-multi-thread-flame-graph-sub-view');
+          fg.tabLabel = 'Flame Graph';
+          fg.brushingStateController = this.brushingStateController_;
+          fg.selection = selectedSlices;
+          this.tabView_.appendChild(fg);
         }
 
         // Restore the tab type that was previously selected. First try by tag
@@ -241,6 +250,7 @@ using custom elements specialized for different event types.
         var brushingStateController = this.brushingStateController_;
         if (this.tabView_.selectedTab) {
           var selectedTab = this.tabView_.selectedTab;
+          selectedTab.refresh();
           this.tallMode = selectedTab.requiresTallView;
           if (brushingStateController) {
             var rlth = selectedTab.relatedEventsToHighlight;
