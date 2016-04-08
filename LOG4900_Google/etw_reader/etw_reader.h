@@ -37,6 +37,7 @@ class ETWReader {
     Line();
 
     const std::string& type() const { return type_; }
+	std::unordered_map<std::string, std::string> getValues() const { return values_; };
 
     bool GetFieldAsString(const std::string& name, std::string* value) const;
     bool GetFieldAsULong(const std::string& name, uint64_t* value) const;
@@ -59,6 +60,8 @@ class ETWReader {
     bool operator==(const Iterator& other) const;
     bool operator!=(const Iterator& other) const;
     Iterator& operator++();
+
+	std::unordered_map<std::string, std::vector<std::string>> getHeader() const { return header_; };
 
    private:
     friend class etw_insights::ETWReader;

@@ -14,17 +14,43 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
-#include <iostream>
-#include <unordered_map>
-#include <unordered_set>
-#include "Utils.h"
-#include "Converter.h"
-#include "LiveStack.h"
-#include "../etw_reader/system_history.h"
-
-class Parser
+enum class IO
 {
-public:		
-	static void parseStacks(SystemHistory& system_history, std::wstring path, std::ofstream& outputFile);
+	type = 0,
+	process = 1,
+	timestamp = 2,
+	TID = 4,
+	IrpPtr = 7,
+	FileObj = 8
+};
+
+enum class opEnd
+{
+	type = 0,
+	process = 1,
+	timestamp = 2,
+	TID = 4,
+	IrpPtr = 7,
+	FileObj = 8,
+	IoType = 12
+};
+
+enum class disk
+{
+	process = 1
+};
+
+enum class cSwitch
+{
+	newProcess = 2,
+	newTID = 3,
+	oldProcess = 4,
+	oldTID = 9
+};
+
+enum class Cevent
+{
+	TS = 2,
+	TID = 4,
+	phase = 10
 };

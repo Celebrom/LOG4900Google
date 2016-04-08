@@ -26,7 +26,7 @@ namespace etw_insights {
 	// @param trace_path Path to a .etl trace file.
 	// @param system_history The system history to fill.
 	// @returns true if the history was filled successfully, false otherwise.
-	bool GenerateHistoryFromTrace(const std::wstring& trace_path,
+	bool WriteHistoryFromTrace(const std::wstring& trace_path,
 		SystemHistory* system_history);
 
 }  // namespace etw_insights

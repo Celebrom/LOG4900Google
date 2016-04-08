@@ -26,10 +26,6 @@ class JsonWriter
 public:
 	JsonWriter(){};
 
-	static void writeChromeEvents(std::wstring path, std::vector<std::string>& chromeEventLines);
-	static void writeStacks(std::wstring path, std::unordered_map<base::Tid, std::vector<std::string>>& stackEventLines, bool lastStack);
-
-private:
-	static bool firstEvent;
-	static bool firstStack;
+	static void writeChromeEvents(std::wstring path, std::ofstream& outputFile, std::vector<std::string>& chromeEventLines);
+	static void writeStacks(std::wstring path, std::ofstream& outputFile, std::vector<std::string> threadCompletedFunctions, base::Tid tid, bool first);
 };

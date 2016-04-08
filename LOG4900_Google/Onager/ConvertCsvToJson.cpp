@@ -24,6 +24,13 @@ limitations under the License.
 #include "base/string_utils.h"
 #include "base/types.h"
 #include "etw_reader/etw_reader.h"
+#include <iostream>
+#include <locale>
+#include "ConvertCsvToJson.h"
+#include "Converter.h"
+#include "Enum.h"
+#include "JsonWriter.h"
+#include "Parser.h"
 
 namespace etw_insights {
 
@@ -31,6 +38,11 @@ namespace etw_insights {
 
 		// [Off-CPU] stack frame.
 		const char kOffCpuStackFrame[] = "[Off-CPU]";
+
+		// Disk event
+		const char DiskRead[] = "DiskRead";
+		const char DiskWrite[] = "DiskWrite";
+		const char DiskFlush[] = "DiskFlush";
 
 		// Generic event fields.
 		const char kTimestampField[] = "TimeStamp";
@@ -108,6 +120,10 @@ namespace etw_insights {
 		};
 
 		typedef std::unordered_map<base::Tid, ThreadState> ThreadStates;
+
+		Converter* converter = new Converter(); 
+		std::vector<std::string> chromeEventLines;
+		std::unordered_map<std::string, std::vector<std::vector<std::string>>> tidCompletePhaseStacks;
 
 		Stack ConcatenateStacks(std::initializer_list<Stack> stacks) {
 			Stack stack_res;
@@ -227,12 +243,32 @@ namespace etw_insights {
 			}
 		}
 
+		std::unordered_map<std::string, unsigned int> CSwitchStacks;
+		unsigned int AsyncId = 0;
 		void HandleCSwitchEvent(base::Timestamp ts,
 			const ETWReader::Line& event,
 			ThreadStates* thread_states) {
 			base::Tid new_tid = 0;
 			base::Tid old_tid = 0;
 			base::Timestamp time_since_last = 0;
+
+			std::vector<std::string> tokens;
+			tokens.push_back(event.type());
+			for (auto e : event.getValues())
+				tokens.push_back(e.second);
+
+			// New Process
+			if (tokens[int(cSwitch::newProcess)].find("chrome.exe") != std::string::npos)
+			{
+				CSwitchStacks[tokens[int(cSwitch::newTID)]] = AsyncId++;
+				chromeEventLines.push_back(converter->CSwitchToJson(tokens, "New Process", AsyncId - 1));
+			}
+			// Old Process
+			if (tokens[int(cSwitch::oldProcess)].find("chrome.exe") != std::string::npos)
+			{
+				chromeEventLines.push_back(converter->CSwitchToJson(tokens, "Old Process", CSwitchStacks[tokens[int(cSwitch::oldTID)]]));
+			}
+
 			if (!event.GetFieldAsULong(kCSwitchNewTidField, &new_tid) ||
 				!event.GetFieldAsULong(kCSwitchOldTidField, &old_tid) ||
 				!event.GetFieldAsULong(kCSwitchTimeSinceLastField, &time_since_last)) {
@@ -295,17 +331,29 @@ namespace etw_insights {
 			thread_history.set_end_ts(ts);
 		}
 
+		std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> tidFileIoStacks;//////////////////////////////////////
 		void HandleFileIoEvent(base::Timestamp ts,
 			const ETWReader::Line& event,
 			ThreadStates* thread_states) {
 			base::Tid thread_id = 0;
 			std::string file_name;
+
+			//////
+			std::vector<std::string> tokens;
+			tokens.push_back(event.type());
+			for (auto e : event.getValues())
+				tokens.push_back(e.second);
+
+			if (tokens[int(IO::process)].find("chrome.exe") != std::string::npos)
+				tidFileIoStacks[tokens[int(IO::TID)]][tokens[int(IO::FileObj)]] = tokens;
+			//////
+
 			if (!event.GetFieldAsULong(kFileIoLoggingThreadIdField, &thread_id) ||
 				!event.GetFieldAsString(kFileIoFileNameField, &file_name)) {
 				LOG(ERROR) << "Missing some fields in FileIo event at ts=" << ts << ".";
 				return;
 			}
-
+			
 			std::string event_str(std::string("[") + event.type() + ": " + file_name +
 				"]");
 			auto& thread_state = (*thread_states)[thread_id];
@@ -317,6 +365,31 @@ namespace etw_insights {
 			ThreadStates* thread_states) {
 			base::Tid thread_id = 0;
 			std::string file_name;
+
+			/////
+			std::vector<std::string> tokens;
+			tokens.push_back(event.type());
+			for (auto e : event.getValues())
+				tokens.push_back(e.second);
+
+			if (tokens[int(opEnd::process)].find("chrome.exe") != std::string::npos)
+			{
+				// We look for the same Tid
+				auto FileIoStackIter = tidFileIoStacks.find(tokens[int(opEnd::TID)]);
+				if (FileIoStackIter != tidFileIoStacks.end())
+				{   //We look for the same FileObject
+					auto FileIoEvent = FileIoStackIter->second.find(tokens[int(opEnd::FileObj)]);
+					//IrpPtr compare          //FileObject compare              //Type compare         
+					if (FileIoEvent != FileIoStackIter->second.end() && FileIoEvent->second[int(IO::IrpPtr)] == tokens[int(opEnd::IrpPtr)] && 
+						FileIoEvent->second[int(IO::FileObj)] == tokens[int(opEnd::FileObj)] && FileIoEvent->second[int(IO::type)] == tokens[int(opEnd::IoType)])
+					{
+						chromeEventLines.push_back(converter->IOLineToJSON(FileIoEvent->second, tokens));
+						FileIoStackIter->second.erase(tokens[int(opEnd::FileObj)]);
+					}
+				}
+			}
+			/////
+
 			if (!event.GetFieldAsULong(kFileIoLoggingThreadIdField, &thread_id) ||
 				!event.GetFieldAsString(kFileIoFileNameField, &file_name)) {
 				LOG(ERROR) << "Missing some fields in FileIoOpEnd event at ts=" << ts
@@ -334,6 +407,43 @@ namespace etw_insights {
 			bool* should_stop) {
 			std::string name;
 			std::string phase;
+
+			/////
+			std::vector<std::string> tokens;
+			tokens.push_back(event.type());
+			for (auto e : event.getValues())
+				tokens.push_back(e.second);
+
+			if (tokens[int(Cevent::phase)] == "\"Complete\"")
+			{
+				tidCompletePhaseStacks[tokens[int(Cevent::TID)]].push_back(tokens);
+			}
+			else if (tokens[10] == "\"Complete End\"")
+			{
+				auto completeStackIter = tidCompletePhaseStacks.find(tokens[int(Cevent::TID)]);
+				if (completeStackIter != tidCompletePhaseStacks.end() && 
+					tidCompletePhaseStacks[tokens[int(Cevent::TID)]].size() > 0)
+				{
+					std::vector<std::vector<std::string>> completeStack = (*completeStackIter).second;
+					std::vector<std::string> complete = completeStack.back();
+
+					int completeTS = std::stoi(complete[int(Cevent::TS)]);
+					int completeEndTS = std::stoi(tokens[int(Cevent::TS)]);
+					std::string duration = std::to_string(completeEndTS - completeTS);
+					complete.push_back(duration);
+
+					std::string eventJSON = converter->EventToJSON(complete);
+					chromeEventLines.push_back(eventJSON);
+
+					tidCompletePhaseStacks[tokens[int(Cevent::TID)]].pop_back();
+				}
+				else
+				{
+					std::cout << "Something wrong happened: Complete End without Complete" << std::endl;
+				}
+			}
+			/////
+
 			if (!event.GetFieldAsString(kChromeNameField, &name) ||
 				!event.GetFieldAsString(kChromePhaseField, &phase)) {
 				LOG(ERROR) << "Missing some fields in Chrome event at ts=" << ts << ".";
@@ -346,9 +456,21 @@ namespace etw_insights {
 			}
 		}
 
+		void HandleDiskEvent(base::Timestamp ts,
+			const ETWReader::Line& event)
+		{
+			std::vector<std::string> tokens;
+			tokens.push_back(event.type());
+			for (auto e : event.getValues())
+				tokens.push_back(e.second);
+
+			if (tokens[int(disk::process)].find("chrome.exe") != std::string::npos)
+				chromeEventLines.push_back(converter->DiskLineToJSON(tokens));
+		}
+
 	}  // namespace
 
-	bool GenerateHistoryFromTrace(const std::wstring& trace_path,
+	bool WriteHistoryFromTrace(const std::wstring& trace_path,
 		SystemHistory* system_history) {
 		// Keeps track of the current state of each thread.
 		std::unordered_map<base::Tid, ThreadState> thread_states;
@@ -360,6 +482,11 @@ namespace etw_insights {
 
 		// Tell the user what we are doing.
 		LOG(INFO) << "Reading trace events." << std::endl;
+
+		std::wstring json_path = trace_path + L".csv.json";
+		std::ofstream outputFile;
+		outputFile.open(json_path);
+		outputFile << "{\"traceEvents\":[";
 
 		// Traverse all the events of the CSV trace.
 		for (auto it = etw_reader.begin(); it != etw_reader.end(); ++it) {
@@ -400,6 +527,19 @@ namespace etw_insights {
 				HandleFileIoOpEndEvent(ts, *it, &thread_states);
 			else if (it->type() == kChromeType)
 				HandleChromeEvent(ts, *it, system_history, &should_stop);
+			else if (it->type() == DiskFlush ||
+				it->type() == DiskRead ||
+				it->type() == DiskWrite)
+				HandleDiskEvent(ts, *it);
+
+			// Write Chrome Events to Json
+			if (chromeEventLines.size() >= 100000)
+			{
+				JsonWriter::writeChromeEvents(json_path, outputFile, chromeEventLines);
+				chromeEventLines.clear();
+			}
+
+			// Write Chrome Events to Json
 
 			// Remember the last event types encountered on each thread.
 			base::Tid tid = 0;
@@ -425,6 +565,12 @@ namespace etw_insights {
 			if (should_stop)
 				break;
 		}
+
+		JsonWriter::writeChromeEvents(trace_path, outputFile, chromeEventLines);
+		outputFile << "]";
+		outputFile << ",\n\"stacks\":{";
+		Parser::parseStacks(*system_history, json_path, outputFile);
+		outputFile << "}}";
 
 		return true;
 	}

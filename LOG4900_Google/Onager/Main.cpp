@@ -28,7 +28,7 @@ limitations under the License.
 #include "../base/command_line.h"
 #include "../etw_reader/etw_reader.h"
 #include <boost/iostreams/device/mapped_file.hpp>
-#include <etw_reader/generate_history_from_trace.h>
+#include "ConvertCsvToJson.h"
 
 Timer timer;
 Parser parser;
@@ -51,30 +51,14 @@ void convertETLToCSV(std::wstring path)
 
 // TODO: We should only need one of the path by using the same method for the Chrome Event and Flame graph
 void convertCSVToJSON(std::wstring etl_path, std::wstring csv_path)
-{
-	std::wstring json_path = csv_path + L".json";
-	boost::iostreams::mapped_file mmap = MemoryMapper::mapFileToMem(csv_path);
-	auto pos = mmap.const_data();
-	auto end = pos + mmap.size();
-
-	std::unordered_map<std::string, std::vector<std::string>> header;
-	const char*& posBeginLines = parser.parseHeader(pos, end, header);
-	if (verbose) 
-		timer.showElapsedTime("Temps de fin de parsing du header");
-
-	parser.parseLines(posBeginLines, end, json_path);
-	if (verbose)
-		timer.showElapsedTime("Temps de fin d'ecriture des ChromeEvents");
-		
+{		
 	SystemHistory system_history;
-	if (!GenerateHistoryFromTrace(etl_path, &system_history)) {
+	if (!WriteHistoryFromTrace(etl_path, &system_history)) {
 	LOG(ERROR) << "Error while generating history from trace.";
 	return;
 	}
 
-	parser.parseStacks(system_history, json_path);
-	if (verbose)
-		timer.showElapsedTime("Temps de fin d'ecriture des Stacks");
+	if (verbose) timer.showElapsedTime("Temps de fin d'ecriture des Stacks");
 }
 
 void convertETLToJSON(std::wstring etl_path)

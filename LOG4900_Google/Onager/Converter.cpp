@@ -31,10 +31,10 @@ std::string Converter::DiskLineToJSON(std::vector<std::string>& diskEndEvent)
 				Utils::formatFileName(diskEndEvent[15]);
 
 				jsonLine = "{\"name\":\"[" + diskEndEvent[0] + "]" + diskEndEvent[15] + "\"," +
-						"\"cat\":\"Disk\",\"ph\":\"X\",\"ts\":" + diskEndEvent[1] + "," +
-						"\"dur\":" + diskEndEvent[8] + "," +
-						"\"pid\":" + Utils::extractPidFromString(diskEndEvent[2]) + "," +
-						"\"tid\":" + diskEndEvent[3] + "," +
+						"\"cat\":\"Disk\",\"ph\":\"X\",\"ts\":" + diskEndEvent[2] + "," +
+						"\"dur\":" + diskEndEvent[9] + "," +
+						"\"pid\":" + Utils::extractPidFromString(diskEndEvent[1]) + "," +
+						"\"tid\":" + diskEndEvent[5] + "," +
 						"\"args\":{";
 
 				if (diskEndEvent[12] != "")
@@ -51,10 +51,10 @@ std::string Converter::DiskLineToJSON(std::vector<std::string>& diskEndEvent)
 		else if (diskEndEvent[0] == "DiskFlush")
 		{
 				jsonLine = "{\"name\":\"[" + diskEndEvent[0] + "]\"," +
-						"\"cat\":\"Disk\",\"ph\":\"X\",\"ts\":" + diskEndEvent[1] + "," +
-						"\"dur\":" + diskEndEvent[6] + "," +
-						"\"pid\":" + Utils::extractPidFromString(diskEndEvent[2]) + "," +
-						"\"tid\":" + diskEndEvent[3] + "," +
+						"\"cat\":\"Disk\",\"ph\":\"X\",\"ts\":" + diskEndEvent[2] + "," +
+						"\"dur\":" + diskEndEvent[8] + "," +
+						"\"pid\":" + Utils::extractPidFromString(diskEndEvent[1]) + "," +
+						"\"tid\":" + diskEndEvent[4] + "," +
 						"\"args\":{";
 
 				if (diskEndEvent[10] != "")
@@ -68,7 +68,6 @@ std::string Converter::DiskLineToJSON(std::vector<std::string>& diskEndEvent)
 
 std::string Converter::EventToJSON(std::vector<std::string>& line)
 {
-		//dirty code
 		std::string name = "";
 		std::string cat = "";
 		std::string phase = "";
@@ -77,26 +76,25 @@ std::string Converter::EventToJSON(std::vector<std::string>& line)
 		std::string ts = "";
 		std::string args = "\"args\":{";
 		std::string dur = "";
-
-		//dirty code
 		std::string event = "";
 		std::string outputText = "";
 		std::string eventType = "";
 		std::vector<std::string> eventInfo = std::vector < std::string >();
+
 		for (unsigned int i = 0; i < line.size(); i++)
 		{
 				switch (i)
 				{
 				case 1:
-						ts += "\"ts\":" + line[i] + ",";
-						break;
-				case 2:
 						pid += "\"pid\":" + Utils::extractPidFromString(line[i]) + ",";
 						break;
-				case 3:
+				case 2:
+						ts += "\"ts\":" + line[i] + ",";
+						break;
+				case 4:
 						tid += "\"tid\":" + line[i] + ",";
 						break;
-				case 9:
+				case 8:
 						line[i].erase(std::remove(line[i].begin(), line[i].end(), '"'), line[i].end());
 						if (line[i][0] == ' ')
 								line[i].erase(std::remove(line[i].begin(), line[i].begin() + 1, ' '), line[i].begin() + 1);
@@ -109,17 +107,12 @@ std::string Converter::EventToJSON(std::vector<std::string>& line)
 				case 13:
 				case 15:
 						line[i].erase(std::remove(line[i].begin(), line[i].end(), '"'), line[i].end());
-						if (line[1] == "3672358")
-								int banane = 0;
 						if (line[i][0] == ' ')
 								line[i].erase(std::remove(line[i].begin(), line[i].begin() + 1, ' '), line[i].begin() + 1);
 						if (line[i] != "" && line[i + 1] != "\"\"" && line[i + 1] != "\"\"\"\"")
 								args += "\"" + line[i] + "\":";
 						if (line[i] != "" && args != "\"args\":{" && line[i + 1] == "\"\"")
-						{
 								args.erase(args.end() - 1, args.end());
-								//args += "," + line[i] + "\"";
-						}
 						break;
 				case 12:
 				case 14:
@@ -129,12 +122,10 @@ std::string Converter::EventToJSON(std::vector<std::string>& line)
 								line[i].erase(std::remove(line[i].begin(), line[i].begin() + 1, ' '), line[i].begin() + 1);
 						if (line[i] != "" && line[i + 1] != "\"\"")
 						{
-								if (line[11] == "url")
-										int l = 0;
-								if (i != 16)
-										args += "\"" + line[i] + "\",";
-								else
-										args += "\"" + line[i] + "\"";
+							if (i != 16)
+									args += "\"" + line[i] + "\",";
+							else
+									args += "\"" + line[i] + "\"";
 						}
 						if (line[i] != "" && line[i + 1] == "\"\"")
 								args += "\"" + line[i] + "\"";
