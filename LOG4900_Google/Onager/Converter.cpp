@@ -145,7 +145,7 @@ std::string Converter::CSwitchToJson(std::vector<std::string>& CSwitchEvent, std
 
 		if (type == "New Process")
 		{
-			JsonLine = "{\"name\":\"On_CPU\"(" + CSwitchEvent[3] + ")" + "," + 
+			JsonLine = "{\"name\":\"On_CPU(" + CSwitchEvent[3] + ")\"" + "," + 
 						"\"pid\":" + Utils::extractPidFromString(CSwitchEvent[2]) + "," +
 						"\"tid\":" + CSwitchEvent[3] + "," +
 						"\"ts\":" + CSwitchEvent[1] + "," +
@@ -156,7 +156,7 @@ std::string Converter::CSwitchToJson(std::vector<std::string>& CSwitchEvent, std
 
 		else if (type == "Old Process")
 		{
-			JsonLine = "{\"name\":\"On_CPU\"(" + CSwitchEvent[9] + ")" + "," +
+			JsonLine = "{\"name\":\"On_CPU(" + CSwitchEvent[9] + ")\"" + "," +
 						"\"pid\":" + Utils::extractPidFromString(CSwitchEvent[8]) + "," +
 						"\"tid\":" + CSwitchEvent[9] + "," +
 						"\"ts\":" + CSwitchEvent[1] + "," +

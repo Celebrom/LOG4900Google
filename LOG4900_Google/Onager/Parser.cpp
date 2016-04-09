@@ -41,6 +41,12 @@ void Parser::parseStacks(SystemHistory& system_history, std::wstring path, std::
 			{
 				std::vector<std::string> actualCompletedFunctions = liveStack.Update((*it));
 				threadCompletedFunctions.insert(std::end(threadCompletedFunctions), std::begin(actualCompletedFunctions), std::end(actualCompletedFunctions));
+				
+				if (threadCompletedFunctions.size() >= 100000)
+				{
+					JsonWriter::writeStacks(path, outputFile, threadCompletedFunctions, (*threads_it).first, first);
+					threadCompletedFunctions.clear();
+				}
 			}
 			std::vector<std::string> finalCompletedFunctions = liveStack.GetFinalLines();
 			threadCompletedFunctions.insert(std::end(threadCompletedFunctions), std::begin(finalCompletedFunctions), std::end(finalCompletedFunctions));
