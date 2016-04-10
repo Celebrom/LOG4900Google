@@ -237,11 +237,12 @@ def main(argv):
             outputdire = outputdire.replace('.\\', actualdire + '\\')
          elif outputdire:
             outputdire = actualdire + '\\' + arg
-         print outputdire + ' 1'
+
 
 if __name__ == "__main__":
    main(argv[1:])
 
+   print outputdire
    if not path.exists(outputdire):
       makedirs(outputdire)
       sleep(1)
