@@ -193,7 +193,6 @@ xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\system\boost_sys
     <ClCompile Include="Enum.h" />
     <ClCompile Include="JsonWriter.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="MemoryMapper.cpp" />
     <ClCompile Include="LiveStack.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="StackLine.cpp" />
@@ -206,8 +205,6 @@ xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\system\boost_sys
   <ItemGroup>
     <ClInclude Include="ConvertCsvToJson.h" />
     <ClInclude Include="JsonWriter.h" />
-    <ClInclude Include="MemoryMapper.h" />
-    <ClInclude Include="HeaderDefinition.h" />
     <ClInclude Include="Converter.h" />
     <ClInclude Include="LiveStack.h" />
     <ClInclude Include="Parser.h" />
@@ -231,6 +228,9 @@ xcopy /Y "$(SolutionDir)\..\ExternalLibraries\boost_1_60_0\libs\system\boost_sys
     <ClInclude Include="stateIO\typeIO.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

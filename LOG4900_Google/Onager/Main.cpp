@@ -24,7 +24,6 @@ limitations under the License.
 #include "LiveStack.h"
 #include "JsonWriter.h"
 #include "../base/file.h"		
-#include "MemoryMapper.h"
 #include "../base/command_line.h"
 #include "../etw_reader/etw_reader.h"
 #include <boost/iostreams/device/mapped_file.hpp>
