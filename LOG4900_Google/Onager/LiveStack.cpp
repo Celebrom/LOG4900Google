@@ -1,5 +1,4 @@
 #include "LiveStack.h"
-#include "HeaderDefinition.h"
 int LiveStack::idCounter = 1;
 
 std::vector<std::string> LiveStack::GetFinalLines()
