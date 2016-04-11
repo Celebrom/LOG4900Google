@@ -37,10 +37,11 @@ limitations under the License.
 FileIOCreateState::FileIOCreateState(){}
 FileIOCreateState::~FileIOCreateState(){}
 std::string FileIOCreateState::returnJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd){
-		Utils::formatFileName(FileIoEvent.GetFieldAsString("FileName")); //TODO: sa marchera paaaas
+		std::string fileName = FileIoEvent.GetFieldAsString("FileName");
+		Utils::formatFileName(fileName); // TODO: Might not get a good reference
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[12];
-		return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoCreate") + "]" + FileIoEvent.GetFieldAsString("FileName") + "\"," +
+		return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoCreate") + "]" + fileName + "\"," +
 				commonJson(FileIoEvent, OpEnd) + "}}";
 }
 
@@ -48,10 +49,11 @@ std::string FileIOCreateState::returnJson(const etw_insights::ETWReader::Line& F
 FileIOCleanUpState::FileIOCleanUpState(){}
 FileIOCleanUpState::~FileIOCleanUpState(){}
 std::string FileIOCleanUpState::returnJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd){
-		Utils::formatFileName(FileIoEvent.GetFieldAsString("FileName"));
+	std::string fileName = FileIoEvent.GetFieldAsString("FileName");
+	Utils::formatFileName(fileName); // TODO: Might not get a good reference
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[9];
-		return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoCleanup") + "]" + FileIoEvent.GetFieldAsString("FileName") + "\"," +
+	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoCleanup") + "]" + fileName + "\"," +
 				commonJson(FileIoEvent, OpEnd) + "}}";
 }
 
@@ -59,10 +61,11 @@ std::string FileIOCleanUpState::returnJson(const etw_insights::ETWReader::Line& 
 FileIOCloseState::FileIOCloseState(){}
 FileIOCloseState::~FileIOCloseState(){}
 std::string FileIOCloseState::returnJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd){
-	Utils::formatFileName(FileIoEvent.GetFieldAsString("FileName"));
+	std::string fileName = FileIoEvent.GetFieldAsString("FileName");
+	Utils::formatFileName(fileName); // TODO: Might not get a good reference
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[9];
-		return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoClose") + "]" + FileIoEvent.GetFieldAsString("FileName") + "\"," +
+	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoClose") + "]" + fileName + "\"," +
 				commonJson(FileIoEvent, OpEnd) + "}}";
 }
 
@@ -70,10 +73,11 @@ std::string FileIOCloseState::returnJson(const etw_insights::ETWReader::Line& Fi
 FileIODeleteState::FileIODeleteState(){}
 FileIODeleteState::~FileIODeleteState(){}
 std::string FileIODeleteState::returnJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd){
-		Utils::formatFileName(FileIoEvent.GetFieldAsString("FileName"));
+	std::string fileName = FileIoEvent.GetFieldAsString("FileName");
+	Utils::formatFileName(fileName); // TODO: Might not get a good reference
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11];
-		return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoDelete") + "]" + FileIoEvent.GetFieldAsString("FileName") + "\"," +
+	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoDelete") + "]" + fileName + "\"," +
 			commonJson(FileIoEvent, OpEnd) + "}}";
 }
 
@@ -81,10 +85,11 @@ std::string FileIODeleteState::returnJson(const etw_insights::ETWReader::Line& F
 FileIODirEnumState::FileIODirEnumState(){}
 FileIODirEnumState::~FileIODirEnumState(){}
 std::string FileIODirEnumState::returnJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd){
-	Utils::formatFileName(FileIoEvent.GetFieldAsString("FileName"));
+	std::string fileName = FileIoEvent.GetFieldAsString("FileName");
+	Utils::formatFileName(fileName); // TODO: Might not get a good reference
 
 	//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[12];
-	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoDirEnum") + "]" + FileIoEvent.GetFieldAsString("FileName") + "\"," +
+	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoDirEnum") + "]" + fileName + "\"," +
 			commonJson(FileIoEvent, OpEnd) + 
 			ifNotEmpty("Size", FileIoEvent.GetFieldAsString("Size")) + "}}";
 }
@@ -93,10 +98,11 @@ std::string FileIODirEnumState::returnJson(const etw_insights::ETWReader::Line& 
 FileIODirNotifyState::FileIODirNotifyState(){}
 FileIODirNotifyState::~FileIODirNotifyState(){}
 std::string FileIODirNotifyState::returnJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd){
-		Utils::formatFileName(FileIoEvent.GetFieldAsString("FileName"));
+	std::string fileName = FileIoEvent.GetFieldAsString("FileName");
+	Utils::formatFileName(fileName); // TODO: Might not get a good reference
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[12];
-		return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoDirNotify") + "]" + FileIoEvent.GetFieldAsString("FileName") + "\"," +
+	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoDirNotify") + "]" + fileName + "\"," +
 				commonJson(FileIoEvent, OpEnd) +
 				ifNotEmpty("Size", FileIoEvent.GetFieldAsString("Size")) + "}}";
 }
@@ -105,10 +111,11 @@ std::string FileIODirNotifyState::returnJson(const etw_insights::ETWReader::Line
 FileIOFlushState::FileIOFlushState(){}
 FileIOFlushState::~FileIOFlushState(){}
 std::string FileIOFlushState::returnJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd){
-		Utils::formatFileName(FileIoEvent.GetFieldAsString("FileName"));
+	std::string fileName = FileIoEvent.GetFieldAsString("FileName");
+	Utils::formatFileName(fileName); // TODO: Might not get a good reference
 	
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[9];
-		return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoFlush") + "]" + FileIoEvent.GetFieldAsString("FileName") + "\"," +
+	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoFlush") + "]" + fileName + "\"," +
 				commonJson(FileIoEvent, OpEnd) + "}}";
 }
 
@@ -116,10 +123,11 @@ std::string FileIOFlushState::returnJson(const etw_insights::ETWReader::Line& Fi
 FileIOFSCTLState::FileIOFSCTLState(){}
 FileIOFSCTLState::~FileIOFSCTLState(){}
 std::string FileIOFSCTLState::returnJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd){
-	Utils::formatFileName(FileIoEvent.GetFieldAsString("FileName"));
+	std::string fileName = FileIoEvent.GetFieldAsString("FileName");
+	Utils::formatFileName(fileName); // TODO: Might not get a good reference
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11];
-	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoFSCTL") + "]" + FileIoEvent.GetFieldAsString("FileName") + "\"," +
+	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoFSCTL") + "]" + fileName + "\"," +
 				commonJson(FileIoEvent, OpEnd) + "}}";
 }
 
@@ -127,10 +135,11 @@ std::string FileIOFSCTLState::returnJson(const etw_insights::ETWReader::Line& Fi
 FileIOOpEndState::FileIOOpEndState(){}
 FileIOOpEndState::~FileIOOpEndState(){}
 std::string FileIOOpEndState::returnJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd){
-	Utils::formatFileName(FileIoEvent.GetFieldAsString("FileName"));
+	std::string fileName = FileIoEvent.GetFieldAsString("FileName");
+	Utils::formatFileName(fileName); // TODO: Might not get a good reference
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[13];
-	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoOpEnd") + "]" + FileIoEvent.GetFieldAsString("FileName") + "\"," +
+	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoOpEnd") + "]" + fileName + "\"," +
 				commonJson(FileIoEvent, OpEnd) + "}}";
 }
 
@@ -138,11 +147,12 @@ std::string FileIOOpEndState::returnJson(const etw_insights::ETWReader::Line& Fi
 FileIOQueryInfoState::FileIOQueryInfoState(){}
 FileIOQueryInfoState::~FileIOQueryInfoState(){}
 std::string FileIOQueryInfoState::returnJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd){
-	Utils::formatFileName(FileIoEvent.GetFieldAsString("FileName"));
+	std::string fileName = FileIoEvent.GetFieldAsString("FileName");
+	Utils::formatFileName(fileName); // TODO: Might not get a good reference
 
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11];
-	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoQueryInfo") + "]" + FileIoEvent.GetFieldAsString("FileName") + "\"," +
+	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoQueryInfo") + "]" + fileName + "\"," +
 				commonJson(FileIoEvent, OpEnd) + "}}";
 }
 
@@ -150,10 +160,11 @@ std::string FileIOQueryInfoState::returnJson(const etw_insights::ETWReader::Line
 FileIOReadState::FileIOReadState(){}
 FileIOReadState::~FileIOReadState(){}
 std::string FileIOReadState::returnJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd){
-	Utils::formatFileName(FileIoEvent.GetFieldAsString("FileName"));
+	std::string fileName = FileIoEvent.GetFieldAsString("FileName");
+	Utils::formatFileName(fileName); // TODO: Might not get a good reference
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[14];
-	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoRead") + "]" + FileIoEvent.GetFieldAsString("FileName") + "\"," +
+	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoRead") + "]" + fileName + "\"," +
 				commonJson(FileIoEvent, OpEnd) +
 				ifNotEmpty("Priority", FileIoEvent.GetFieldAsString("Priority")) + "," +
 				ifNotEmpty("Size", FileIoEvent.GetFieldAsString("Size")) + "}}";
@@ -163,10 +174,11 @@ std::string FileIOReadState::returnJson(const etw_insights::ETWReader::Line& Fil
 FileIORenameState::FileIORenameState(){}
 FileIORenameState::~FileIORenameState(){}
 std::string FileIORenameState::returnJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd){
-	Utils::formatFileName(FileIoEvent.GetFieldAsString("FileName"));
+	std::string fileName = FileIoEvent.GetFieldAsString("FileName");
+	Utils::formatFileName(fileName); // TODO: Might not get a good reference
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11];
-	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoRename") + "]" + FileIoEvent.GetFieldAsString("FileName") + "\"," +
+	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoRename") + "]" + fileName + "\"," +
 				commonJson(FileIoEvent, OpEnd) + "}}";
 }
 
@@ -174,10 +186,11 @@ std::string FileIORenameState::returnJson(const etw_insights::ETWReader::Line& F
 FileIOSetInfoState::FileIOSetInfoState(){}
 FileIOSetInfoState::~FileIOSetInfoState(){}
 std::string FileIOSetInfoState::returnJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd){
-	Utils::formatFileName(FileIoEvent.GetFieldAsString("FileName"));
+	std::string fileName = FileIoEvent.GetFieldAsString("FileName");
+	Utils::formatFileName(fileName); // TODO: Might not get a good reference
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[11];
-	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoSetInfo") + "]" + FileIoEvent.GetFieldAsString("FileName") + "\"," +
+	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoSetInfo") + "]" + fileName + "\"," +
 				commonJson(FileIoEvent, OpEnd) + "}}";
 }
 
@@ -185,10 +198,11 @@ std::string FileIOSetInfoState::returnJson(const etw_insights::ETWReader::Line& 
 FileIOWriteState::FileIOWriteState(){}
 FileIOWriteState::~FileIOWriteState(){}
 std::string FileIOWriteState::returnJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd){
-	Utils::formatFileName(FileIoEvent.GetFieldAsString("FileName"));
+	std::string fileName = FileIoEvent.GetFieldAsString("FileName");
+	Utils::formatFileName(fileName); // TODO: Might not get a good reference
 
 		//FileIoType = FileIoEvent[0]; //FileName = FileIoEvent[14];
-	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoWrite") + "]" + FileIoEvent.GetFieldAsString("FileName") + "\"," +
+	return "{\"name\":\"[" + FileIoEvent.GetFieldAsString("FileIoWrite") + "]" + fileName + "\"," +
 				commonJson(FileIoEvent, OpEnd) +
 				ifNotEmpty("Priority", FileIoEvent.GetFieldAsString("Priority")) + "," +
 				ifNotEmpty("Size", FileIoEvent.GetFieldAsString("Size")) + "}}";

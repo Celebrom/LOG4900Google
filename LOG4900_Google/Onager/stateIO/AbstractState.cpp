@@ -17,9 +17,10 @@ std::string AbstractState::ifNotEmpty(std::string tag, std::string value)
 
 std::string AbstractState::commonJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd)
 {
+		std::string pid = FileIoEvent.GetFieldAsString("Process Name ( PID)");
 		return "\"cat\":\"IO\",\"ph\":\"X\",\"ts\":" + FileIoEvent.GetFieldAsString("TimeStamp") + "," +
 				"\"dur\":" + OpEnd.GetFieldAsString("ElapsedTime") + "," +
-				"\"pid\":" + Utils::extractPidFromString(FileIoEvent.GetFieldAsString("Process Name ( PID)")) + "," + //TODO: huuum cest souligner en bleu, sa sonne bad
+				"\"pid\":" + Utils::extractPidFromString(pid) + "," + 
 				"\"tid\":" + FileIoEvent.GetFieldAsString("ThreadID") + "," +
 				"\"args\":{";
 }
