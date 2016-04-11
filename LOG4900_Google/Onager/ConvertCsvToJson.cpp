@@ -468,6 +468,16 @@ namespace etw_insights {
 				chromeEventLines.push_back(converter->DiskLineToJSON(tokens));
 		}
 
+		// Write Chrome Events to Json if more than 100000 lines
+		void VerifyChromeEventLinesSize(std::ofstream& outputFile)
+		{
+			if (chromeEventLines.size() >= 100000)
+			{
+				JsonWriter::writeChromeEvents(outputFile, chromeEventLines, false);
+				chromeEventLines.clear();
+			}
+		}
+
 	}  // namespace
 
 	bool WriteHistoryFromTrace(const std::wstring& trace_path,
@@ -501,7 +511,10 @@ namespace etw_insights {
 			if (it->type() == kStackType)
 				HandleStackEvent(ts, it, &thread_states, system_history);
 			else if (it->type() == kCSwitchType)
+			{
+				VerifyChromeEventLinesSize(outputFile);
 				HandleCSwitchEvent(ts, *it, &thread_states);
+			}
 			else if (it->type() == kProcessStartType ||
 				it->type() == kProcessDCStartType)
 				HandleProcessStartEvent(ts, *it, system_history);
@@ -522,24 +535,27 @@ namespace etw_insights {
 				it->type() == kFileIoRenameType ||
 				it->type() == kFileIoDirEnumType ||
 				it->type() == kFileIoDirNotifyType)
+			{
+				VerifyChromeEventLinesSize(outputFile);
 				HandleFileIoEvent(ts, *it, &thread_states);
+			}
 			else if (it->type() == kFileIoOpEnd)
+			{
+				VerifyChromeEventLinesSize(outputFile);
 				HandleFileIoOpEndEvent(ts, *it, &thread_states);
+			}
 			else if (it->type() == kChromeType)
+			{
+				VerifyChromeEventLinesSize(outputFile);
 				HandleChromeEvent(ts, *it, system_history, &should_stop);
+			}
 			else if (it->type() == DiskFlush ||
 				it->type() == DiskRead ||
 				it->type() == DiskWrite)
-				HandleDiskEvent(ts, *it);
-
-			// Write Chrome Events to Json
-			if (chromeEventLines.size() >= 100000)
 			{
-				JsonWriter::writeChromeEvents(json_path, outputFile, chromeEventLines);
-				chromeEventLines.clear();
+				VerifyChromeEventLinesSize(outputFile);
+				HandleDiskEvent(ts, *it);
 			}
-
-			// Write Chrome Events to Json
 
 			// Remember the last event types encountered on each thread.
 			base::Tid tid = 0;
@@ -566,11 +582,12 @@ namespace etw_insights {
 				break;
 		}
 
-		JsonWriter::writeChromeEvents(trace_path, outputFile, chromeEventLines);
+		JsonWriter::writeChromeEvents(outputFile, chromeEventLines, true);
 		outputFile << "]";
 		outputFile << ",\n\"stacks\":{";
 		Parser::parseStacks(*system_history, json_path, outputFile);
 		outputFile << "}}";
+		outputFile.close();
 
 		return true;
 	}
