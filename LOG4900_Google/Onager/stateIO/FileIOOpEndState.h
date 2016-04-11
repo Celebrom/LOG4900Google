@@ -21,5 +21,5 @@ class FileIOOpEndState : public AbstractState{
 public:
 	FileIOOpEndState();
 	~FileIOOpEndState();
-	virtual std::string returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
+	virtual std::string returnJson(const etw_insights::ETWReader::Line&FileIoEvent, const etw_insights::ETWReader::Line& OpEnd);
 };

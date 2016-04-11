@@ -21,5 +21,5 @@ class FileIODeleteState : public AbstractState{
 public:
 	FileIODeleteState();
 	~FileIODeleteState();
-	virtual std::string returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
+	virtual std::string returnJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd);
 };
