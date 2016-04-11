@@ -123,7 +123,7 @@ namespace etw_insights {
 
 		Converter* converter = new Converter(); 
 		std::vector<std::string> chromeEventLines;
-		std::unordered_map<std::string, std::vector<std::vector<std::string>>> tidCompletePhaseStacks;
+		std::unordered_map<std::string, std::vector<ETWReader::Line>> tidCompletePhaseStacks;
 
 		Stack ConcatenateStacks(std::initializer_list<Stack> stacks) {
 			Stack stack_res;
@@ -251,23 +251,20 @@ namespace etw_insights {
 			base::Tid new_tid = 0;
 			base::Tid old_tid = 0;
 			base::Timestamp time_since_last = 0;
-
-			std::vector<std::string> tokens;
-			tokens.push_back(event.type());
-			for (auto e : event.getValues())
-				tokens.push_back(e.second);
-
+			
+			//////////////
 			// New Process
-			if (tokens[int(cSwitch::newProcess)].find("chrome.exe") != std::string::npos)
+			if (event.GetFieldAsString("New Process Name ( PID)").find("chrome.exe") != std::string::npos)
 			{
-				CSwitchStacks[tokens[int(cSwitch::newTID)]] = AsyncId++;
-				chromeEventLines.push_back(converter->CSwitchToJson(tokens, "New Process", AsyncId - 1));
+				CSwitchStacks[event.GetFieldAsString("New TID")] = AsyncId++;
+				chromeEventLines.push_back(converter->CSwitchToJson(event, "New Process", AsyncId - 1));
 			}
 			// Old Process
-			if (tokens[int(cSwitch::oldProcess)].find("chrome.exe") != std::string::npos)
+			if (event.GetFieldAsString("Old Process Name ( PID)").find("chrome.exe") != std::string::npos)
 			{
-				chromeEventLines.push_back(converter->CSwitchToJson(tokens, "Old Process", CSwitchStacks[tokens[int(cSwitch::oldTID)]]));
+				chromeEventLines.push_back(converter->CSwitchToJson(event, "Old Process", CSwitchStacks[event.GetFieldAsString("Old TID")]));
 			}
+			//////////////
 
 			if (!event.GetFieldAsULong(kCSwitchNewTidField, &new_tid) ||
 				!event.GetFieldAsULong(kCSwitchOldTidField, &old_tid) ||
@@ -331,7 +328,7 @@ namespace etw_insights {
 			thread_history.set_end_ts(ts);
 		}
 
-		std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> tidFileIoStacks;
+		std::unordered_map<std::string, std::unordered_map<std::string, ETWReader::Line>> tidFileIoStacks;
 		void HandleFileIoEvent(base::Timestamp ts,
 			const ETWReader::Line& event,
 			ThreadStates* thread_states) {
@@ -339,14 +336,8 @@ namespace etw_insights {
 			std::string file_name;
 
 			//////
-			std::string tmp = event.GetFieldAsString("FileObject");
-			std::vector<std::string> tokens;
-			tokens.push_back(event.type());
-			for (auto e : event.getValues())
-				tokens.push_back(e.second);
-
-			if (tokens[int(IO::process)].find("chrome.exe") != std::string::npos)
-				tidFileIoStacks[tokens[int(IO::TID)]][tokens[int(IO::FileObj)]] = tokens;
+			if (event.GetFieldAsString("Process Name(PID)").find("chrome.exe") != std::string::npos)
+				tidFileIoStacks[event.GetFieldAsString("ThreadID")][event.GetFieldAsString("FileObject")] = event;
 			//////
 
 			if (!event.GetFieldAsULong(kFileIoLoggingThreadIdField, &thread_id) ||
@@ -367,30 +358,24 @@ namespace etw_insights {
 			base::Tid thread_id = 0;
 			std::string file_name;
 
-			/////
-			std::vector<std::string> tokens;
-
-			tokens.push_back(event.type());
-			for (auto e : event.getValues())
-				tokens.push_back(e.second);
-
-			if (tokens[int(opEnd::process)].find("chrome.exe") != std::string::npos)
+			//////
+			if (event.GetFieldAsString("Process Name ( PID)").find("chrome.exe") != std::string::npos)
 			{
 				// We look for the same Tid
-				auto FileIoStackIter = tidFileIoStacks.find(tokens[int(opEnd::TID)]);
+				auto FileIoStackIter = tidFileIoStacks.find(event.GetFieldAsString("ThreadID"));
 				if (FileIoStackIter != tidFileIoStacks.end())
 				{   //We look for the same FileObject
-					auto FileIoEvent = FileIoStackIter->second.find(tokens[int(opEnd::FileObj)]);
+					auto FileIoEvent = FileIoStackIter->second.find(event.GetFieldAsString("FileObject"));
 					//IrpPtr compare          //FileObject compare              //Type compare         
-					if (FileIoEvent != FileIoStackIter->second.end() && FileIoEvent->second[int(IO::IrpPtr)] == tokens[int(opEnd::IrpPtr)] && 
-						FileIoEvent->second[int(IO::FileObj)] == tokens[int(opEnd::FileObj)] && FileIoEvent->second[int(IO::type)] == tokens[int(opEnd::IoType)])
+					if (FileIoEvent != FileIoStackIter->second.end() && FileIoEvent->second.GetFieldAsString("IrpPtr") == event.GetFieldAsString("IrpPtr") &&
+						FileIoEvent->second.GetFieldAsString("FileObject") == event.GetFieldAsString("FileObject") && FileIoEvent->second.type() == event.type())
 					{
-						chromeEventLines.push_back(converter->IOLineToJSON(FileIoEvent->second, tokens));
-						FileIoStackIter->second.erase(tokens[int(opEnd::FileObj)]);
+						chromeEventLines.push_back(converter->IOLineToJSON(FileIoEvent->second, event));
+						FileIoStackIter->second.erase(event.GetFieldAsString("FileObject"));
 					}
 				}
 			}
-			/////
+			//////
 
 			if (!event.GetFieldAsULong(kFileIoLoggingThreadIdField, &thread_id) ||
 				!event.GetFieldAsString(kFileIoFileNameField, &file_name)) {
@@ -411,33 +396,27 @@ namespace etw_insights {
 			std::string phase;
 
 			/////
-			std::vector<std::string> tokens;
-			tokens.push_back(event.type());
-			for (auto e : event.getValues())
-				tokens.push_back(e.second);
-
-			if (tokens[int(Cevent::phase)] == "\"Complete\"")
+			if (event.GetFieldAsString("Phase") == "\"Complete\"")
 			{
-				tidCompletePhaseStacks[tokens[int(Cevent::TID)]].push_back(tokens);
+				tidCompletePhaseStacks[event.GetFieldAsString("ThreadID")].push_back(event);
 			}
-			else if (tokens[10] == "\"Complete End\"")
+			else if (event.GetFieldAsString("Phase") == "\"Complete End\"")
 			{
-				auto completeStackIter = tidCompletePhaseStacks.find(tokens[int(Cevent::TID)]);
+				auto completeStackIter = tidCompletePhaseStacks.find(event.GetFieldAsString("ThreadID"));
 				if (completeStackIter != tidCompletePhaseStacks.end() && 
-					tidCompletePhaseStacks[tokens[int(Cevent::TID)]].size() > 0)
+					tidCompletePhaseStacks[event.GetFieldAsString("ThreadID")].size() > 0)
 				{
-					std::vector<std::vector<std::string>> completeStack = (*completeStackIter).second;
-					std::vector<std::string> complete = completeStack.back();
+					std::vector<ETWReader::Line> completeStack = completeStackIter->second;
+					ETWReader::Line complete = completeStack.back();
 
-					int completeTS = std::stoi(complete[int(Cevent::TS)]);
-					int completeEndTS = std::stoi(tokens[int(Cevent::TS)]);
+					int completeTS = std::stoi(complete.GetFieldAsString("TimeStamp"));
+					int completeEndTS = std::stoi(event.GetFieldAsString("TimeStamp"));
 					std::string duration = std::to_string(completeEndTS - completeTS);
-					complete.push_back(duration);
 
-					std::string eventJSON = converter->EventToJSON(complete);
+					std::string eventJSON = converter->EventToJSON(complete, duration);
 					chromeEventLines.push_back(eventJSON);
 
-					tidCompletePhaseStacks[tokens[int(Cevent::TID)]].pop_back();
+					tidCompletePhaseStacks[event.GetFieldAsString("ThreadID")].pop_back();
 				}
 				else
 				{
@@ -461,13 +440,8 @@ namespace etw_insights {
 		void HandleDiskEvent(base::Timestamp ts,
 			const ETWReader::Line& event)
 		{
-			std::vector<std::string> tokens;
-			tokens.push_back(event.type());
-			for (auto e : event.getValues())
-				tokens.push_back(e.second);
-
-			if (tokens[int(disk::process)].find("chrome.exe") != std::string::npos)
-				chromeEventLines.push_back(converter->DiskLineToJSON(tokens));
+			if (event.GetFieldAsString("Process Name ( PID)").find("chrome.exe") != std::string::npos)
+				chromeEventLines.push_back(converter->DiskLineToJSON(event));
 		}
 
 		// Write Chrome Events to Json if more than 100000 lines
