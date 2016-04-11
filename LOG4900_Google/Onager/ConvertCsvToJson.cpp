@@ -336,7 +336,7 @@ namespace etw_insights {
 			std::string file_name;
 
 			//////
-			if (event.GetFieldAsString("Process Name(PID)").find("chrome.exe") != std::string::npos)
+			if (event.GetFieldAsString("Process Name ( PID)").find("chrome.exe") != std::string::npos)
 				tidFileIoStacks[event.GetFieldAsString("ThreadID")][event.GetFieldAsString("FileObject")] = event;
 			//////
 
