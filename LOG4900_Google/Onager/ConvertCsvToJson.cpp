@@ -331,7 +331,7 @@ namespace etw_insights {
 			thread_history.set_end_ts(ts);
 		}
 
-		std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> tidFileIoStacks;//////////////////////////////////////
+		std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> tidFileIoStacks;
 		void HandleFileIoEvent(base::Timestamp ts,
 			const ETWReader::Line& event,
 			ThreadStates* thread_states) {
@@ -339,6 +339,7 @@ namespace etw_insights {
 			std::string file_name;
 
 			//////
+			std::string tmp = event.GetFieldAsString("FileObject");
 			std::vector<std::string> tokens;
 			tokens.push_back(event.type());
 			for (auto e : event.getValues())
@@ -368,6 +369,7 @@ namespace etw_insights {
 
 			/////
 			std::vector<std::string> tokens;
+
 			tokens.push_back(event.type());
 			for (auto e : event.getValues())
 				tokens.push_back(e.second);
