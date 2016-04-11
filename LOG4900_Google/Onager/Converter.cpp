@@ -30,25 +30,26 @@ std::string Converter::DiskLineToJSON(const etw_insights::ETWReader::Line& diskE
 
 		if (diskEndEvent.type() == "DiskRead" || diskEndEvent.type() == "DiskWrite")
 		{
-				Utils::formatFileName(diskEndEvent.GetFieldAsString("FileName")); // TODO: Might not get a good reference
+			std::string fileName = diskEndEvent.GetFieldAsString("FileName");
+			Utils::formatFileName(fileName); // TODO: Might not get a good reference
 
-				jsonLine = "{\"name\":\"[" + diskEndEvent.type() + "]" + diskEndEvent.GetFieldAsString("FileName") + "\"," +
-						"\"cat\":\"Disk\",\"ph\":\"X\",\"ts\":" + diskEndEvent.GetFieldAsString("TimeStamp") + "," + // TODO: TimeStamp as ulong instead of string
-						"\"dur\":" + diskEndEvent.GetFieldAsString("ElapsedTime") + "," +
-						"\"pid\":" + Utils::extractPidFromString(diskEndEvent.GetFieldAsString("Process Name ( PID)")) + "," +
-						"\"tid\":" + diskEndEvent.GetFieldAsString("ThreadID") + "," +
-						"\"args\":{";
+			jsonLine = "{\"name\":\"[" + diskEndEvent.type() + "]" + fileName + "\"," +
+					"\"cat\":\"Disk\",\"ph\":\"X\",\"ts\":" + diskEndEvent.GetFieldAsString("TimeStamp") + "," + // TODO: TimeStamp as ulong instead of string
+					"\"dur\":" + diskEndEvent.GetFieldAsString("ElapsedTime") + "," +
+					"\"pid\":" + Utils::extractPidFromString(diskEndEvent.GetFieldAsString("Process Name ( PID)")) + "," +
+					"\"tid\":" + diskEndEvent.GetFieldAsString("ThreadID") + "," +
+					"\"args\":{";
 
-				if (diskEndEvent.GetFieldAsString("I/O Pri") != "") // TODO: Might get weird with the slash
-					jsonLine += "\"I/O Pri\":\"" + diskEndEvent.GetFieldAsString("I/O Pri") + "\",";
+			if (diskEndEvent.GetFieldAsString("I/O Pri") != "") // TODO: Might get weird with the slash
+				jsonLine += "\"I/O Pri\":\"" + diskEndEvent.GetFieldAsString("I/O Pri") + "\",";
 
-				if (diskEndEvent.GetFieldAsString("IOSize") != "")
-					jsonLine += "\"IOSize\":\"" + diskEndEvent.GetFieldAsString("IOSize") + "\"";
+			if (diskEndEvent.GetFieldAsString("IOSize") != "")
+				jsonLine += "\"IOSize\":\"" + diskEndEvent.GetFieldAsString("IOSize") + "\"";
 
-				if (jsonLine[jsonLine.size() - 1] == ',')
-					jsonLine = jsonLine.substr(0, jsonLine.size() - 1);
+			if (jsonLine[jsonLine.size() - 1] == ',')
+				jsonLine = jsonLine.substr(0, jsonLine.size() - 1);
 
-				return jsonLine + "}}";
+			return jsonLine + "}}";
 		}
 		else if (diskEndEvent.type() == "DiskFlush")
 		{
