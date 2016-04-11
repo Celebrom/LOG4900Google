@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #include "Converter.h"
+#include "Enum.h"
 
 std::string Converter::IOLineToJSON(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd)
 {
@@ -145,10 +146,10 @@ std::string Converter::CSwitchToJson(std::vector<std::string>& CSwitchEvent, std
 
 		if (type == "New Process")
 		{
-			JsonLine = "{\"name\":\"On_CPU(" + CSwitchEvent[3] + ")\"" + "," + 
-						"\"pid\":" + Utils::extractPidFromString(CSwitchEvent[2]) + "," +
-						"\"tid\":" + CSwitchEvent[3] + "," +
-						"\"ts\":" + CSwitchEvent[1] + "," +
+			JsonLine = "{\"name\":\"On_CPU(" + CSwitchEvent[int(cSwitch::newTID)] + ")\"" + "," + 
+						"\"pid\":" + Utils::extractPidFromString(CSwitchEvent[int(cSwitch::newProcess)]) + "," +
+						"\"tid\":" + CSwitchEvent[int(cSwitch::newTID)] + "," +
+						"\"ts\":" + CSwitchEvent[int(cSwitch::timestamp)] + "," +
 						"\"cat\":\"CSwitch\"," +
 						"\"id\":\"0x" + std::to_string(id) + "\","
 						"\"ph\":\"b\",\"args\":{}}";
@@ -156,10 +157,10 @@ std::string Converter::CSwitchToJson(std::vector<std::string>& CSwitchEvent, std
 
 		else if (type == "Old Process")
 		{
-			JsonLine = "{\"name\":\"On_CPU(" + CSwitchEvent[9] + ")\"" + "," +
-						"\"pid\":" + Utils::extractPidFromString(CSwitchEvent[8]) + "," +
-						"\"tid\":" + CSwitchEvent[9] + "," +
-						"\"ts\":" + CSwitchEvent[1] + "," +
+			JsonLine = "{\"name\":\"On_CPU(" + CSwitchEvent[int(cSwitch::oldTID)] + ")\"" + "," +
+						"\"pid\":" + Utils::extractPidFromString(CSwitchEvent[int(cSwitch::oldProcess)]) + "," +
+						"\"tid\":" + CSwitchEvent[int(cSwitch::oldTID)] + "," +
+						"\"ts\":" + CSwitchEvent[int(cSwitch::timestamp)] + "," +
 						"\"cat\":\"CSwitch\"," +
 						"\"id\":\"0x" + std::to_string(id) + "\","
 						"\"ph\":\"e\",\"args\":{}}";
