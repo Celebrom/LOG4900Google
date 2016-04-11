@@ -67,6 +67,12 @@ const char* ETWReader::kEmptyEventType = "Empty";
 
 ETWReader::Line::Line() {}
 
+std::string ETWReader::Line::GetFieldAsString(const std::string& name) const
+{
+	auto look = values_.find(name);
+	return look->second;
+}
+
 bool ETWReader::Line::GetFieldAsString(const std::string& name,
                                        std::string* value) const {
   auto look = values_.find(name);
