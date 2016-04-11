@@ -18,6 +18,7 @@ limitations under the License.
 #include <vector>
 #include <algorithm>
 #include "../Utils.h"
+#include <etw_reader/etw_reader.h>
 
 class AbstractState
 {
@@ -27,7 +28,7 @@ public:
 	~AbstractState();
 
 	std::string ifNotEmpty(std::string tag, std::string value);
-	virtual std::string returnJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
-	std::string commonJson(std::vector<std::string>& FileIoEvent, std::vector<std::string>& OpEnd);
+	virtual std::string returnJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd);
+	std::string commonJson(const etw_insights::ETWReader::Line& FileIoEvent, const etw_insights::ETWReader::Line& OpEnd);
 };
 

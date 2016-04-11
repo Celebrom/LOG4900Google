@@ -40,6 +40,7 @@ void Parser::parseStacks(SystemHistory& system_history, std::wstring path, std::
 		{
 			LiveStack liveStack;
 			std::vector<std::string> threadCompletedFunctions;
+			threadCompletedFunctions.reserve(100000);
 			std::unordered_map<base::Tid, std::vector<std::string>> completedFunctions;
 
 			// Traverse all stacks comparing first and second to see what functions ended

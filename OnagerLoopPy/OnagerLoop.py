@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import config
 from time import sleep
 from sys import argv
 from sys import exit
@@ -19,6 +20,10 @@ actualIter = 1
 actualdire = path.dirname(path.realpath(__file__))
 outputdire = actualdire + '\\Traces'
 FNULL = open(devnull, 'w')
+ChromeConfigs = ''
+XperfConfigs = ''
+CpuConfigs = ''
+buffSize = ''
 
 def LaunchChrome():
     system('start chrome.exe')
@@ -43,24 +48,30 @@ def ChromeStartupProfiler():
       quit()
 
 def LaunchTrace():
+   global ChromeConfigs
+   global CpuConfigs
+   global buffSize
+   print ChromeConfigs
+   print CpuConfigs
+   print buffSize
    call(
       'xperf.exe -start "NT Kernel Logger" ' +
       '-on Latency+POWER+DISPATCHER+DISK_IO_INIT+FILE_IO+FILE_IO_INIT+' +
          'VIRT_ALLOC+MEMINFO ' +
-      '-stackwalk PROFILE+CSWITCH+READYTHREAD+DiskReadInit ' +
+      '-stackwalk ' + XperfConfigs + ' ' +
       '-buffersize 1024 -minbuffers 600 -maxbuffers 600 ' +
       '-buffering ' +
       '-start ChromeStartupETWSession ' +
       '-on Microsoft-Windows-Win32k:0xfdffffffefffffff+Multi-MAIN+Multi-FrameRate+Multi' +
-         '-Input+Multi-Worker+chrome:0xa000000000000200 ' +
-      '-buffersize 1024 -minbuffers 200 -maxbuffers 200 ' +
+         '-Input+Multi-Worker+chrome:' + ChromeConfigs + CpuConfigs + ' ' +
+      '-buffersize 1024 -minbuffers ' + buffSize + ' -maxbuffers ' + buffSize + ' ' +
       '-buffering ',
       stdout=FNULL, stderr=STDOUT
    )
    call(
       'xperf.exe -capturestate ChromeStartupETWSession ' +
       'Microsoft-Windows-Win32k:0xfdffffffefffffff+Multi-MAIN+Multi-FrameRate+' +
-      'Multi-Input+Multi-Worker+chrome:0xa000000000000200',
+      'Multi-Input+Multi-Worker+chrome:' + ChromeConfigs + CpuConfigs,
       stdout=FNULL, stderr=STDOUT
    )
 
@@ -119,6 +130,80 @@ def StopTrace():
 def ConvertEtlToJson():
    call('Dependencies\Onager.exe --trace ' + outputFile)
 
+def ParseConfig():
+   catValue = 0
+   if (config.ChromeCategories['benchmark']):
+      catValue += 1
+   if (config.ChromeCategories['blink']):
+      catValue += 2
+   if (config.ChromeCategories['browser']):
+      catValue += 4
+   if (config.ChromeCategories['CC']):
+      catValue += 8
+   if (config.ChromeCategories['evdev']):
+      catValue += 10
+   if (config.ChromeCategories['gpu']):
+      catValue += 20
+   if (config.ChromeCategories['input']):
+      catValue += 40
+   if (config.ChromeCategories['netlog']):
+      catValue += 80
+   if (config.ChromeCategories['renderer.scheduler']):
+      catValue += 100
+   if (config.ChromeCategories['toplevel']):
+      catValue += 200
+   if (config.ChromeCategories['v8']):
+      catValue += 400
+   if (config.ChromeCategories['disabled-by-default-cc.debug']):
+      catValue += 800
+   if (config.ChromeCategories['disabled-by-default-cc.debug.picture']):
+      catValue += 1000
+   if (config.ChromeCategories['disabled-by-default-cc.toplevel.flow']):
+      catValue += 2000
+   if (config.ChromeCategories['startup']):
+      catValue += 4000
+
+   global ChromeConfigs
+   ChromeConfigs = '0x800000000000' + parseCatValue(catValue)
+
+   if (config.ChromeCategories['all-enabled-by-default-event']):
+      ChromeConfigs = '0xa00000000000' + parseCatValue(catValue)
+   if (config.ChromeCategories['all-disabled-by-default-event']):
+      ChromeConfigs = '0xc00000000000' + parseCatValue(catValue)
+   if (config.ChromeCategories['all-disabled-by-default-event'] and
+          config.ChromeCategories['all-disabled-by-default-event']):
+      ChromeConfigs = '0xe00000000000' + parseCatValue(catValue)
+
+   global CpuConfigs
+   global buffSize
+   if (config.XperfOptions['GPU tracing']):
+      CpuConfigs = '+Microsoft-Windows-DxgKrnl:0xFFFF:5+Microsoft-Windows-MediaEngine'
+      buffSize = '300'
+   else:
+      CpuConfigs = ''
+      buffSize = '200'
+
+   global XperfConfigs
+   if (config.XperfOptions['CPU sampling call stacks']):
+      XperfConfigs += 'PROFILE'
+   if (config.XperfOptions['CPU sampling call stacks'] and
+          config.XperfOptions['Context switch call stacks']):
+      XperfConfigs += '+CSWITCH+READYTHREAD+DiskReadInit'
+   elif (config.XperfOptions['Context switch call stacks']):
+      XperfConfigs += 'CSWITCH+READYTHREAD+DiskReadInit'
+
+def parseCatValue(catValue):
+   if (catValue == 0):
+      return '0000'
+   elif (catValue < 10):
+      return '000' + str(catValue)
+   elif (catValue < 100):
+      return '00' + str(catValue)
+   elif (catValue < 1000):
+      return '0' + str(catValue)
+   else:
+      return str(catValue)
+
 def main(argv):
 
    try:
@@ -160,6 +245,8 @@ if __name__ == "__main__":
    if not path.exists(outputdire):
       makedirs(outputdire)
       sleep(1)
+
+   ParseConfig()
 
    #Warmup Chrome
    CloseChrome()
