@@ -149,7 +149,7 @@ std::string Converter::CSwitchToJson(const etw_insights::ETWReader::Line& cSwitc
 		return JsonLine;
 }
 
-void clean(std::string* field)
+void Converter::clean(std::string* field)
 {
 	field->erase(std::remove(field->begin(), field->end(), '"'), field->end());
 	if ((*field)[0] == ' ')
