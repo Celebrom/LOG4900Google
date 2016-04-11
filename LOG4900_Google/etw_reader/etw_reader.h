@@ -37,7 +37,6 @@ class ETWReader {
     Line();
 
     const std::string& type() const { return type_; }
-	std::unordered_map<std::string, std::string> getValues() const { return values_; };
 	
 	std::string GetFieldAsString(const std::string& name) const;
     bool GetFieldAsString(const std::string& name, std::string* value) const;
