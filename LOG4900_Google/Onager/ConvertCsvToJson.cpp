@@ -368,7 +368,7 @@ namespace etw_insights {
 					auto FileIoEvent = FileIoStackIter->second.find(event.GetFieldAsString("FileObject"));
 					//IrpPtr compare          //FileObject compare              //Type compare         
 					if (FileIoEvent != FileIoStackIter->second.end() && FileIoEvent->second.GetFieldAsString("IrpPtr") == event.GetFieldAsString("IrpPtr") &&
-						FileIoEvent->second.GetFieldAsString("FileObject") == event.GetFieldAsString("FileObject") && FileIoEvent->second.type() == event.type())
+						FileIoEvent->second.GetFieldAsString("FileObject") == event.GetFieldAsString("FileObject") && FileIoEvent->second.type() == event.GetFieldAsString("Type"))
 					{
 						chromeEventLines.push_back(converter->IOLineToJSON(FileIoEvent->second, event));
 						FileIoStackIter->second.erase(event.GetFieldAsString("FileObject"));

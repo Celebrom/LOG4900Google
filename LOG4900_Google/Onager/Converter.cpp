@@ -83,32 +83,38 @@ std::string Converter::EventToJSON(const etw_insights::ETWReader::Line& event, c
 		std::string cat = "";
 
 		std::string args = "\"args\":{";
-		std::string argName1 = event.GetFieldAsString("Arg Name 1");
-		clean(&argName1);
+		std::string argName1  = event.GetFieldAsString("Arg Name 1");
 		std::string argValue1 = event.GetFieldAsString("Arg Value 1");
+		std::string argName2  = event.GetFieldAsString("Arg Name 2");
+		std::string argValue2 = event.GetFieldAsString("Arg Value 2");
+		std::string argName3  = event.GetFieldAsString("Arg Name 3");
+		std::string argValue3 = event.GetFieldAsString("Arg Value 3");
+		clean(&argName1);
 		clean(&argValue1);
+		clean(&argName2);
+		clean(&argValue2);
+		clean(&argName3);
+		clean(&argValue3);
+
 		if (argName1 != "" && argValue1 != "\"\"" && argValue1 != "\"\"\"\"")
 			args += "\"" + argName1 + "\":";
 		if (argName1 != "" && args != "\"args\":{" && argValue1 == "\"\"")
 			args.erase(args.end() - 1, args.end());
 		if (argValue1 != "")
-			args += "\"" + argValue1 + "\",";
-
-		std::string argName2 = event.GetFieldAsString("Arg Name 2");
-		clean(&argName2);
-		std::string argValue2 = event.GetFieldAsString("Arg Value 2");
-		clean(&argValue2);
+			args += "\"" + argValue1 + "\"";
+		if (argName2 != "")
+			args += ",";
+		
 		if (argName2 != "" && argValue2 != "\"\"" && argValue2 != "\"\"\"\"")
 			args += "\"" + argName2 + "\":";
 		if (argName2 != "" && args != "\"args\":{" && argValue2 == "\"\"")
 			args.erase(args.end() - 1, args.end());
 		if (argValue2 != "")
-			args += "\"" + argValue2 + "\",";
-
-		std::string argName3 = event.GetFieldAsString("Arg Name 3");
-		clean(&argName3);
-		std::string argValue3 = event.GetFieldAsString("Arg Value 3");
-		clean(&argValue3);
+			args += "\"" + argValue2 + "\"";
+		if (argName3 != "")
+			args += ",";
+		
+		
 		if (argName3 != "" && argValue3 != "\"\"" && argValue3 != "\"\"\"\"")
 			args += "\"" + argName3 + "\":";
 		if (argName3 != "" && args != "\"args\":{" && argValue3 == "\"\"")
