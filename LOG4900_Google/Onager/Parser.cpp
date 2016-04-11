@@ -30,6 +30,12 @@ void Parser::parseStacks(SystemHistory& system_history, std::wstring path, std::
 		auto& threadStacks = threads_it->second.Stacks();
 		auto  stacksEnd = threadStacks.IteratorEnd();
 
+		// Write tid and open writing for that tid
+		if (first)
+			outputFile << "\"" << threads_it->first << "\":[";
+		else
+			outputFile << ",\n\"" << threads_it->first << "\":[";
+
 		// In bracket to safely remove threadCompletedFunctions from memory
 		{
 			LiveStack liveStack;
@@ -45,15 +51,22 @@ void Parser::parseStacks(SystemHistory& system_history, std::wstring path, std::
 				
 				if (threadCompletedFunctions.size() >= 100000)
 				{
-					JsonWriter::writeStacks(path, outputFile, threadCompletedFunctions, (*threads_it).first, first);
+					auto nextIt = it + 1;
+					if (nextIt == stacksEnd)
+						JsonWriter::writeStacks(outputFile, threadCompletedFunctions, true);
+					else
+						JsonWriter::writeStacks(outputFile, threadCompletedFunctions, false);
 					threadCompletedFunctions.clear();
 				}
 			}
 			std::vector<std::string> finalCompletedFunctions = liveStack.GetFinalLines();
 			threadCompletedFunctions.insert(std::end(threadCompletedFunctions), std::begin(finalCompletedFunctions), std::end(finalCompletedFunctions));
 
-			JsonWriter::writeStacks(path, outputFile, threadCompletedFunctions, (*threads_it).first, first);
+			JsonWriter::writeStacks(outputFile, threadCompletedFunctions, true);
 		}
+
+		outputFile << "]";
+
 		first = false;
 	}
 }

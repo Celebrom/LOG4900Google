@@ -16,32 +16,40 @@ limitations under the License.
 
 #include "JsonWriter.h"
 
-void JsonWriter::writeChromeEvents(std::wstring path, std::ofstream& outputFile, std::vector<std::string>& chromeEventLines)
+void JsonWriter::writeChromeEvents(std::ofstream& outputFile, std::vector<std::string>& chromeEventLines, bool isLast)
 {
-	for (unsigned int i = 0; i < chromeEventLines.size(); ++i)
+	if (isLast)
 	{
-		if (i < chromeEventLines.size() - 1)
+		for (unsigned int i = 0; i < chromeEventLines.size(); ++i)
+		{
+			if (i < chromeEventLines.size() - 1)
+				outputFile << chromeEventLines[i] << ",\n";
+			else if (i == chromeEventLines.size() - 1)
+				outputFile << chromeEventLines[i] << "\n";
+		}
+	}
+	else
+	{
+		for (unsigned int i = 0; i < chromeEventLines.size(); ++i)
 			outputFile << chromeEventLines[i] << ",\n";
-		else if (i == chromeEventLines.size() - 1)
-			outputFile << chromeEventLines[i] << "\n";
 	}
 }
 
-void JsonWriter::writeStacks(std::wstring path, std::ofstream& outputFile, std::vector<std::string> threadCompletedFunctions, base::Tid tid, bool first)
+void JsonWriter::writeStacks(std::ofstream& outputFile, std::vector<std::string> threadCompletedFunctions, bool isLast)
 {
-
-	if (first)
-		outputFile << "\"" << tid << "\":[";
-	else 
-		outputFile << ",\n\"" << tid << "\":[";
-
-	for (unsigned int i = 0; i < threadCompletedFunctions.size(); ++i)
+	if (isLast)
 	{
-		if (i < threadCompletedFunctions.size() - 1)
-			outputFile << threadCompletedFunctions[i] << ",\n";
-		else if (i == threadCompletedFunctions.size() - 1)
-			outputFile << threadCompletedFunctions[i] << "\n";
+		for (unsigned int i = 0; i < threadCompletedFunctions.size(); ++i)
+		{
+			if (i < threadCompletedFunctions.size() - 1)
+				outputFile << threadCompletedFunctions[i] << ",\n";
+			else if (i == threadCompletedFunctions.size() - 1)
+				outputFile << threadCompletedFunctions[i] << "\n";
+		}
 	}
-
-	outputFile << "]";
+	else
+	{
+		for (unsigned int i = 0; i < threadCompletedFunctions.size(); ++i)
+			outputFile << threadCompletedFunctions[i] << ",\n";
+	}
 }

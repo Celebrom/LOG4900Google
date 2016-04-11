@@ -42,6 +42,8 @@ enum class disk
 
 enum class cSwitch
 {
+	type = 0,
+	timestamp = 1,
 	newProcess = 2,
 	newTID = 3,
 	oldProcess = 4,
