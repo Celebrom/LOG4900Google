@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<!--
+Copyright (c) 2013 The Chromium Authors. All rights reserved.
+Use of this source code is governed by a BSD-style license that can be
+found in the LICENSE file.
+-->
+
+<link rel="import" href="/tracing/ui/analysis/analysis_sub_view.html">
+<link rel="import" href="/tracing/ui/analysis/multi_event_sub_view.html">
+<link rel="import" href="/tracing/ui/analysis/related_events.html">
+<link rel="import" href="/tracing/ui/base/tracecompare.html">
+
+<polymer-element name="tr-ui-a-multi-thread-flame-graph-sub-view"
+    extends="tr-ui-a-sub-view">
+  <template>
+    <style>
+    :host {
+      display: flex;
+    }
+	
+	a {
+	 
+	  color: #DE1919;
+	  font-weight: bold;
+	}
+
+    #content {
+      display: flex;
+      flex: 1 1 auto;
+    }
+    #content > #right > tr-ui-a-related-events {
+      margin-left: 8px;
+      flex: 0 1 200px;
+    }
+    #flame-graph-button {
+      background-color: orange;
+      border-color: orange;
+      color: #4d0000;
+      margin: 0 auto;
+      text-align: center;
+      width: 75%;
+    }
+    #flamegraph_wrapper {
+      background-color: cadetblue;
+      display: block;
+      flex: 1 1 auto;
+    }
+	
+	/* Flame graph */
+	svg#flamegraph {
+      background-color: cadetblue;
+	  margin-top:15px;
+	  width: 100%;
+	  font-size: 0.9em;
+	}
+
+	svg#flamegraph g.inv {
+	  display:none;
+	}
+	
+    #flamegraph {
+      display: flex;
+      flex: 1 1 auto;
+    }
+	
+	svg#flamegraph rect {
+		fill: #EEEEEE;
+		stroke: #D6D6D6;
+	}
+	
+	/* Selected function */
+	#selected-function
+	{
+      background-color: cadetblue;
+	  border: 1px solid black;
+	  border-radius: 2px;
+	  padding: 0.5em;
+	  margin-top: 0.5em;
+	  margin-bottom: 0.5em;
+	}
+
+	#selected-function #selected-function-name
+	{
+	  display:block;
+	}
+
+	#selected-function #selected-function-links
+	{
+	  text-align: right;
+	  display: block;
+	  
+	}
+    </style>
+    <div id="flamegraph_wrapper">
+        <svg id="flamegraph"></svg>
+		
+		<div id="selected-function">			
+			<span id="selected-function-name">&nbsp;</span>
+			<span id="selected-function-links">
+				<a id="unfocus" href="javascript:void(0)" style="display:none;">Unfocus</a>
+				<a id="selected-function-focus" href="javascript:void(0)">Focus</a>
+			</span>
+		</div>
+		
+		<div>
+			
+		</div>
+		
+    </div>
+  </template>
+
+  <script>
+  'use strict';
+
+  Polymer({
+    created: function() {
+      this.alreadyRefreshed_ = false;
+      this.brushingStateController_ = undefined;
+      this.selection_ = undefined;
+      this.tracecompare_ = undefined;
+    },
+    
+    get brushingStateController() {
+      return this.brushingStateController_;
+    },
+    
+    set brushingStateController(brushingStateController) {
+      this.brushingStateController_ = brushingStateController;
+    },
+
+    get selection() {
+      return this.selection_;
+    },
+    
+    set selection(selection) {
+      this.selection_ = selection;
+      
+      var fgContainer = d3.select(this.$.flamegraph_wrapper).selectAll('#flamegraph');
+	  var selected_fct_ctr = d3.select(this.$.flamegraph_wrapper).selectAll('#selected-function');
+      
+      var selectionStacks = this.getSelectionStacks(selection);
+      if (selectionStacks !== undefined) {
+		var beginTC = new Date();
+        this.tracecompare_ = tracecompare(selectionStacks, fgContainer, selected_fct_ctr);
+        this.alreadyRefreshed_ = false;
+		var endTC = new Date();
+	    var diffTC = endTC - beginTC;
+		console.log(diffTC + " ms building Flamegraph");
+      }
+      else {
+        d3.select(this.$.flamegraph_wrapper).style('display', 'none');
+      }
+    },
+    
+    getSelectionStacks: function(selection) {
+	  var begin = new Date();
+		
+      var metadata     = selection[0].model.metadata;
+      var timeShift    = Math.abs(selection[0].model.timestampShiftToZeroAmount_);
+      var timestampMin = Math.floor((selection.bounds.min + timeShift) * 1000);
+      var timestampMax = Math.floor((selection.bounds.max + timeShift) * 1000);
+      var unfilteredStacks = undefined;
+      
+      // Find stacks in the metadata
+      for (var i = 0; i < metadata.length; ++i) {
+        if (metadata[i].name === 'stacks') {
+          unfilteredStacks = metadata[i].value;
+        }
+      }
+      if (unfilteredStacks === undefined) return undefined;
+      if (unfilteredStacks.length <= 0) return undefined;
+      
+      // Gather selected tids
+      var tidList = {};
+      for (var i = 0; i < selection.length; ++i) {
+        var tid = selection[i].parentContainer.tid;
+        if (!tidList.hasOwnProperty(tid))
+          tidList[tid] = true;
+      }
+      
+      // Keep only the stacks from the selected tids
+      var tidFilteredStacks = [];
+      for (var tid in tidList) {
+        var tidStacks = unfilteredStacks[tid];
+        if (tidStacks !== undefined)
+          tidFilteredStacks = tidFilteredStacks.concat(tidStacks);
+      }
+      if (tidFilteredStacks.length <= 0) return undefined;
+	  	  
+      var fullyFilteredStacks = [];
+      for (var i = 0; i < tidFilteredStacks.length; ++i) {
+        var actualStack = tidFilteredStacks[i];
+        if (actualStack.begin + actualStack.duration < timestampMin) continue;
+        if (actualStack.begin > timestampMax) continue;
+        
+        fullyFilteredStacks.push(actualStack);
+      }
+
+	  
+      
+      var executions = [];
+      var samples    = {};
+      var stacks     = {};
+      
+      var beginTimestamp = Number.MAX_VALUE;
+      var fullDuration   = 0;
+      for (var i = 0; i < fullyFilteredStacks.length; ++i) {
+        var stackLine = fullyFilteredStacks[i];
+        samples[stackLine.id] = stackLine.duration;
+        stacks[stackLine.id]  = {"b":stackLine.parent, "f":stackLine.name};
+        
+        if (stackLine.begin < beginTimestamp)
+          beginTimestamp = stackLine.begin;
+        
+        if (stackLine.parent == 0)
+          fullDuration += stackLine.duration;
+      }
+
+      executions.push({"a":fullDuration, "b":beginTimestamp, "e":1, "f":1, "g":1, "h":1, "samples":samples});
+	    
+	  var end = new Date();
+	  var diff = end - begin;
+	  console.log(diff + " ms filtering");
+	  
+      return {"executions":executions, "stacks":stacks};
+    },
+    
+    refresh: function() {
+      if (this.tracecompare_ !== undefined && !this.alreadyRefreshed_) {
+        this.tracecompare_.Refresh();
+        this.alreadyRefreshed_ = true;
+      }
+    }
+  });
+  </script>
+</polymer-element>

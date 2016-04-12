@@ -449,10 +449,10 @@ namespace etw_insights {
 				chromeEventLines.push_back(converter->DiskLineToJSON(event));
 		}
 
-		// Write Chrome Events to Json if more than 100000 lines
+		// Write Chrome Events to Json if more than 50000 lines
 		void VerifyChromeEventLinesSize(std::ofstream& outputFile)
 		{
-			if (chromeEventLines.size() >= 100000)
+			if (chromeEventLines.size() >= 50000)
 			{
 				JsonWriter::writeChromeEvents(outputFile, chromeEventLines, false);
 				chromeEventLines.clear();

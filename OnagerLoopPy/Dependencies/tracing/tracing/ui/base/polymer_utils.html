@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<!--
+Copyright (c) 2013 The Chromium Authors. All rights reserved.
+Use of this source code is governed by a BSD-style license that can be
+found in the LICENSE file.
+-->
+<link rel="import" href="/tracing/base/base.html">
+
+<script>
+'use strict';
+
+/**
+ * @fileoverview Helper code for working with Polymer.
+ */
+tr.exportTo('tr.ui.b', function() {
+
+  function getPolymerElementNamed(tagName) {
+    for (var i = 0; i < Polymer.elements.length; i++) {
+      if (Polymer.elements[i].name === tagName)
+        return Polymer.elements[i];
+    }
+  }
+
+  function getPolymerElementsThatSubclass(tagName) {
+    if (Polymer.waitingFor().length) {
+      throw new Error('There are unresolved polymer elements. ' +
+        'Wait until Polymer.whenReady');
+    }
+
+    var baseElement;
+    var elementsThatExtend = {};
+    Polymer.elements.forEach(function(element) {
+      if (element.name === tagName)
+        baseElement = element;
+
+      if (element.extends) {
+        if (elementsThatExtend[element.extends] === undefined)
+          elementsThatExtend[element.extends] = [];
+        elementsThatExtend[element.extends].push(element.name);
+      }
+    });
+
+    if (!baseElement)
+      throw new Error(tagName + ' is not a polymer element');
+
+    var allFoundSubElements = [];
+    var elementsNeedingChecking = [baseElement];
+    while (elementsNeedingChecking.length) {
+      var element = elementsNeedingChecking[0];
+      elementsNeedingChecking.splice(0, 1);
+
+      if (element !== baseElement)
+        allFoundSubElements.push(element);
+
+      var immediateSubElements = elementsThatExtend[element.name];
+      if (immediateSubElements === undefined)
+        continue;
+      elementsNeedingChecking.push.apply(elementsNeedingChecking,
+                                         immediateSubElements);
+    }
+    return allFoundSubElements;
+  }
+
+  return {
+    getPolymerElementNamed: getPolymerElementNamed,
+    getPolymerElementsThatSubclass: getPolymerElementsThatSubclass
+  };
+});
+</script>

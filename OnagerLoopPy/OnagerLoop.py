@@ -24,6 +24,7 @@ ChromeConfigs = ''
 XperfConfigs = ''
 CpuConfigs = ''
 buffSize = ''
+html = False
 
 def LaunchChrome():
     system('start chrome.exe')
@@ -36,7 +37,7 @@ def ChromeStartupProfiler():
    try:
       while(True):
          system('start chrome.exe --dump-browser-histograms=' + outputdire + '\dump.json')
-         sleep(1)
+         sleep(0.1)
          with open(outputdire + '\dump.json', 'r') as f:
             for line in f:
                index = line.find('NonEmptyPaint')
@@ -51,9 +52,6 @@ def LaunchTrace():
    global ChromeConfigs
    global CpuConfigs
    global buffSize
-   print ChromeConfigs
-   print CpuConfigs
-   print buffSize
    call(
       'xperf.exe -start "NT Kernel Logger" ' +
       '-on Latency+POWER+DISPATCHER+DISK_IO_INIT+FILE_IO+FILE_IO_INIT+' +
@@ -81,7 +79,7 @@ def SaveTrace():
    now = datetime.now()
 
    outputFile = outputdire + '"\\Chrome_Trace_"' + str(actualIter) + '_' + str(
-      date.today()) + '-' + str(now.hour) + 'h-' + str(now.minute) + 'm' + '.etl '
+      date.today()) + '-' + str(now.hour) + 'h-' + str(now.minute) + 'm' + '.etl'
 
    #Saving trace to disk...
    call(
@@ -97,7 +95,7 @@ def SaveTrace():
       '-merge ' + tmp_directory + '\kernel.etl ' +
       tmp_directory + '\user.etl ' +
       outputFile +
-      '-compress',
+      ' -compress',
       stdout=FNULL, stderr=STDOUT
    )
    #Stripping Chrome symbols
@@ -112,7 +110,7 @@ def SaveTrace():
    call(
       'xperf -i ' +
       outputFile +
-      '-tle -tti -a symcache -dbgid',
+      ' -tle -tti -a symcache -dbgid',
       stdout=FNULL, stderr=STDOUT
    )
    #Preprocessing trace to identify Chrome processes...
@@ -129,6 +127,9 @@ def StopTrace():
 
 def ConvertEtlToJson():
    call('Dependencies\Onager.exe --trace ' + outputFile)
+
+def ConvertJsonToHtml():
+   call('python Dependencies\\tracing\\bin\\trace2html "' + outputFile + '.csv.json"')
 
 def ParseConfig():
    catValue = 0
@@ -207,7 +208,7 @@ def parseCatValue(catValue):
 def main(argv):
 
    try:
-      opts, args = getopt(argv,'hn:c:o:',['nb_iter=','outputDir='])
+      opts, args = getopt(argv,'hwn:o:',['nb_iter=','outputDir='])
    except GetoptError:
       print '\n Example:'
       print 'OnagerLoop.py -n <number of iteration> -o <output Directory>\n'
@@ -225,6 +226,9 @@ def main(argv):
          print '-o --outputDir'
          print '     default = Launched directory'
          exit()
+      elif opt in ('-w', '--html'):
+         global html
+         html = True
       elif opt in ('-n', '--nb_iter'):
          global nbIter
          nbIter = arg
@@ -237,7 +241,6 @@ def main(argv):
             outputdire = outputdire.replace('.\\', actualdire + '\\')
          elif outputdire:
             outputdire = actualdire + '\\' + arg
-         print outputdire + ' 1'
 
 if __name__ == "__main__":
    main(argv[1:])
@@ -262,6 +265,7 @@ if __name__ == "__main__":
       StopTrace()
       CloseChrome()
       ConvertEtlToJson()
+      ConvertJsonToHtml()
       actualIter += 1
 
 
