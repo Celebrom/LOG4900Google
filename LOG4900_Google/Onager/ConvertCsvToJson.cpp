@@ -423,6 +423,11 @@ namespace etw_insights {
 					std::cout << "Something wrong happened: Complete End without Complete" << std::endl;
 				}
 			}
+			else
+			{
+				std::string eventJSON = converter->EventToJSON(event, "");
+				chromeEventLines.push_back(eventJSON);
+			}
 			/////
 
 			if (!event.GetFieldAsString(kChromeNameField, &name) ||

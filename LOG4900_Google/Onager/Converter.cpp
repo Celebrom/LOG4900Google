@@ -96,34 +96,38 @@ std::string Converter::EventToJSON(const etw_insights::ETWReader::Line& event, c
 		clean(&argName3);
 		clean(&argValue3);
 
-		if (argName1 != "" && argValue1 != "\"\"" && argValue1 != "\"\"\"\"")
+		if (argName1 != "" && argValue1 != "" && argValue1 != "\"\"" && argValue1 != "\"\"\"\"")
+		{
 			args += "\"" + argName1 + "\":";
-		if (argName1 != "" && args != "\"args\":{" && argValue1 == "\"\"")
-			args.erase(args.end() - 1, args.end());
-		if (argValue1 != "")
-			args += "\"" + argValue1 + "\"";
-		if (argName2 != "")
-			args += ",";
+			if (argName1 != "" && args != "\"args\":{" && argValue1 == "\"\"")
+				args.erase(args.end() - 1, args.end());
+			if (argName1 != "" && argValue1 != "")
+				args += "\"" + argValue1 + "\"";
+		}
 		
-		if (argName2 != "" && argValue2 != "\"\"" && argValue2 != "\"\"\"\"")
-			args += "\"" + argName2 + "\":";
-		if (argName2 != "" && args != "\"args\":{" && argValue2 == "\"\"")
-			args.erase(args.end() - 1, args.end());
-		if (argValue2 != "")
-			args += "\"" + argValue2 + "\"";
-		if (argName3 != "")
-			args += ",";
+		if (argName2 != "" && argValue2 != "" && argValue2 != "\"\"" && argValue2 != "\"\"\"\"")
+		{
+			args += ",\"" + argName2 + "\":";
+			if (argName2 != "" && args != "\"args\":{" && argValue2 == "\"\"")
+				args.erase(args.end() - 1, args.end());
+			if (argName2 != "" && argValue2 != "")
+				args += "\"" + argValue2 + "\"";
+		}
 		
 		
-		if (argName3 != "" && argValue3 != "\"\"" && argValue3 != "\"\"\"\"")
-			args += "\"" + argName3 + "\":";
-		if (argName3 != "" && args != "\"args\":{" && argValue3 == "\"\"")
-			args.erase(args.end() - 1, args.end());
-		if (argValue3 != "")
-			args += "\"" + argValue3 + "\"";
+		if (argName3 != "" && argValue3 != "" && argValue3 != "\"\"" && argValue3 != "\"\"\"\"")
+		{
+			args += ",\"" + argName3 + "\":";
+			if (argName3 != "" && args != "\"args\":{" && argValue3 == "\"\"")
+				args.erase(args.end() - 1, args.end());
+			if (argName3 != "" && argValue3 != "")
+				args += "\"" + argValue3 + "\"";
+		}
 		args += "}";
 
-		std::string dur = ",\"dur\": " + duration;
+		std::string dur = "";
+		if (duration != "")
+			dur = ",\"dur\": " + duration;
 
 		return "{" + pid + tid + ts + phase + cat + name + args + dur + "}";
 }
