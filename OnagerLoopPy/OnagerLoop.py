@@ -34,25 +34,23 @@ def CloseChrome():
 
 def ChromeStartupProfiler():
    global outputdire
-   if not path.exists(outputdire):
-      makedirs(outputdire)
 
-   if not path.exists(outputdire + '\dump.json'):
-      file = open(outputdire + '\dump.json', 'w+')
-      file.close()
-
-   system('start chrome.exe --dump-browser-histograms=' + outputdire + '\dump.json')
    try:
+      if not path.exists(outputdire):
+         makedirs(outputdire)
 
+      if not path.exists(outputdire + '\dump.json'):
+         file = open(outputdire + '\dump.json', 'w+')
+         file.close()
 
       while(True):
-
-         sleep(0.1)
+         system('start chrome.exe --dump-browser-histograms=' + outputdire + '\dump.json')
+         sleep(0.3)
          with open(outputdire + '\dump.json', 'r') as f:
             for line in f:
                index = line.find('NonEmptyPaint')
-         if index != -1:
-            return
+               if index != -1:
+                  return
    except:
       CloseChrome()
       print '\nNo such directory!'
