@@ -139,7 +139,10 @@ def ConvertEtlToJson():
       print "Onager.exe crashed because the trace was to big..."
 
 def ConvertJsonToHtml():
-   call('python Dependencies\\tracing\\bin\\trace2html "' + outputFile + '.csv.json"')
+   try:
+      call('python Dependencies\\tracing\\bin\\trace2html "' + outputFile + '.csv.json"')
+   except:
+      print "Conversion to html failed..."
 
 def ParseConfig():
    catValue = 0
@@ -218,7 +221,7 @@ def parseCatValue(catValue):
 def main(argv):
 
    try:
-      opts, args = getopt(argv,'hw:n:o:',['html','nb_iter=','outputDir='])
+      opts, args = getopt(argv,'hwn:o:',['help','html','nb_iter=','outputDir='])
    except GetoptError:
       print '\n Example:'
       print 'OnagerLoop.py -w -n <number of iteration> -o <output Directory>\n'
