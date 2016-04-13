@@ -52,10 +52,8 @@ def ChromeStartupProfiler():
                if index != -1:
                   return
    except:
-      CloseChrome()
-      print '\nNo such directory!'
-      print 'Try a new path\n'
-      quit()
+      ChromeStartupProfiler()
+
 
 def LaunchTrace():
    global ChromeConfigs
@@ -217,7 +215,7 @@ def parseCatValue(catValue):
 def main(argv):
 
    try:
-      opts, args = getopt(argv,'hwn:o:',['nb_iter=','outputDir='])
+      opts, args = getopt(argv,'hw:n:o:',['html','nb_iter=','outputDir='])
    except GetoptError:
       print '\n Example:'
       print 'OnagerLoop.py -n <number of iteration> -o <output Directory>\n'

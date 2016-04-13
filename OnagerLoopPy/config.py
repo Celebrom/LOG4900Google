@@ -23,7 +23,7 @@ ChromeCategories = {
     'disabled-by-default-cc.debug': False,
     'disabled-by-default-cc.debug.picture': False,
     'disabled-by-default-cc.toplevel.flow': False,
-    'startup': True,
+    'startup': False,
     'all-enabled-by-default-event': False,
     'all-disabled-by-default-event': False
 }
