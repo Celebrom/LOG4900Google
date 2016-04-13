@@ -71,36 +71,39 @@ void convertETLToJSON(std::wstring etl_path)
 
 int wmain(int argc, wchar_t* argv[], wchar_t* /*envp */[])
 {
-	base::CommandLine command_line(argc, argv);
+	try{
+		base::CommandLine command_line(argc, argv);
 
-	if (command_line.GetNumSwitches() == 0) 
-	{
-		ShowUsage();
+		if (command_line.GetNumSwitches() == 0)
+		{
+			ShowUsage();
+			return 1;
+		}
+
+		std::wstring trace_path = command_line.GetSwitchValue(L"trace");
+		if (trace_path.empty())
+		{
+			std::cout << "Please specify a trace path (--trace)." << std::endl << std::endl;
+			ShowUsage();
+			return 1;
+		}
+
+		verbose = command_line.HasSwitch(L"v");
+
+		std::wstring file_type = trace_path.substr(trace_path.length() - 3, 3);
+		if (file_type.empty() || file_type != L"etl")
+		{
+			std::cout << "Please make sure the trace is of ETW type (.etl)" << std::endl << std::endl;
+			ShowUsage();
+			return 1;
+		}
+
+		convertETLToJSON(trace_path);
+
+		if (verbose)
+			timer.showElapsedTime("\n\n\nDuree totale de l'application:  ");
+
 		return 1;
 	}
-
-	std::wstring trace_path = command_line.GetSwitchValue(L"trace");
-	if (trace_path.empty())
-	{
-		std::cout << "Please specify a trace path (--trace)." << std::endl << std::endl;
-		ShowUsage();
-		return 1;
-	}
-
-	verbose = command_line.HasSwitch(L"v");
-	
-	std::wstring file_type = trace_path.substr(trace_path.length() - 3, 3);
-	if (file_type.empty() || file_type != L"etl")
-	{
-		std::cout << "Please make sure the trace is of ETW type (.etl)" << std::endl << std::endl;
-		ShowUsage();
-		return 1;
-	}
-
-	convertETLToJSON(trace_path);
-			
-	if (verbose)
-		timer.showElapsedTime("\n\n\nDuree totale de l'application:  ");
-
-	return 1;
+	catch (...){ exit(-1); }
 }

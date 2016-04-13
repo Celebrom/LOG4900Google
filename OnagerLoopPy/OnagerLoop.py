@@ -133,7 +133,10 @@ def StopTrace():
    call('xperf.exe -stop ChromeStartupETWSession -stop "NT Kernel Logger"')
 
 def ConvertEtlToJson():
-   call('Dependencies\Onager.exe --trace ' + outputFile)
+   try:
+      call('Dependencies\Onager.exe --trace ' + outputFile)
+   except:
+      print "Onager.exe crashed because the trace was to big..."
 
 def ConvertJsonToHtml():
    call('python Dependencies\\tracing\\bin\\trace2html "' + outputFile + '.csv.json"')
