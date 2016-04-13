@@ -256,8 +256,6 @@ def main(argv):
             outputdire = actualdire + '\\' + arg
 
 if __name__ == "__main__":
-   global html
-
    main(argv[1:])
 
    ParseConfig()
