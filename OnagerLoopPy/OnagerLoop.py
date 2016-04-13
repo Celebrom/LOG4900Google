@@ -34,9 +34,19 @@ def CloseChrome():
 
 def ChromeStartupProfiler():
    global outputdire
+   if not path.exists(outputdire):
+      makedirs(outputdire)
+
+   if not path.exists(outputdire + '\dump.json'):
+      file = open(outputdire + '\dump.json', 'w+')
+      file.close()
+
+   system('start chrome.exe --dump-browser-histograms=' + outputdire + '\dump.json')
    try:
+
+
       while(True):
-         system('start chrome.exe --dump-browser-histograms=' + outputdire + '\dump.json')
+
          sleep(0.1)
          with open(outputdire + '\dump.json', 'r') as f:
             for line in f:
@@ -44,7 +54,8 @@ def ChromeStartupProfiler():
          if index != -1:
             return
    except:
-      print '\n No such directory!'
+      CloseChrome()
+      print '\nNo such directory!'
       print 'Try a new path\n'
       quit()
 
@@ -216,6 +227,8 @@ def main(argv):
       print '     default = 1'
       print '-o --outputDir'
       print '     default = Launched directory'
+      print '-w --html'
+      print '     default = Not activated'
       exit(2)
    for opt, arg in opts:
       if opt in ('-h', '--help'):
@@ -225,6 +238,8 @@ def main(argv):
          print '     default = 1'
          print '-o --outputDir'
          print '     default = Launched directory'
+         print '-w --html'
+         print '     default = Not activated'
          exit()
       elif opt in ('-w', '--html'):
          global html
@@ -244,10 +259,6 @@ def main(argv):
 
 if __name__ == "__main__":
    main(argv[1:])
-
-   if not path.exists(outputdire):
-      makedirs(outputdire)
-      sleep(1)
 
    ParseConfig()
 
