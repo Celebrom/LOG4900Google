@@ -221,24 +221,24 @@ def main(argv):
       opts, args = getopt(argv,'hw:n:o:',['html','nb_iter=','outputDir='])
    except GetoptError:
       print '\n Example:'
-      print 'OnagerLoop.py -n <number of iteration> -o <output Directory>\n'
+      print 'OnagerLoop.py -w -n <number of iteration> -o <output Directory>\n'
+      print '-w --html : It convert the .Json to .html'
+      print '     default = Not activated'
       print '-n --nb_iter <number of iteration> '
       print '     default = 1'
       print '-o --outputDir'
       print '     default = Launched directory'
-      print '-w --html'
-      print '     default = Not activated'
       exit(2)
    for opt, arg in opts:
       if opt in ('-h', '--help'):
          print '\n Example:'
-         print 'OnagerLoop.py -n <number of iteration> -o <output Directory>\n'
+         print 'OnagerLoop.py -w -n <number of iteration> -o <output Directory>\n'
+         print '-w --html : It convert the .Json to .html'
+         print '     default = Not activated'
          print '-n --nb_iter <number of iteration> '
          print '     default = 1'
          print '-o --outputDir'
          print '     default = Launched directory'
-         print '-w --html'
-         print '     default = Not activated'
          exit()
       elif opt in ('-w', '--html'):
          global html
