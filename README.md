@@ -34,6 +34,39 @@ OnagerLoop.py -w -n <number of iteration> -o <output Directory>
     -o --outputDir
       default = Launched directory
 ```
+### Config.py
+The Config.py file can be used to change all the parameters found in UIforETW by setting the parameters to true or false.
+```
+#!/usr/bin/python
+
+#Xperf options
+XperfOptions = {
+    'Context switch call stacks': True,
+    'CPU sampling call stacks': True,
+    'GPU tracing': False
+}
+
+#Chrome Tracing Categories
+ChromeCategories = {
+    'benchmark': False,
+    'blink': False,
+    'browser': False,
+    'CC': False,
+    'evdev': False,
+    'gpu': False,
+    'input': False,
+    'netlog': False,
+    'renderer.scheduler': False,
+    'toplevel': True,
+    'v8': False,
+    'disabled-by-default-cc.debug': False,
+    'disabled-by-default-cc.debug.picture': False,
+    'disabled-by-default-cc.toplevel.flow': False,
+    'startup': False,
+    'all-enabled-by-default-event': False,
+    'all-disabled-by-default-event': False
+}
+```
 
 ## trace2html
 ### How to use trace2html
