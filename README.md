@@ -22,4 +22,30 @@ OnagerLoop.py -w -n <number of iteration> -o <output Directory>
     -o --outputDir
       default = Launched directory
 ```
-      
+
+## trace2html
+### How to use trace2html
+```
+usage: python trace2html <options> trace_file1 [trace_file2 ...]
+
+positional arguments:
+  trace_files
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --config {chrome,full,lean,systrace}
+                        Picks a browser config. Valid choices: chrome, full,
+                        lean, systrace
+  --output OUTPUT       Where to put the generated result. If not given, the
+                        trace filename is used, with an html suffix.
+  --quiet               Dont print the output file name
+
+Takes the provided trace file and produces a standalone HTML file that
+contains both the trace and the trace viewer.
+```
+
+### Limitations 
+```
+1. Large JSON (> ~140 MB) will often cause a MemoryError.
+2. Chrome tracing can't open JSON files bigger than ~256 MB.
+```
