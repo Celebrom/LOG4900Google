@@ -107,7 +107,7 @@ int wmain(int argc, wchar_t* argv[], wchar_t* /*envp */[])
 	}
 	catch (...)
 	{
-		std::cout << "Onager.exe has failed to generate the .Json file because the file .csv was too big! (~ Bigger than 2.5GB)";
+		std::cout << "\nOnager.exe has failed to generate the .Json file because the file .csv was too big! (~ Bigger than 2.5GB)\n";
 		exit(-1);
 	}
 }
