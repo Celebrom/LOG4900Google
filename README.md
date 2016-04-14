@@ -12,7 +12,7 @@ All the traces with a .Json file bigger than 256MB will not be able to work due 
 
 ### How to use OnagerLoop
 ```
-OnagerLoop.py -w -n <number of iteration> -o <output Directory>\n
+OnagerLoop.py -w -n <number of iteration> -o <output Directory>
   Possible parameters:
     -h --help : You are watching it
     -w --html : It convert the .Json to .html
