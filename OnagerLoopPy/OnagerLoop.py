@@ -140,7 +140,7 @@ def ConvertEtlToJson():
 
 def ConvertJsonToHtml():
    try:
-      call('python Dependencies\\tracing\\bin\\trace2html "' + outputFile + '.csv.json"')
+      call('python Dependencies\\tracing\\bin\\trace2html --quiet "' + outputFile + '.csv.json"')
    except:
       print "Conversion to html failed..."
 
