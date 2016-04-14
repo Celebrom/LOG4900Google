@@ -1,3 +1,16 @@
+#Onager
+Onager is a console application used to convert an ETW .etl trace to a format readable by Chrome Tracing (.json).
+
+## How to use Onager
+
+To convert a track, you need to enter the command line:
+
+```
+	Onager.exe --trace <Path of the .etl trace>
+```
+The .json file of the converted trace will be created in the same folder as the original trace. If a .csv of the trace already exist at that location, Onager will use that file instead of generating it again for the trace. Onager is unable to process a trace with a .csv whose size if larger than 3.6 GB.
+
+
 ## OnagerLoop
 
 ### What is OnagerLoop
