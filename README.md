@@ -15,13 +15,12 @@ The .json file of the converted trace will be created in the same folder as the 
 
 ### What is OnagerLoop
 OnagerLoop.py is used to generate, with xperf, multiple .etl files that are automaticaly converted to .csv, with  Onager.exe (using Etw_Reader).
-Those .csv files are also automaticaly converted to .Json files, also with Onager.exe.
+Those .csv files are then automaticaly converted to .Json files, also using with Onager.exe.
 Those .Json files can be imported directly to Chrome://tracing for analysing.
-With the parameter -w (--html), the user can convert those .Json file in .html that are a reproduction of Chrome://tracing but contains all the stack
-traces of the trace, which can be used to generate a flamegrah to vizualise those stack traces.
+With the parameter -w (--html), the user converts, with the help of trace2html, those .Json file in .html that is a reproduction of Chrome://tracing. This .html file contains all the stack of the trace, which can be used to generate a flamegrah to vizualise those stack traces.
 
 ### IMPORTANT
-All the traces with a .Json file bigger than 256MB will not be able to work due to the javascript architecture used by Chrome://tracing
+All the traces with a .Json file bigger than 256MB will not be able to work due to the javascript architecture used by Chrome://tracing.
 
 ### How to use OnagerLoop
 ```
