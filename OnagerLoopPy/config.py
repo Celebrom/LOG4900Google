@@ -11,7 +11,7 @@ XperfOptions = {
 ChromeCategories = {
     'benchmark': False,
     'blink': False,
-    'browser': False,
+    'browser': True,
     'CC': False,
     'evdev': False,
     'gpu': False,
